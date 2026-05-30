@@ -1,15 +1,11 @@
-@import "tailwindcss";
+  @import "tailwindcss";
 
 @theme inline {
   --font-playfair: var(--font-playfair);
   --font-nunito: var(--font-nunito);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
@@ -21,10 +17,10 @@
   50% { opacity: 0.7; }
 }
 
-.animate-float {
+@utility animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
-.animate-pulse-dot {
+@utility animate-pulse-dot {
   animation: pulse-dot 2s ease-in-out infinite;
 }
