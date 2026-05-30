@@ -57,7 +57,9 @@ export function useCreateProduct() {
       categoryId: string;
       images?: string[];
       badge?: string;
-    }) => productsApi.create(data),
+      stockQuantity?: number;
+      variants?: { sku: string; stockQuantity: number; priceOverride?: number; lowStockThreshold?: number; attributes?: Record<string, string>; images?: string[] }[];
+    }) => productsApi.create(data as any),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products.all() });
     },

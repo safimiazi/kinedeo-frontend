@@ -53,11 +53,12 @@ export interface Address {
 export interface ProductVariant {
   _id: string;
   sku: string;
-  name: string;
-  price: number;
+  attributes?: Record<string, string>;
+  priceOverride?: number;
   stockQuantity: number;
   lowStockThreshold: number;
-  attributes?: Record<string, string>;
+  images?: string[];
+  isActive: boolean;
 }
 
 export interface Product {
@@ -66,9 +67,11 @@ export interface Product {
   description: string;
   shortDescription: string;
   basePrice: number;
+  originalPrice?: number;
   categoryId: string;
   images: string[];
   variants: ProductVariant[];
+  badge?: string;
   averageRating: number;
   reviewCount: number;
   salesCount: number;
@@ -88,6 +91,8 @@ export interface Category {
   parentId?: string;
   sortOrder: number;
   isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface PaginatedProducts {

@@ -1,299 +1,403 @@
 "use client";
 
 import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useProduct, useProducts } from "@/lib/hooks";
+import { useCart } from "@/lib/cart-context";
+import { useAuth } from "@/lib/auth-context";
+import { apiRequest } from "@/lib/api/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-const product = {
-  id: 1,
-  name: "Silk Rose Serum",
-  tagline: "Glow Like Never Before 🌹",
-  badge: "Best Seller",
-  price: 1299,
-  originalPrice: 1899,
-  rating: 4.9,
-  reviews: 2341,
-  description: "A transformative elixir crafted with pure Bulgarian rose extract and hyaluronic acid. This lightweight serum deeply hydrates, visibly brightens, and smooths skin texture for an ethereal, petal-soft finish.",
-  emoji: "🌹",
-  images: ["🌹", "💧", "👩", "✨"],
-};
-
-const relatedProducts = [
-  { id: 2, name: "Velvet Lip Kit", category: "Makeup", price: 899, originalPrice: 1299, badge: "New", emoji: "💄" },
-  { id: 4, name: "Pearl Perfume", category: "Fragrance", price: 2499, originalPrice: 3299, badge: "Limited", emoji: "🌸" },
-  { id: 3, name: "Glow Radiance Cream", category: "Skincare", price: 1599, originalPrice: 2199, badge: "", emoji: "✨" },
-  { id: 5, name: "Rose Gold Palette", category: "Makeup", price: 1199, originalPrice: 1699, badge: "", emoji: "🎨" },
-];
-
 export default function ProductDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const id = params.id as string;
+  const { data: product, isLoading, error } = useProduct(id);
+  const { data: relatedData } = useProducts({ limit: 4 });
+  const { addItem, itemCount } = useCart();
+
   const [selectedImage, setSelectedImage] = useState(0);
-  const [openAccordion, setOpenAccordion] = useState<string | null>("how-to-use");
+  const [selectedVariant, setSelectedVariant] = useState(0);
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
 
-  const discount = Math.round((1 - product.price / product.originalPrice) * 100);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#fff0f5] font-nunito">
+        <Navbar wishlistCount={0} cartCount={itemCount} onCartOpen={() => {}} />
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="aspect-square bg-pink-100 rounded-2xl animate-pulse" />
+            <div className="space-y-4">
+              <div className="h-8 w-3/4 bg-pink-100 rounded-lg animate-pulse" />
+              <div className="h-6 w-1/2 bg-pink-100 rounded-lg animate-pulse" />
+              <div className="h-20 bg-pink-100 rounded-lg animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const toggleAccordion = (id: string) => {
-    setOpenAccordion(openAccordion === id ? null : id);
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-[#fff0f5] font-nunito flex items-center justify-center">
+        <div className="text-center">
+          <span className="text-6xl block mb-4">😢</span>
+          <h1 className="text-2xl font-bold text-[#2d1a24] mb-2">Product not found</h1>
+          <Link href="/" className="text-[#e91e8c] font-semibold hover:underline">← Back to shop</Link>
+        </div>
+      </div>
+    );
+  }
+
+  const variant = product.variants?.[selectedVariant];
+  const currentPrice = variant?.priceOverride || product.basePrice;
+  const discount = product.originalPrice ? Math.round((1 - currentPrice / product.originalPrice) * 100) : 0;
+  const inStock = variant ? variant.stockQuantity > 0 : true;
+  const relatedProducts = (relatedData?.products || []).filter((p) => p._id !== product._id).slice(0, 4);
+
+  const handleAddToCart = () => {
+    addItem({
+      productId: product._id,
+      variantId: variant?._id,
+      name: product.name,
+      image: product.images?.[0] || "",
+      price: currentPrice,
+      originalPrice: product.originalPrice,
+      sku: variant?.sku,
+      variantLabel: variant?.attributes ? Object.values(variant.attributes).join(" / ") : undefined,
+    }, qty);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
   };
 
   return (
     <div className="min-h-screen bg-[#fff0f5] font-nunito">
-      <Navbar wishlistCount={0} cartCount={2} onCartOpen={() => {}} />
+      <Navbar wishlistCount={0} cartCount={itemCount} onCartOpen={() => router.push("/cart")} />
 
       {/* Breadcrumbs */}
       <nav className="max-w-7xl mx-auto px-4 md:px-8 py-6 flex items-center gap-2 text-xs font-bold text-[#ad1457] uppercase tracking-wider">
-        <a className="hover:text-[#e91e8c] transition-colors" href="/">Home</a>
+        <Link className="hover:text-[#e91e8c] transition-colors" href="/">Home</Link>
         <span className="text-[#ad1457]/50">›</span>
-        <a className="hover:text-[#e91e8c] transition-colors" href="/">Skincare</a>
-        <span className="text-[#ad1457]/50">›</span>
-        <span className="text-[#2d1a24]">Silk Rose Serum</span>
+        <span className="text-[#2d1a24]">{product.name}</span>
       </nav>
 
-      {/* Product Detail Section */}
+      {/* Product Detail */}
       <section className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 mb-24">
         {/* Image Gallery */}
         <div className="md:col-span-7 flex flex-col gap-5">
-          <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-linear-to-br from-[#fce4ec] to-[#f8bbd0] shadow-xl shadow-[#e91e8c]/10 flex items-center justify-center">
-            <span className="text-[180px] md:text-[220px]">{product.images[selectedImage]}</span>
+          <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-pink-50 border border-pink-100 flex items-center justify-center">
+            {product.images?.length > 0 ? (
+              <img src={product.images[selectedImage]} alt={product.name} className="w-full h-full object-contain" />
+            ) : (
+              <span className="text-[120px]">📦</span>
+            )}
           </div>
-          <div className="grid grid-cols-4 gap-3">
-            {product.images.map((img, i) => (
-              <button
-                key={i}
-                onClick={() => setSelectedImage(i)}
-                className={`aspect-square rounded-xl overflow-hidden bg-linear-to-br from-[#fce4ec] to-[#f8bbd0] flex items-center justify-center text-4xl transition-all cursor-pointer ${
-                  selectedImage === i
-                    ? "border-2 border-[#e91e8c] shadow-lg shadow-[#e91e8c]/20"
-                    : "opacity-60 hover:opacity-100 border border-[#fce4ec]"
-                }`}
-              >
-                {img}
-              </button>
-            ))}
-          </div>
+          {product.images?.length > 1 && (
+            <div className="grid grid-cols-4 gap-3">
+              {product.images.map((img, i) => (
+                <button key={i} onClick={() => setSelectedImage(i)}
+                  className={`aspect-square rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${selectedImage === i ? "border-[#e91e8c] shadow-lg shadow-[#e91e8c]/20" : "border-pink-100 opacity-60 hover:opacity-100"}`}>
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Product Info */}
         <div className="md:col-span-5 flex flex-col">
-          <span className="inline-block px-3 py-1 bg-[#e91e8c] text-white font-nunito text-[10px] font-extrabold rounded-full w-fit mb-4 uppercase tracking-widest">
-            {product.badge}
-          </span>
-          <h1 className="font-playfair text-4xl md:text-5xl font-extrabold text-[#2d1a24] mb-2">
-            {product.name}
-          </h1>
-          <p className="font-playfair text-xl md:text-2xl text-[#ad1457] mb-6 italic">
-            {product.tagline}
-          </p>
+          {product.badge && (
+            <span className="inline-block px-3 py-1 bg-[#e91e8c] text-white font-nunito text-[10px] font-extrabold rounded-full w-fit mb-4 uppercase tracking-widest">
+              {product.badge}
+            </span>
+          )}
+          <h1 className="font-playfair text-3xl md:text-4xl font-extrabold text-[#2d1a24] mb-2">{product.name}</h1>
+          <p className="font-nunito text-sm text-[#6d1b3b]/70 mb-4">{product.shortDescription}</p>
 
           {/* Rating */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex text-[#ff9800] text-lg">{"★".repeat(5)}</div>
-            <span className="font-nunito text-sm text-[#ad1457] underline cursor-pointer">
-              {product.reviews.toLocaleString()} reviews
-            </span>
-          </div>
+          {product.averageRating > 0 && (
+            <div className="flex items-center gap-3 mb-5">
+              <div className="flex text-[#ff9800] text-base">{"★".repeat(Math.round(product.averageRating))}</div>
+              <span className="font-nunito text-sm text-[#ad1457]">{product.averageRating} ({product.reviewCount} reviews)</span>
+            </div>
+          )}
 
           {/* Price */}
           <div className="flex items-baseline gap-3 mb-6">
-            <span className="font-playfair text-3xl font-extrabold text-[#e91e8c]">₹{product.price.toLocaleString()}</span>
-            <span className="font-nunito text-base text-[#ad1457] line-through">₹{product.originalPrice.toLocaleString()}</span>
-            <span className="font-nunito text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">-{discount}% OFF</span>
+            <span className="font-playfair text-3xl font-extrabold text-[#e91e8c]">৳{currentPrice.toLocaleString()}</span>
+            {product.originalPrice && product.originalPrice > currentPrice && (
+              <>
+                <span className="font-nunito text-base text-[#ad1457] line-through">৳{product.originalPrice.toLocaleString()}</span>
+                <span className="font-nunito text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">-{discount}%</span>
+              </>
+            )}
           </div>
+
+          {/* Flash sale */}
+          {product.flashSalePrice && (
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-5">
+              <span className="text-sm font-bold text-red-600">🔥 Flash Sale: ৳{product.flashSalePrice}</span>
+            </div>
+          )}
 
           {/* Description */}
-          <p className="font-nunito text-base text-[#6d1b3b] leading-relaxed mb-8">
-            {product.description}
-          </p>
+          <p className="font-nunito text-sm text-[#6d1b3b] leading-relaxed mb-6">{product.description}</p>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col gap-3 mb-10">
-            <button className="w-full py-4 bg-linear-to-br from-[#e91e8c] to-[#c2185b] text-white font-nunito font-bold text-sm rounded-full flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all tracking-wider uppercase cursor-pointer">
-              Add to Cart ✨
-            </button>
-            <button className="w-full py-4 border-2 border-[#e91e8c] text-[#e91e8c] font-nunito font-bold text-sm rounded-full flex items-center justify-center gap-2 hover:bg-[#e91e8c] hover:text-white transition-all tracking-wider uppercase cursor-pointer">
-              Buy It Now
+          {/* Variants */}
+          {product.variants?.length > 1 && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[#2d1a24] mb-2">Select Variant</label>
+              <div className="flex flex-wrap gap-2">
+                {product.variants.map((v, i) => (
+                  <button key={v._id} onClick={() => setSelectedVariant(i)}
+                    className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all ${selectedVariant === i ? "border-[#e91e8c] bg-[#e91e8c]/5 text-[#e91e8c]" : "border-pink-200 text-[#2d1a24] hover:border-[#e91e8c]"} ${v.stockQuantity === 0 ? "opacity-40 line-through" : ""}`}
+                    disabled={v.stockQuantity === 0}>
+                    {v.attributes ? Object.values(v.attributes).join(" / ") : v.sku}
+                    {v.priceOverride ? ` — ৳${v.priceOverride}` : ""}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Stock info */}
+          <div className="mb-6">
+            {inStock ? (
+              <span className="text-sm text-green-600 font-medium">✓ In Stock ({variant?.stockQuantity} available)</span>
+            ) : (
+              <span className="text-sm text-red-500 font-medium">✕ Out of Stock</span>
+            )}
+          </div>
+
+          {/* Quantity + Add to Cart */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center border border-pink-200 rounded-xl overflow-hidden">
+              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-4 py-3 text-[#e91e8c] font-bold hover:bg-pink-50 transition-colors">−</button>
+              <span className="px-4 py-3 font-bold text-sm text-[#2d1a24] min-w-[40px] text-center">{qty}</span>
+              <button onClick={() => setQty((q) => q + 1)} className="px-4 py-3 text-[#e91e8c] font-bold hover:bg-pink-50 transition-colors">+</button>
+            </div>
+            <button onClick={handleAddToCart} disabled={!inStock}
+              className="flex-1 py-3.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white font-bold text-sm rounded-xl hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              {added ? "✓ Added!" : "Add to Cart"}
             </button>
           </div>
 
-          {/* Accordion */}
-          <div className="border-t border-[#fce4ec]">
-            {/* How to Use */}
-            <div className="border-b border-[#fce4ec]">
-              <button
-                onClick={() => toggleAccordion("how-to-use")}
-                className="w-full flex justify-between items-center py-5 cursor-pointer"
-              >
-                <span className="font-nunito text-sm font-bold text-[#e91e8c] uppercase tracking-widest">How to Use</span>
-                <span className={`text-[#e91e8c] transition-transform ${openAccordion === "how-to-use" ? "rotate-180" : ""}`}>▼</span>
-              </button>
-              {openAccordion === "how-to-use" && (
-                <div className="pb-5 grid grid-cols-3 gap-4 text-center">
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-2xl">🤲</span>
-                    <span className="font-nunito text-xs font-semibold text-[#2d1a24]">Apply 2-3 drops</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-2xl">💆</span>
-                    <span className="font-nunito text-xs font-semibold text-[#2d1a24]">Gently massage</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-2xl">🌙</span>
-                    <span className="font-nunito text-xs font-semibold text-[#2d1a24]">Day & Night</span>
-                  </div>
-                </div>
-              )}
-            </div>
+          {/* Buy Now */}
+          <button onClick={() => { handleAddToCart(); router.push("/checkout"); }} disabled={!inStock}
+            className="w-full py-3.5 border-2 border-[#e91e8c] text-[#e91e8c] font-bold text-sm rounded-xl hover:bg-[#e91e8c] hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-8">
+            Buy Now
+          </button>
 
-            {/* Ingredients */}
-            <div className="border-b border-[#fce4ec]">
-              <button
-                onClick={() => toggleAccordion("ingredients")}
-                className="w-full flex justify-between items-center py-5 cursor-pointer"
-              >
-                <span className="font-nunito text-sm font-bold text-[#e91e8c] uppercase tracking-widest">Ingredients</span>
-                <span className={`text-[#e91e8c] transition-transform ${openAccordion === "ingredients" ? "rotate-180" : ""}`}>▼</span>
-              </button>
-              {openAccordion === "ingredients" && (
-                <p className="pb-5 font-nunito text-sm text-[#6d1b3b] leading-relaxed">
-                  Rosa Damascena Flower Water, Sodium Hyaluronate, Vitamin C (ascorbic acid), Aloe Vera Extract, Glycerin, Aqua, Rosehip Seed Oil, Niacinamide. Cruelty-free & Vegan.
-                </p>
-              )}
-            </div>
-
-            {/* Shipping & Returns */}
-            <div className="border-b border-[#fce4ec]">
-              <button
-                onClick={() => toggleAccordion("shipping")}
-                className="w-full flex justify-between items-center py-5 cursor-pointer"
-              >
-                <span className="font-nunito text-sm font-bold text-[#e91e8c] uppercase tracking-widest">Shipping & Returns</span>
-                <span className={`text-[#e91e8c] transition-transform ${openAccordion === "shipping" ? "rotate-180" : ""}`}>▼</span>
-              </button>
-              {openAccordion === "shipping" && (
-                <p className="pb-5 font-nunito text-sm text-[#6d1b3b] leading-relaxed">
-                  Free shipping on orders above ₹999. Easy 7-day returns on all unopened products. Delivered in eco-friendly, luxury packaging.
-                </p>
-              )}
-            </div>
+          {/* Features */}
+          <div className="grid grid-cols-3 gap-4 pt-6 border-t border-pink-100">
+            <div className="text-center"><span className="text-xl block mb-1">🚚</span><span className="text-[10px] font-bold text-[#ad1457] uppercase">Free Shipping</span></div>
+            <div className="text-center"><span className="text-xl block mb-1">↩️</span><span className="text-[10px] font-bold text-[#ad1457] uppercase">7-Day Return</span></div>
+            <div className="text-center"><span className="text-xl block mb-1">🛡️</span><span className="text-[10px] font-bold text-[#ad1457] uppercase">Genuine Product</span></div>
           </div>
         </div>
       </section>
 
-      {/* The Ritual of Radiance Section */}
-      <section className="bg-linear-to-br from-[#fff0f5] to-[#fce4ec] py-20 mb-24 overflow-hidden relative">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 items-center gap-16 relative z-10">
-          <div className="order-2 md:order-1">
-            <h2 className="font-playfair text-3xl md:text-4xl font-extrabold text-[#2d1a24] mb-6">
-              The Ritual of Radiance
-            </h2>
-            <p className="font-nunito text-base text-[#6d1b3b] mb-10 max-w-lg leading-relaxed">
-              Petal Beauty isn&apos;t just about the final look; it&apos;s about the feeling of care. Our Silk Rose Serum is formulated to connect you with the power of nature, one drop at a time.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-xl shadow-sm shrink-0">
-                  🌿
-                </div>
-                <div>
-                  <h4 className="font-nunito text-sm font-bold text-[#2d1a24] mb-1">Ethically Sourced</h4>
-                  <p className="font-nunito text-xs text-[#ad1457]">Roses picked at dawn for maximum potency.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-xl shadow-sm shrink-0">
-                  🔬
-                </div>
-                <div>
-                  <h4 className="font-nunito text-sm font-bold text-[#2d1a24] mb-1">Clinically Proven</h4>
-                  <p className="font-nunito text-xs text-[#ad1457]">89% saw brighter skin in 14 days.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="order-1 md:order-2 flex justify-center">
-            <div className="relative w-64 h-64 md:w-80 md:h-80">
-              <div className="absolute inset-0 bg-[#e91e8c]/5 rounded-full scale-110 animate-pulse-dot" />
-              <div className="w-full h-full bg-linear-to-br from-[#f48fb1] to-[#e91e8c] rounded-full flex items-center justify-center text-[100px] border-8 border-white shadow-xl shadow-[#e91e8c]/20 relative z-10">
-                🌹
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Reviews Section */}
+      <ReviewsSection productId={id} />
 
       {/* Related Products */}
-      <section className="max-w-7xl mx-auto px-4 md:px-8 mb-24">
-        <div className="flex justify-between items-end mb-10">
-          <div>
-            <span className="font-nunito text-xs font-bold text-[#ad1457] uppercase tracking-widest block mb-2">
-              Complete the Look
-            </span>
-            <h2 className="font-playfair text-2xl md:text-3xl font-extrabold text-[#2d1a24]">
-              You May Also Love
-            </h2>
-          </div>
-          <div className="flex gap-2">
-            <button className="w-10 h-10 rounded-full border border-[#fce4ec] flex items-center justify-center text-[#ad1457] hover:bg-[#e91e8c] hover:text-white hover:border-[#e91e8c] transition-all cursor-pointer">
-              ←
-            </button>
-            <button className="w-10 h-10 rounded-full border border-[#fce4ec] flex items-center justify-center text-[#ad1457] hover:bg-[#e91e8c] hover:text-white hover:border-[#e91e8c] transition-all cursor-pointer">
-              →
-            </button>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          {relatedProducts.map((p) => (
-            <div key={p.id} className="bg-white rounded-2xl overflow-hidden border border-[#fce4ec] hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#e91e8c]/15 hover:border-[#e91e8c] transition-all cursor-pointer group">
-              <div className="aspect-[4/5] bg-linear-to-br from-[#fce4ec] to-[#f8bbd0] flex items-center justify-center text-7xl relative overflow-hidden">
-                <span className="transition-transform duration-500 group-hover:scale-110">{p.emoji}</span>
-                {p.badge && (
-                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-[#e91e8c]">
-                    {p.badge}
-                  </span>
-                )}
-              </div>
-              <div className="p-4">
-                <span className="font-nunito text-[10px] font-bold text-[#ad1457] uppercase tracking-widest block mb-1">
-                  {p.category}
-                </span>
-                <h3 className="font-nunito text-sm font-bold text-[#2d1a24] group-hover:text-[#e91e8c] transition-colors">
-                  {p.name}
-                </h3>
-                <div className="flex gap-2 mt-2">
-                  <span className="font-playfair text-base font-extrabold text-[#e91e8c]">₹{p.price.toLocaleString()}</span>
-                  <span className="font-nunito text-xs text-[#ad1457] line-through self-center">₹{p.originalPrice.toLocaleString()}</span>
+      {relatedProducts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 md:px-8 mb-24">
+          <h2 className="font-playfair text-2xl font-extrabold text-[#2d1a24] mb-8">You May Also Like</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+            {relatedProducts.map((p) => (
+              <Link key={p._id} href={`/product/${p._id}`}
+                className="bg-white rounded-2xl overflow-hidden border border-pink-100 hover:-translate-y-1 hover:shadow-lg hover:shadow-pink-100/50 transition-all">
+                <div className="aspect-square bg-pink-50 flex items-center justify-center overflow-hidden">
+                  {p.images?.[0] ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" /> : <span className="text-5xl">📦</span>}
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Newsletter CTA */}
-      <section className="max-w-7xl mx-auto px-4 md:px-8 mb-24">
-        <div className="bg-linear-to-br from-[#e91e8c] to-[#c2185b] py-16 px-8 rounded-[2rem] text-center text-white relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "40px 40px" }} />
-          <div className="relative z-10 max-w-2xl mx-auto">
-            <div className="text-4xl mb-4">🌸</div>
-            <h2 className="font-playfair text-3xl md:text-4xl font-extrabold mb-4">Join the Petal Club</h2>
-            <p className="font-nunito text-base mb-8 opacity-90 leading-relaxed">
-              Subscribe for exclusive deals, beauty tips, and early access to new launches. Get ₹200 off your first order!
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 items-stretch max-w-lg mx-auto">
-              <input
-                className="flex-grow px-6 py-4 rounded-full border-none text-[#2d1a24] text-sm outline-none"
-                placeholder="Enter your email address..."
-                type="email"
-              />
-              <button className="bg-white text-[#e91e8c] px-8 py-4 rounded-full font-nunito font-bold text-sm whitespace-nowrap hover:-translate-y-0.5 hover:shadow-lg transition-all cursor-pointer">
-                Subscribe ✨
-              </button>
-            </div>
-            <p className="mt-5 font-nunito text-xs text-white/60">No spam, ever. Unsubscribe anytime.</p>
+                <div className="p-4">
+                  <h3 className="font-nunito text-sm font-bold text-[#2d1a24] line-clamp-1">{p.name}</h3>
+                  <span className="font-playfair text-base font-extrabold text-[#e91e8c]">৳{p.basePrice.toLocaleString()}</span>
+                </div>
+              </Link>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <Footer />
     </div>
+  );
+}
+
+// ─── Reviews Section Component ──────────────────────────────────────────────────
+
+interface Review {
+  _id: string;
+  userId: string | { _id: string; name: string };
+  rating: number;
+  title?: string;
+  comment: string;
+  isVerifiedPurchase: boolean;
+  createdAt: string;
+}
+
+interface ReviewsResponse {
+  reviews: Review[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+function ReviewsSection({ productId }: { productId: string }) {
+  const { isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
+  const [showForm, setShowForm] = useState(false);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [hoverRating, setHoverRating] = useState(0);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["reviews", productId],
+    queryFn: () => apiRequest<ReviewsResponse>(`/reviews/product/${productId}?limit=10`),
+  });
+
+  const submitReview = useMutation({
+    mutationFn: (payload: { productId: string; rating: number; comment: string }) =>
+      apiRequest("/reviews", { method: "POST", body: payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reviews", productId] });
+      setShowForm(false);
+      setComment("");
+      setRating(5);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!comment.trim()) return;
+    submitReview.mutate({ productId, rating, comment: comment.trim() });
+  };
+
+  const reviews = data?.reviews || [];
+  const total = data?.total || 0;
+
+  const getReviewerName = (userId: Review["userId"]) => {
+    if (typeof userId === "object" && userId !== null) return userId.name;
+    return "Customer";
+  };
+
+  return (
+    <section className="max-w-7xl mx-auto px-4 md:px-8 mb-16">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-playfair text-2xl font-extrabold text-[#2d1a24]">
+          Customer Reviews {total > 0 && <span className="text-base font-normal text-[#6d1b3b]/50">({total})</span>}
+        </h2>
+        {isAuthenticated && !showForm && (
+          <button onClick={() => setShowForm(true)}
+            className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all">
+            Write a Review
+          </button>
+        )}
+      </div>
+
+      {/* Write Review Form */}
+      {showForm && (
+        <div className="bg-white rounded-2xl border border-pink-100 p-6 mb-6">
+          <h3 className="font-playfair text-lg font-bold text-[#2d1a24] mb-4">Write Your Review</h3>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Star Rating */}
+            <div>
+              <label className="block text-sm font-medium text-[#2d1a24] mb-2">Rating</label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button key={star} type="button"
+                    onMouseEnter={() => setHoverRating(star)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    onClick={() => setRating(star)}
+                    className="text-3xl transition-transform hover:scale-110">
+                    {star <= (hoverRating || rating) ? "★" : "☆"}
+                  </button>
+                ))}
+                <span className="text-sm text-[#6d1b3b]/60 self-center ml-2">{rating}/5</span>
+              </div>
+            </div>
+
+            {/* Comment */}
+            <div>
+              <label className="block text-sm font-medium text-[#2d1a24] mb-1.5">Your Review</label>
+              <textarea value={comment} onChange={(e) => setComment(e.target.value)}
+                placeholder="Share your experience with this product..."
+                rows={4}
+                className="w-full px-4 py-3 rounded-xl border border-pink-200 text-sm text-[#2d1a24] outline-none focus:border-[#e91e8c] focus:ring-2 focus:ring-[#e91e8c]/10 transition-all placeholder:text-[#ad1457]/30 resize-none" />
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setShowForm(false)}
+                className="px-5 py-2.5 rounded-xl border border-pink-200 text-sm font-semibold text-[#6d1b3b] hover:bg-pink-50 transition-all">
+                Cancel
+              </button>
+              <button type="submit" disabled={submitReview.isPending || !comment.trim()}
+                className="px-5 py-2.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50">
+                {submitReview.isPending ? "Submitting..." : "Submit Review"}
+              </button>
+            </div>
+
+            {submitReview.isError && (
+              <p className="text-sm text-red-500">{(submitReview.error as any)?.message || "Failed to submit review"}</p>
+            )}
+          </form>
+        </div>
+      )}
+
+      {/* Login prompt */}
+      {!isAuthenticated && (
+        <div className="bg-pink-50 rounded-xl px-5 py-4 mb-6 flex items-center justify-between">
+          <p className="text-sm text-[#6d1b3b]/70">Login to write a review</p>
+          <Link href="/login" className="text-sm font-semibold text-[#e91e8c] hover:underline">Login →</Link>
+        </div>
+      )}
+
+      {/* Reviews List */}
+      {isLoading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => <div key={i} className="bg-white rounded-2xl border border-pink-100 p-5 h-28 animate-pulse" />)}
+        </div>
+      ) : reviews.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-pink-100 p-10 text-center">
+          <span className="text-4xl block mb-3">⭐</span>
+          <p className="text-sm text-[#6d1b3b]/50">No reviews yet. Be the first to review this product!</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {reviews.map((review) => (
+            <div key={review._id} className="bg-white rounded-2xl border border-pink-100 p-5">
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-semibold text-[#2d1a24]">{getReviewerName(review.userId)}</span>
+                    {review.isVerifiedPurchase && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">✓ Verified</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span key={star} className={`text-sm ${star <= review.rating ? "text-yellow-400" : "text-gray-200"}`}>★</span>
+                    ))}
+                    <span className="text-xs text-[#6d1b3b]/40 ml-2">
+                      {new Date(review.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {review.title && <h4 className="text-sm font-bold text-[#2d1a24] mb-1">{review.title}</h4>}
+              <p className="text-sm text-[#6d1b3b]/80 leading-relaxed">{review.comment}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

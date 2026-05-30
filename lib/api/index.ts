@@ -6,4 +6,6 @@ export { apiRequest, ApiError, getAccessToken, getRefreshToken, getStoredUser, s
 export { authApi } from './auth';
 export { productsApi } from './products';
 export { categoriesApi } from './categories';
+export { uploadApi, uploadImage, uploadImages, uploadCategoryImage, deleteImage } from './upload';
+export { ordersApi } from './orders';
 export type * from './types';

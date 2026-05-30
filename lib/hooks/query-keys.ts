@@ -16,13 +16,14 @@ export const queryKeys = {
 
   products: {
     all: () => ['products'] as const,
-    list: (params?: { page?: number; limit?: number; categoryId?: string }) =>
+    list: (params?: { page?: number; limit?: number; categoryId?: string; search?: string }) =>
       ['products', 'list', params] as const,
     detail: (id: string) => ['products', 'detail', id] as const,
   },
 
   categories: {
     all: () => ['categories'] as const,
+    detail: (id: string) => ['categories', 'detail', id] as const,
   },
 
   flashSales: {

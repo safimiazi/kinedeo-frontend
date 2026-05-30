@@ -30,6 +30,8 @@ export const productsApi = {
     categoryId: string;
     images?: string[];
     badge?: string;
+    stockQuantity?: number;
+    variants?: { sku: string; stockQuantity: number; priceOverride?: number; lowStockThreshold?: number; attributes?: Record<string, string>; images?: string[] }[];
   }) =>
     apiRequest<Product>('/products', { method: 'POST', body: data }),
 

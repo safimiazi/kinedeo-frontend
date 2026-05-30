@@ -1,89 +1,224 @@
 "use client";
 
-const customers = [
-  { id: 1, name: "Priya Sharma", email: "priya@email.com", orders: 12, spent: "₹18,450", joined: "Jan 2026", avatar: "PS" },
-  { id: 2, name: "Ananya Gupta", email: "ananya@email.com", orders: 8, spent: "₹12,890", joined: "Feb 2026", avatar: "AG" },
-  { id: 3, name: "Meera Patel", email: "meera@email.com", orders: 15, spent: "₹24,320", joined: "Dec 2025", avatar: "MP" },
-  { id: 4, name: "Riya Singh", email: "riya@email.com", orders: 6, spent: "₹8,970", joined: "Mar 2026", avatar: "RS" },
-  { id: 5, name: "Kavya Nair", email: "kavya@email.com", orders: 22, spent: "₹35,600", joined: "Nov 2025", avatar: "KN" },
-  { id: 6, name: "Diya Reddy", email: "diya@email.com", orders: 4, spent: "₹5,490", joined: "Apr 2026", avatar: "DR" },
-  { id: 7, name: "Isha Verma", email: "isha@email.com", orders: 9, spent: "₹14,230", joined: "Jan 2026", avatar: "IV" },
-  { id: 8, name: "Neha Joshi", email: "neha@email.com", orders: 3, spent: "₹4,120", joined: "May 2026", avatar: "NJ" },
-];
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/api/client";
+
+interface Customer {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+interface CustomersResponse {
+  customers: Customer[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+interface CustomerStats {
+  total: number;
+  active: number;
+  newThisMonth: number;
+}
 
 export default function CustomersPage() {
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const queryClient = useQueryClient();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["customers", page, search],
+    queryFn: () =>
+      apiRequest<CustomersResponse>(
+        `/customers?page=${page}&limit=15${search ? `&search=${encodeURIComponent(search)}` : ""}`
+      ),
+  });
+
+  const { data: stats } = useQuery({
+    queryKey: ["customers-stats"],
+    queryFn: () => apiRequest<CustomerStats>("/customers/stats"),
+  });
+
+  const toggleActive = useMutation({
+    mutationFn: (id: string) =>
+      apiRequest(`/customers/${id}/toggle-active`, { method: "PUT" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["customers-stats"] });
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 w-48 bg-pink-100 rounded-lg animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-2xl border border-pink-100 p-6 h-24 animate-pulse" />
+          ))}
+        </div>
+        <div className="bg-white rounded-2xl border border-pink-100 p-6 h-96 animate-pulse" />
+      </div>
+    );
+  }
+
+  const customers = data?.customers || [];
+  const totalPages = data?.totalPages || 1;
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[#2d1a24] font-playfair">Customers</h1>
-          <p className="text-sm text-[#6d1b3b]/60 mt-1">{customers.length} registered customers</p>
-        </div>
-        <button className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit">
-          Export List
-        </button>
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-[#2d1a24] font-playfair">Customers</h1>
+        <p className="text-sm text-[#6d1b3b]/60 mt-1">Manage your customer base</p>
       </div>
 
-      {/* Stats */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl p-5 border border-pink-100">
-          <p className="text-xs text-[#6d1b3b]/50 mb-1">Total Customers</p>
-          <p className="text-2xl font-bold text-[#2d1a24]">3,421</p>
-          <p className="text-xs text-green-600 font-medium mt-1">+124 this month</p>
+        <div className="bg-white rounded-2xl border border-pink-100 p-5">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">👥</span>
+            <div>
+              <p className="text-xs text-[#6d1b3b]/60 font-medium">Total Customers</p>
+              <p className="text-xl font-bold text-[#2d1a24]">{stats?.total || 0}</p>
+            </div>
+          </div>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-pink-100">
-          <p className="text-xs text-[#6d1b3b]/50 mb-1">Avg. Order Value</p>
-          <p className="text-2xl font-bold text-[#2d1a24]">₹1,890</p>
-          <p className="text-xs text-green-600 font-medium mt-1">+8% from last month</p>
+        <div className="bg-white rounded-2xl border border-pink-100 p-5">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">✅</span>
+            <div>
+              <p className="text-xs text-[#6d1b3b]/60 font-medium">Active</p>
+              <p className="text-xl font-bold text-[#2d1a24]">{stats?.active || 0}</p>
+            </div>
+          </div>
         </div>
-        <div className="bg-white rounded-2xl p-5 border border-pink-100">
-          <p className="text-xs text-[#6d1b3b]/50 mb-1">Repeat Rate</p>
-          <p className="text-2xl font-bold text-[#2d1a24]">68%</p>
-          <p className="text-xs text-green-600 font-medium mt-1">+5% from last month</p>
+        <div className="bg-white rounded-2xl border border-pink-100 p-5">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🆕</span>
+            <div>
+              <p className="text-xs text-[#6d1b3b]/60 font-medium">New This Month</p>
+              <p className="text-xl font-bold text-[#2d1a24]">{stats?.newThisMonth || 0}</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Customers list */}
-      <div className="bg-white rounded-2xl border border-pink-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-pink-50/50 border-b border-pink-100">
-                <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-6 py-3.5">Customer</th>
-                <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-6 py-3.5 hidden md:table-cell">Joined</th>
-                <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-6 py-3.5">Orders</th>
-                <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-6 py-3.5">Total Spent</th>
-                <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-6 py-3.5">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customers.map((customer) => (
-                <tr key={customer.id} className="border-t border-pink-50 hover:bg-pink-50/30 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#f48fb1] to-[#e91e8c] flex items-center justify-center text-white text-xs font-bold shrink-0">
-                        {customer.avatar}
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-[#2d1a24]">{customer.name}</p>
-                        <p className="text-xs text-[#6d1b3b]/50">{customer.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-[#6d1b3b]/60 hidden md:table-cell">{customer.joined}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-[#2d1a24]">{customer.orders}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-[#ad1457]">{customer.spent}</td>
-                  <td className="px-6 py-4">
-                    <button className="text-xs text-[#e91e8c] font-semibold hover:text-[#ad1457] transition-colors">
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Search */}
+      <div className="bg-white rounded-2xl border border-pink-100 p-4">
+        <div className="flex items-center gap-3 bg-pink-50 rounded-xl px-4 py-2.5 max-w-md">
+          <span className="text-[#ad1457]/50">🔍</span>
+          <input
+            type="text"
+            placeholder="Search by name, email, or phone..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="bg-transparent border-none outline-none text-sm text-[#2d1a24] placeholder:text-[#ad1457]/40 w-full"
+          />
         </div>
       </div>
+
+      {/* Customers Table */}
+      {customers.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-pink-100 p-12 text-center">
+          <span className="text-4xl mb-4 block">👥</span>
+          <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">No customers found</h3>
+          <p className="text-sm text-[#6d1b3b]/50">
+            {search ? "Try adjusting your search" : "Customers will appear here once they register"}
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-pink-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-pink-100 bg-pink-50/50">
+                  <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-5 py-3">Name</th>
+                  <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-5 py-3">Email</th>
+                  <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-5 py-3">Phone</th>
+                  <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-5 py-3">Role</th>
+                  <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-5 py-3">Status</th>
+                  <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-5 py-3">Joined</th>
+                  <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-5 py-3">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {customers.map((customer) => (
+                  <tr key={customer._id} className="border-b border-pink-50 hover:bg-pink-50/30 transition-colors">
+                    <td className="px-5 py-3.5 text-sm font-medium text-[#2d1a24]">{customer.name}</td>
+                    <td className="px-5 py-3.5 text-sm text-[#6d1b3b]/70">{customer.email}</td>
+                    <td className="px-5 py-3.5 text-sm text-[#6d1b3b]/70">{customer.phone || "—"}</td>
+                    <td className="px-5 py-3.5">
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 capitalize">
+                        {customer.role}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                          customer.isActive
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {customer.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5 text-sm text-[#6d1b3b]/60">
+                      {new Date(customer.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <button
+                        onClick={() => toggleActive.mutate(customer._id)}
+                        disabled={toggleActive.isPending}
+                        className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                          customer.isActive
+                            ? "bg-red-50 text-red-600 hover:bg-red-100"
+                            : "bg-green-50 text-green-600 hover:bg-green-100"
+                        }`}
+                      >
+                        {customer.isActive ? "Deactivate" : "Activate"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-3 py-2 rounded-lg border border-pink-200 text-sm text-[#6d1b3b] disabled:opacity-40 hover:bg-pink-50 transition-all"
+          >
+            ← Prev
+          </button>
+          <span className="text-sm text-[#6d1b3b]/60 px-3">
+            Page {page} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="px-3 py-2 rounded-lg border border-pink-200 text-sm text-[#6d1b3b] disabled:opacity-40 hover:bg-pink-50 transition-all"
+          >
+            Next →
+          </button>
+        </div>
+      )}
     </div>
   );
 }

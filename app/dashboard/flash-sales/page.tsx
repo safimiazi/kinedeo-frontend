@@ -1,94 +1,399 @@
 "use client";
 
-const flashSales = [
-  { id: 1, name: "Summer Glow Sale", discount: "30%", products: 12, startDate: "1 Jun 2026", endDate: "7 Jun 2026", status: "Upcoming", revenue: "—" },
-  { id: 2, name: "Weekend Beauty Bash", discount: "50%", products: 8, startDate: "28 May 2026", endDate: "30 May 2026", status: "Active", revenue: "₹1,24,500" },
-  { id: 3, name: "Skincare Week", discount: "25%", products: 15, startDate: "20 May 2026", endDate: "26 May 2026", status: "Ended", revenue: "₹2,89,000" },
-  { id: 4, name: "New Launch Offer", discount: "20%", products: 5, startDate: "15 May 2026", endDate: "18 May 2026", status: "Ended", revenue: "₹98,400" },
-];
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/api/client";
 
-const statusColors: Record<string, string> = {
-  Active: "bg-green-100 text-green-700",
-  Upcoming: "bg-blue-100 text-blue-700",
-  Ended: "bg-gray-100 text-gray-600",
+interface FlashSaleProduct {
+  productId: string;
+  salePrice: number;
+}
+
+interface FlashSale {
+  _id: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  isActive: boolean;
+  products: FlashSaleProduct[];
+  createdAt: string;
+}
+
+type ModalMode = "create" | "edit" | null;
+
+interface ProductRow {
+  productId: string;
+  salePrice: number;
+}
+
+const defaultForm = {
+  name: "",
+  startTime: "",
+  endTime: "",
+  products: [{ productId: "", salePrice: 0 }] as ProductRow[],
 };
 
 export default function FlashSalesPage() {
+  const [modalMode, setModalMode] = useState<ModalMode>(null);
+  const [editingSale, setEditingSale] = useState<FlashSale | null>(null);
+  const [formData, setFormData] = useState(defaultForm);
+  const [error, setError] = useState("");
+  const queryClient = useQueryClient();
+
+  const { data: flashSales, isLoading } = useQuery({
+    queryKey: ["flash-sales"],
+    queryFn: () => apiRequest<FlashSale[]>("/flash-sales"),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (payload: any) =>
+      apiRequest("/flash-sales", { method: "POST", body: payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["flash-sales"] });
+      closeModal();
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+      apiRequest(`/flash-sales/${id}`, { method: "PUT", body: payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["flash-sales"] });
+      closeModal();
+    },
+  });
+
+  const toggleActiveMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      apiRequest(`/flash-sales/${id}`, { method: "PUT", body: { isActive: !isActive } }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["flash-sales"] }),
+  });
+
+  const getStatus = (sale: FlashSale) => {
+    const now = new Date();
+    const start = new Date(sale.startTime);
+    const end = new Date(sale.endTime);
+
+    if (now < start) return { label: "Upcoming", color: "bg-blue-100 text-blue-700" };
+    if (now > end) return { label: "Ended", color: "bg-gray-100 text-gray-700" };
+    return { label: "Active", color: "bg-green-100 text-green-700" };
+  };
+
+  const openCreate = () => {
+    setFormData(defaultForm);
+    setEditingSale(null);
+    setModalMode("create");
+    setError("");
+  };
+
+  const openEdit = (sale: FlashSale) => {
+    setFormData({
+      name: sale.name,
+      startTime: new Date(sale.startTime).toISOString().slice(0, 16),
+      endTime: new Date(sale.endTime).toISOString().slice(0, 16),
+      products: sale.products.length > 0
+        ? sale.products.map((p) => ({ productId: p.productId, salePrice: p.salePrice }))
+        : [{ productId: "", salePrice: 0 }],
+    });
+    setEditingSale(sale);
+    setModalMode("edit");
+    setError("");
+  };
+
+  const closeModal = () => {
+    setModalMode(null);
+    setEditingSale(null);
+    setError("");
+  };
+
+  const addProductRow = () => {
+    setFormData((prev) => ({
+      ...prev,
+      products: [...prev.products, { productId: "", salePrice: 0 }],
+    }));
+  };
+
+  const removeProductRow = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      products: prev.products.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateProductRow = (index: number, field: keyof ProductRow, value: string | number) => {
+    setFormData((prev) => ({
+      ...prev,
+      products: prev.products.map((p, i) => (i === index ? { ...p, [field]: value } : p)),
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (!formData.name || !formData.startTime || !formData.endTime) {
+      setError("Name, start time, and end time are required");
+      return;
+    }
+
+    const validProducts = formData.products.filter((p) => p.productId && p.salePrice > 0);
+    if (validProducts.length === 0) {
+      setError("At least one product with a sale price is required");
+      return;
+    }
+
+    const payload = {
+      name: formData.name,
+      startTime: new Date(formData.startTime).toISOString(),
+      endTime: new Date(formData.endTime).toISOString(),
+      products: validProducts,
+    };
+
+    try {
+      if (modalMode === "create") {
+        await createMutation.mutateAsync(payload);
+      } else if (editingSale) {
+        await updateMutation.mutateAsync({ id: editingSale._id, payload });
+      }
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="h-8 w-48 bg-pink-100 rounded-lg animate-pulse" />
+          <div className="h-10 w-40 bg-pink-100 rounded-xl animate-pulse" />
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white rounded-2xl border border-pink-100 p-6 h-28 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const sales = flashSales || [];
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[#2d1a24] font-playfair">Flash Sales</h1>
-          <p className="text-sm text-[#6d1b3b]/60 mt-1">Create and manage limited-time offers</p>
+          <p className="text-sm text-[#6d1b3b]/60 mt-1">{sales.length} flash sales configured</p>
         </div>
-        <button className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit">
-          + Create Sale
+        <button
+          onClick={openCreate}
+          className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit"
+        >
+          + Create Flash Sale
         </button>
       </div>
 
-      {/* Active sale highlight */}
-      <div className="bg-gradient-to-r from-[#fce4ec] to-[#f8bbd0] rounded-2xl p-6 border border-pink-200">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl">⚡</span>
-              <span className="text-xs font-bold text-[#e91e8c] bg-white/60 px-2 py-0.5 rounded-full">LIVE NOW</span>
-            </div>
-            <h2 className="text-xl font-bold text-[#2d1a24]">Weekend Beauty Bash</h2>
-            <p className="text-sm text-[#6d1b3b]/70 mt-1">50% off on 8 selected products • Ends today</p>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-[#ad1457]">₹1,24,500</p>
-              <p className="text-xs text-[#6d1b3b]/50">Revenue</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-[#ad1457]">186</p>
-              <p className="text-xs text-[#6d1b3b]/50">Orders</p>
-            </div>
-          </div>
+      {/* Flash Sales List */}
+      {sales.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-pink-100 p-12 text-center">
+          <span className="text-4xl mb-4 block">⚡</span>
+          <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">No flash sales yet</h3>
+          <p className="text-sm text-[#6d1b3b]/50 mb-4">Create a flash sale to boost your sales</p>
+          <button onClick={openCreate} className="text-sm text-[#e91e8c] font-semibold hover:underline">
+            + Create Flash Sale
+          </button>
         </div>
-      </div>
+      ) : (
+        <div className="space-y-4">
+          {sales.map((sale) => {
+            const status = getStatus(sale);
+            return (
+              <div
+                key={sale._id}
+                className="bg-white rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-lg">⚡</span>
+                      <h3 className="text-sm font-bold text-[#2d1a24]">{sale.name}</h3>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${status.color}`}>
+                        {status.label}
+                      </span>
+                      <span
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                          sale.isActive
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {sale.isActive ? "Enabled" : "Disabled"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-[#6d1b3b]/60">
+                      <span>
+                        📅 {new Date(sale.startTime).toLocaleString()} → {new Date(sale.endTime).toLocaleString()}
+                      </span>
+                      <span>📦 {sale.products.length} product{sale.products.length !== 1 ? "s" : ""}</span>
+                    </div>
+                  </div>
 
-      {/* Sales list */}
-      <div className="bg-white rounded-2xl border border-pink-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-pink-50/50 border-b border-pink-100">
-                <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-6 py-3.5">Sale Name</th>
-                <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-6 py-3.5">Discount</th>
-                <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-6 py-3.5 hidden md:table-cell">Duration</th>
-                <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-6 py-3.5 hidden sm:table-cell">Products</th>
-                <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-6 py-3.5">Revenue</th>
-                <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-6 py-3.5">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {flashSales.map((sale) => (
-                <tr key={sale.id} className="border-t border-pink-50 hover:bg-pink-50/30 transition-colors">
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-semibold text-[#2d1a24]">{sale.name}</p>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm font-bold text-[#e91e8c]">{sale.discount}</span>
-                  </td>
-                  <td className="px-6 py-4 text-xs text-[#6d1b3b]/60 hidden md:table-cell">
-                    {sale.startDate} — {sale.endDate}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-[#2d1a24] hidden sm:table-cell">{sale.products}</td>
-                  <td className="px-6 py-4 text-sm font-semibold text-[#ad1457]">{sale.revenue}</td>
-                  <td className="px-6 py-4">
-                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusColors[sale.status]}`}>
-                      {sale.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => openEdit(sale)}
+                      className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-pink-50 text-[#e91e8c] hover:bg-pink-100 transition-all"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => toggleActiveMutation.mutate({ id: sale._id, isActive: sale.isActive })}
+                      disabled={toggleActiveMutation.isPending}
+                      className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                        sale.isActive
+                          ? "bg-red-50 text-red-600 hover:bg-red-100"
+                          : "bg-green-50 text-green-600 hover:bg-green-100"
+                      }`}
+                    >
+                      {sale.isActive ? "Disable" : "Enable"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      </div>
+      )}
+
+      {/* Create/Edit Modal */}
+      {modalMode && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl border border-pink-100 shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-bold text-[#2d1a24] font-playfair">
+                {modalMode === "create" ? "Create Flash Sale" : "Edit Flash Sale"}
+              </h2>
+              <button onClick={closeModal} className="text-[#6d1b3b]/40 hover:text-[#6d1b3b] text-xl">
+                ×
+              </button>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-4">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-[#2d1a24] mb-1.5">Sale Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                  placeholder="e.g. Summer Flash Sale"
+                  className="w-full px-4 py-2.5 rounded-xl border border-pink-200 text-sm text-[#2d1a24] outline-none focus:border-[#e91e8c] focus:ring-2 focus:ring-[#e91e8c]/10 transition-all placeholder:text-[#ad1457]/30"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-[#2d1a24] mb-1.5">Start Time</label>
+                  <input
+                    type="datetime-local"
+                    value={formData.startTime}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, startTime: e.target.value }))}
+                    className="w-full px-4 py-2.5 rounded-xl border border-pink-200 text-sm text-[#2d1a24] outline-none focus:border-[#e91e8c] focus:ring-2 focus:ring-[#e91e8c]/10 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#2d1a24] mb-1.5">End Time</label>
+                  <input
+                    type="datetime-local"
+                    value={formData.endTime}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, endTime: e.target.value }))}
+                    className="w-full px-4 py-2.5 rounded-xl border border-pink-200 text-sm text-[#2d1a24] outline-none focus:border-[#e91e8c] focus:ring-2 focus:ring-[#e91e8c]/10 transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Products Section */}
+              <div className="border-t border-pink-100 pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-sm font-medium text-[#2d1a24]">Products</label>
+                  <span className="text-xs text-[#6d1b3b]/40">{formData.products.length} product(s)</span>
+                </div>
+
+                <div className="space-y-3">
+                  {formData.products.map((product, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={product.productId}
+                          onChange={(e) => updateProductRow(idx, "productId", e.target.value)}
+                          placeholder="Product ID"
+                          className="w-full px-3 py-2 rounded-lg border border-pink-200 text-xs text-[#2d1a24] outline-none focus:border-[#e91e8c] placeholder:text-[#ad1457]/30"
+                        />
+                      </div>
+                      <div className="w-28">
+                        <input
+                          type="number"
+                          value={product.salePrice || ""}
+                          onChange={(e) => updateProductRow(idx, "salePrice", Number(e.target.value))}
+                          placeholder="Sale ৳"
+                          min={0}
+                          className="w-full px-3 py-2 rounded-lg border border-pink-200 text-xs text-[#2d1a24] outline-none focus:border-[#e91e8c] placeholder:text-[#ad1457]/30"
+                        />
+                      </div>
+                      {formData.products.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeProductRow(idx)}
+                          className="text-red-400 hover:text-red-600 text-sm px-1"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={addProductRow}
+                  className="w-full mt-3 py-2 rounded-xl border border-dashed border-pink-200 text-xs text-[#e91e8c] font-semibold hover:bg-pink-50 transition-all"
+                >
+                  + Add Product
+                </button>
+              </div>
+
+              {/* Submit */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="flex-1 py-2.5 rounded-xl border border-pink-200 text-sm font-semibold text-[#6d1b3b] hover:bg-pink-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50"
+                >
+                  {createMutation.isPending || updateMutation.isPending
+                    ? "Saving..."
+                    : modalMode === "create"
+                    ? "Create Sale"
+                    : "Update Sale"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

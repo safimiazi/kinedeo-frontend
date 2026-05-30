@@ -3,5 +3,5 @@
  * This file exists for backward compatibility only.
  */
 
-export { authApi, productsApi, ApiError, apiRequest as default } from './api/index';
+export { authApi, productsApi, categoriesApi, uploadApi, ApiError, apiRequest as default } from './api/index';
 export type { TokenResponse, OtpResponse, UserProfile } from './api/types';
