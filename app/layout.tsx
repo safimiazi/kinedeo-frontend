@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Nunito } from "next/font/google";
 import "./globals.css";
+import { Providers } from "@/lib/providers";
+import { AuthProvider } from "@/lib/auth-context";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -29,7 +31,11 @@ export default function RootLayout({
       lang="en"
       className={`${playfair.variable} ${nunito.variable} h-full antialiased`}
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col">{children}</body>
+      <body suppressHydrationWarning className="min-h-full flex flex-col">
+        <Providers>
+          <AuthProvider>{children}</AuthProvider>
+        </Providers>
+      </body>
     </html>
   );
 }
