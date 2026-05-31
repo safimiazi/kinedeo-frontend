@@ -150,31 +150,21 @@
 // }
 "use client";
 
-import { 
-  IndianRupee, 
-  Package, 
-  Users, 
-  ShoppingBag, 
-  TrendingUp,
-  TrendingDown,
-  Calendar,
-  Eye,
-  Rose,
-  Sparkles,
-  Flower2,
-  User,
-  ChevronRight,
-  SparklesIcon
-} from "lucide-react";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { IndianRupee, Package, Users, ShoppingBag, TrendingUp, TrendingDown, Rose, Sparkles, Flower2, User, ChevronRight, SparklesIcon } from "lucide-react";
+import { apiRequest } from "@/lib/api/client";
+import { ordersApi } from "@/lib/api/orders";
+import { productsApi } from "@/lib/api/products";
 
-const stats = [
-  { label: "Total Revenue", value: "৳4,52,890", change: "+12.5%", up: true, icon: IndianRupee },
-  { label: "Orders", value: "1,284", change: "+8.2%", up: true, icon: Package },
-  { label: "Customers", value: "3,421", change: "+15.3%", up: true, icon: Users },
-  { label: "Products", value: "86", change: "+3", up: true, icon: ShoppingBag },
-];
+const fallbackStats = {
+  revenue: 452890,
+  orders: 1284,
+  customers: 3421,
+  products: 86,
+};
 
-const recentOrders = [
+const fallbackRecentOrders = [
   { id: "#ORD-2841", customer: "Priya Sharma", items: 3, total: "৳3,299", status: "Delivered", date: "Today" },
   { id: "#ORD-2840", customer: "Ananya Gupta", items: 1, total: "৳1,599", status: "Shipped", date: "Today" },
   { id: "#ORD-2839", customer: "Meera Patel", items: 2, total: "৳2,198", status: "Processing", date: "Yesterday" },
@@ -182,7 +172,7 @@ const recentOrders = [
   { id: "#ORD-2837", customer: "Kavya Nair", items: 1, total: "৳899", status: "Pending", date: "2 days ago" },
 ];
 
-const topProducts = [
+const fallbackTopProducts = [
   { name: "Silk Rose Serum", sold: 342, revenue: "৳4,44,558", icon: Rose },
   { name: "Velvet Lip Kit", sold: 287, revenue: "৳2,57,913", icon: SparklesIcon },
   { name: "Glow Radiance Cream", sold: 198, revenue: "৳3,16,602", icon: Sparkles },
@@ -195,9 +185,92 @@ const statusColors: Record<string, string> = {
   Shipped: "bg-blue-100 text-blue-700",
   Processing: "bg-yellow-100 text-yellow-700",
   Pending: "bg-gray-100 text-gray-600",
+  Confirmed: "bg-blue-100 text-blue-700",
+  Cancelled: "bg-red-100 text-red-700",
 };
 
 export default function DashboardOverview() {
+  const { data: orderStatsData } = useQuery({
+    queryKey: ["dashboard", "orders-stats"],
+    queryFn: () => ordersApi.getStats(),
+    staleTime: 1000 * 60,
+    retry: 1,
+  });
+
+  const { data: customersStatsData } = useQuery({
+    queryKey: ["dashboard", "customers-stats"],
+    queryFn: () => apiRequest<{ total: number; active: number; newThisMonth: number }>("/customers/stats"),
+    staleTime: 1000 * 60,
+    retry: 1,
+  });
+
+  const { data: productsData } = useQuery({
+    queryKey: ["dashboard", "products-count"],
+    queryFn: () => productsApi.getAll({ page: 1, limit: 1 }),
+    staleTime: 1000 * 60,
+    retry: 1,
+  });
+
+  const { data: topProductsData } = useQuery({
+    queryKey: ["dashboard", "top-products"],
+    queryFn: () => productsApi.getAll({ page: 1, limit: 5, sortBy: 'salesCount', sortOrder: 'desc' }),
+    staleTime: 1000 * 60,
+    retry: 1,
+  });
+
+  const { data: recentOrdersData } = useQuery({
+    queryKey: ["dashboard", "recent-orders"],
+    queryFn: () => ordersApi.getAll({ page: 1, limit: 5 }),
+    staleTime: 1000 * 30,
+    retry: 1,
+  });
+
+  const revenue = orderStatsData?.revenue ?? fallbackStats.revenue;
+  const totalOrders = orderStatsData?.total ?? fallbackStats.orders;
+  const totalCustomers = customersStatsData?.total ?? fallbackStats.customers;
+  const totalProducts = productsData?.total ?? fallbackStats.products;
+
+  const topProducts = useMemo(() => {
+    if (!topProductsData?.products?.length) {
+      return fallbackTopProducts;
+    }
+
+    return topProductsData.products.map((product) => ({
+      name: product.name,
+      sold: product.salesCount ?? 0,
+      revenue: `৳${Math.round((product.flashSalePrice || product.basePrice) * (product.salesCount || 0)).toLocaleString()}`,
+      icon: Rose,
+    }));
+  }, [topProductsData]);
+
+  const stats = useMemo(
+    () => [
+      { label: "Total Revenue", value: `৳${revenue.toLocaleString()}`, change: "+12.5%", up: true, icon: IndianRupee },
+      { label: "Orders", value: totalOrders.toString(), change: "+8.2%", up: true, icon: Package },
+      { label: "Customers", value: totalCustomers.toString(), change: "+15.3%", up: true, icon: Users },
+      { label: "Products", value: totalProducts.toString(), change: "+3", up: true, icon: ShoppingBag },
+    ],
+    [revenue, totalOrders, totalCustomers, totalProducts],
+  );
+
+  const recentOrders = useMemo(() => {
+    if (!recentOrdersData) {
+      return fallbackRecentOrders;
+    }
+
+    return recentOrdersData.orders.slice(0, 5).map((order) => ({
+      id: order.orderNumber,
+      customer: order.shippingAddress.name,
+      items: order.items.length,
+      total: `৳${order.total.toLocaleString()}`,
+      status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
+      date: new Date(order.createdAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+    }));
+  }, [recentOrdersData]);
+
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -245,7 +318,7 @@ export default function DashboardOverview() {
             {[40, 65, 45, 80, 55, 90, 70].map((h, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-2">
                 <div
-                  className="w-full bg-gradient-to-t from-[#e91e8c] to-[#f48fb1] rounded-t-lg transition-all hover:opacity-80"
+                  className="w-full bg-linear-to-t from-[#e91e8c] to-[#f48fb1] rounded-t-lg transition-all hover:opacity-80"
                   style={{ height: `${h}%` }}
                 />
                 <span className="text-[10px] text-[#6d1b3b]/50 font-medium">

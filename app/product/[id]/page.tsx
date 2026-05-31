@@ -17,7 +17,7 @@ export default function ProductDetailPage() {
   const id = params.id as string;
   const { data: product, isLoading, error } = useProduct(id);
   const { data: relatedData } = useProducts({ limit: 4 });
-  const { addItem, itemCount } = useCart();
+  const { addItem, updateQty, items, itemCount } = useCart();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(0);
@@ -58,19 +58,28 @@ export default function ProductDetailPage() {
   const currentPrice = variant?.priceOverride || product.basePrice;
   const discount = product.originalPrice ? Math.round((1 - currentPrice / product.originalPrice) * 100) : 0;
   const inStock = variant ? variant.stockQuantity > 0 : true;
+  const availableQty = variant?.stockQuantity ?? 99;
   const relatedProducts = (relatedData?.products || []).filter((p) => p._id !== product._id).slice(0, 4);
 
+  const cartItem = items.find((item) => item.productId === product._id && (item.variantId || "default") === (variant?._id || "default"));
+  const currentQty = cartItem ? cartItem.qty : qty;
+
   const handleAddToCart = () => {
-    addItem({
-      productId: product._id,
-      variantId: variant?._id,
-      name: product.name,
-      image: product.images?.[0] || "",
-      price: currentPrice,
-      originalPrice: product.originalPrice,
-      sku: variant?.sku,
-      variantLabel: variant?.attributes ? Object.values(variant.attributes).join(" / ") : undefined,
-    }, qty);
+    if (cartItem) {
+      updateQty(product._id, currentQty, variant?._id);
+    } else {
+      addItem({
+        productId: product._id,
+        variantId: variant?._id,
+        name: product.name,
+        image: product.images?.[0] || "",
+        price: currentPrice,
+        originalPrice: product.originalPrice,
+        sku: variant?.sku,
+        variantLabel: variant?.attributes ? Object.values(variant.attributes).join(" / ") : undefined,
+      }, qty);
+    }
+
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -177,9 +186,30 @@ export default function ProductDetailPage() {
           {/* Quantity + Add to Cart */}
           <div className="flex items-center gap-4 mb-6">
             <div className="flex items-center border border-pink-200 rounded-xl overflow-hidden">
-              <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-4 py-3 text-[#e91e8c] font-bold hover:bg-pink-50 transition-colors">−</button>
-              <span className="px-4 py-3 font-bold text-sm text-[#2d1a24] min-w-[40px] text-center">{qty}</span>
-              <button onClick={() => setQty((q) => q + 1)} className="px-4 py-3 text-[#e91e8c] font-bold hover:bg-pink-50 transition-colors">+</button>
+              <button
+                onClick={() => {
+                  const nextQty = Math.max(1, currentQty - 1);
+                  if (cartItem) {
+                    updateQty(product._id, nextQty, variant?._id);
+                  } else {
+                    setQty(nextQty);
+                  }
+                }}
+                className="px-4 py-3 text-[#e91e8c] font-bold hover:bg-pink-50 transition-colors"
+              >−</button>
+              <span className="px-4 py-3 font-bold text-sm text-[#2d1a24] min-w-[40px] text-center">{currentQty}</span>
+              <button
+                onClick={() => {
+                  const nextQty = Math.min(availableQty, currentQty + 1);
+                  if (cartItem) {
+                    updateQty(product._id, nextQty, variant?._id);
+                  } else {
+                    setQty(nextQty);
+                  }
+                }}
+                disabled={!inStock || currentQty >= availableQty}
+                className="px-4 py-3 text-[#e91e8c] font-bold hover:bg-pink-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >+</button>
             </div>
             <button onClick={handleAddToCart} disabled={!inStock}
               className="flex-1 py-3.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white font-bold text-sm rounded-xl hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
@@ -346,7 +376,11 @@ function ReviewsSection({ productId }: { productId: string }) {
             </div>
 
             {submitReview.isError && (
-              <p className="text-sm text-red-500">{(submitReview.error as any)?.message || "Failed to submit review"}</p>
+              <p className="text-sm text-red-500">
+                {submitReview.error instanceof Error
+                  ? submitReview.error.message
+                  : "Failed to submit review"}
+              </p>
             )}
           </form>
         </div>

@@ -66,11 +66,13 @@ export function useCreateProduct() {
   });
 }
 
+type UpdateProductPayload = Parameters<typeof productsApi.update>[1];
+
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Product> }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateProductPayload }) =>
       productsApi.update(id, data),
     onSuccess: (updatedProduct) => {
       queryClient.setQueryData(queryKeys.products.detail(updatedProduct._id), updatedProduct);

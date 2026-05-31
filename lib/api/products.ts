@@ -8,12 +8,14 @@ import type { Product, PaginatedProducts, FlashSale } from './types';
 export const productsApi = {
   // ─── Products ──────────────────────────────────────────────────────────────
 
-  getAll: (params?: { page?: number; limit?: number; categoryId?: string; search?: string }) => {
+  getAll: (params?: { page?: number; limit?: number; categoryId?: string; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc' }) => {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set('page', String(params.page));
     if (params?.limit) searchParams.set('limit', String(params.limit));
     if (params?.categoryId) searchParams.set('categoryId', params.categoryId);
     if (params?.search) searchParams.set('search', params.search);
+    if (params?.sortBy) searchParams.set('sortBy', params.sortBy);
+    if (params?.sortOrder) searchParams.set('sortOrder', params.sortOrder);
     const query = searchParams.toString();
     return apiRequest<PaginatedProducts>(`/products${query ? `?${query}` : ''}`, { auth: false });
   },
@@ -44,6 +46,8 @@ export const productsApi = {
     categoryId: string;
     images?: string[];
     badge?: string;
+    stockQuantity?: number;
+    variants?: { sku: string; stockQuantity: number; priceOverride?: number; lowStockThreshold?: number; attributes?: Record<string, string>; images?: string[] }[];
   }>) =>
     apiRequest<Product>(`/products/${id}`, { method: 'PUT', body: data }),
 

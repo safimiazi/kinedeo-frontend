@@ -63,7 +63,7 @@ export interface CreateOrderPayload {
   items: OrderItem[];
   shippingAddress: ShippingAddress;
   deliveryMethod: 'standard' | 'express';
-  paymentMethod: 'cod' | 'bkash' | 'nagad';
+  paymentMethod: 'cod' | 'bkash' | 'nagad' | 'sslcommerz';
 }
 
 export const ordersApi = {

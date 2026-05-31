@@ -553,23 +553,39 @@ import {
   Layers,
   Tag,
   BadgeCheck,
-  Image as ImageIcon,
   Box,
   Settings,
   PlusCircle,
-  MinusCircle,
   Save,
   ShoppingBag,
   TrendingUp,
-  DollarSign,
   Archive
 } from "lucide-react";
-import { useProducts, useCategories, useCreateProduct, useUpdateProduct, useDeleteProduct, useAddVariant } from "@/lib/hooks";
+import { useProducts, useCategories, useCreateProduct, useUpdateProduct, useDeleteProduct } from "@/lib/hooks";
 import { SearchableSelect, type SelectOption } from "@/components/ui/SearchableSelect";
 import { ImageUploader } from "@/components/ui/ImageUploader";
-import type { Product, ProductVariant } from "@/lib/api/types";
+import type { Product } from "@/lib/api/types";
 
 type ModalMode = "create" | "edit" | null;
+
+type ProductPayload = {
+  name: string;
+  description: string;
+  shortDescription: string;
+  basePrice: number;
+  originalPrice?: number;
+  categoryId: string;
+  images?: string[];
+  badge?: string;
+  stockQuantity?: number;
+  variants?: {
+    sku: string;
+    stockQuantity: number;
+    priceOverride?: number;
+    lowStockThreshold?: number;
+    attributes?: Record<string, string>;
+  }[];
+};
 
 interface VariantForm {
   sku: string;
@@ -616,8 +632,6 @@ export default function ProductsPage() {
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
-  const addVariant = useAddVariant();
-
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState(defaultForm);
@@ -667,7 +681,7 @@ export default function ProductsPage() {
     setError("");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -682,7 +696,7 @@ export default function ProductsPage() {
 
     try {
       if (modalMode === "create") {
-        const payload: any = {
+        const payload: ProductPayload = {
           name: formData.name,
           description: formData.description,
           shortDescription: formData.shortDescription,
@@ -709,23 +723,37 @@ export default function ProductsPage() {
 
         await createProduct.mutateAsync(payload);
       } else if (modalMode === "edit" && editingProduct) {
+        const payload: ProductPayload = {
+          name: formData.name,
+          description: formData.description,
+          shortDescription: formData.shortDescription,
+          basePrice: formData.basePrice,
+          originalPrice: formData.originalPrice || undefined,
+          categoryId: formData.categoryId,
+          badge: formData.badge || undefined,
+          images: formData.images.length > 0 ? formData.images : undefined,
+        };
+
+        if (formData.variants.length > 0) {
+          payload.variants = formData.variants.map((v) => ({
+            sku: v.sku,
+            stockQuantity: v.stockQuantity,
+            priceOverride: v.priceOverride || undefined,
+            lowStockThreshold: v.lowStockThreshold || 10,
+            attributes: v.attributes.length > 0
+              ? Object.fromEntries(v.attributes.filter((a) => a.key).map((a) => [a.key, a.value])) as Record<string, string>
+              : undefined,
+          }));
+        }
+
         await updateProduct.mutateAsync({
           id: editingProduct._id,
-          data: {
-            name: formData.name,
-            description: formData.description,
-            shortDescription: formData.shortDescription,
-            basePrice: formData.basePrice,
-            originalPrice: formData.originalPrice || undefined,
-            categoryId: formData.categoryId,
-            badge: formData.badge || undefined,
-            images: formData.images,
-          },
+          data: payload,
         });
       }
       closeModal();
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
     }
   };
 
@@ -733,8 +761,8 @@ export default function ProductsPage() {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
       await deleteProduct.mutateAsync(id);
-    } catch (err: any) {
-      alert(err.message || "Failed to delete product");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to delete product");
     }
   };
 
@@ -752,7 +780,11 @@ export default function ProductsPage() {
     }));
   };
 
-  const updateVariantRow = (index: number, field: keyof VariantForm, value: any) => {
+  const updateVariantRow = (
+    index: number,
+    field: keyof VariantForm,
+    value: string | number | { key: string; value: string }[],
+  ) => {
     setFormData((prev) => ({
       ...prev,
       variants: prev.variants.map((v, i) => i === index ? { ...v, [field]: value } : v),
