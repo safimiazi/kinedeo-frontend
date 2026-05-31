@@ -17,8 +17,8 @@ export default function PromoBanner() {
               Shop Gift Set
             </button>
             <div>
-              <span className="font-playfair text-[26px] font-extrabold text-[#f48fb1]">₹3,499</span>
-              <span className="font-nunito text-sm text-[#ad1457] line-through ml-2">₹5,999</span>
+              <span className="font-playfair text-[26px] font-extrabold text-[#f48fb1]">৳3,499</span>
+              <span className="font-nunito text-sm text-[#ad1457] line-through ml-2">৳5,999</span>
             </div>
           </div>
         </div>

@@ -15,7 +15,7 @@ export default function NewsletterCTA({ emailInput, setEmailInput, onSubscribe }
           Join the Petal Club
         </h2>
         <p className="font-nunito text-[#6d1b3b] text-base mb-8 leading-relaxed">
-          Subscribe for exclusive deals, beauty tips, and early access to new launches. Get ₹200 off your first order!
+          Subscribe for exclusive deals, beauty tips, and early access to new launches. Get ৳200 off your first order!
         </p>
         <div className="flex gap-3 max-w-[440px] mx-auto flex-wrap">
           <input
