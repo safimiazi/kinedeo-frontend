@@ -15,21 +15,23 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { useFavorites } from "@/lib/hooks";
 
 interface NavbarProps {
-  wishlistCount: number;
   cartCount: number;
   onCartOpen: () => void;
 }
 
 const NAV_LINKS = ["Shop", "Skincare", "Makeup", "About"];
 
-export default function Navbar({ wishlistCount, cartCount, onCartOpen }: NavbarProps) {
+export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
   const { user, isAuthenticated, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const { data: favoritesData } = useFavorites();
+  const wishlistCount = favoritesData?.favorites?.length ?? 0;
 
   // Close menus on outside click
   useEffect(() => {
@@ -100,15 +102,15 @@ export default function Navbar({ wishlistCount, cartCount, onCartOpen }: NavbarP
                 <Search className="w-5 h-5 text-[#ad1457] group-hover:text-[#e91e8c] transition-colors" />
               </button>
 
-              {/* Wishlist — hidden on smallest screens */}
-              <button className="hidden sm:flex relative p-2 rounded-full hover:bg-pink-50 transition-colors group">
+              {/* Wishlist */}
+              <Link href="/wishlist" className="hidden sm:flex relative p-2 rounded-full hover:bg-pink-50 transition-colors group">
                 <Heart className="w-5 h-5 text-[#ad1457] group-hover:text-[#e91e8c] transition-colors" />
                 {wishlistCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#e91e8c] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {wishlistCount}
+                    {wishlistCount > 99 ? "99+" : wishlistCount}
                   </span>
                 )}
-              </button>
+              </Link>
 
               {/* Cart Button */}
               <button
@@ -264,7 +266,8 @@ export default function Navbar({ wishlistCount, cartCount, onCartOpen }: NavbarP
               <Search className="w-4 h-4 text-[#ad1457]" />
               Search
             </button>
-            <button
+            <Link
+              href="/wishlist"
               onClick={() => setMenuOpen(false)}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-[#2d1a24] hover:bg-pink-50 transition-colors"
             >
@@ -272,10 +275,10 @@ export default function Navbar({ wishlistCount, cartCount, onCartOpen }: NavbarP
               Wishlist
               {wishlistCount > 0 && (
                 <span className="ml-auto bg-[#e91e8c] text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {wishlistCount}
+                  {wishlistCount > 99 ? "99+" : wishlistCount}
                 </span>
               )}
-            </button>
+            </Link>
             <button
               onClick={() => { setMenuOpen(false); onCartOpen(); }}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-[#2d1a24] hover:bg-pink-50 transition-colors"

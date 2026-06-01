@@ -559,9 +559,10 @@ import {
   Save,
   ShoppingBag,
   TrendingUp,
-  Archive
+  Archive,
+  Heart
 } from "lucide-react";
-import { useProducts, useCategories, useCreateProduct, useUpdateProduct, useDeleteProduct } from "@/lib/hooks";
+import { useProducts, useCategories, useCreateProduct, useUpdateProduct, useDeleteProduct, useFavorites, useToggleFavorite } from "@/lib/hooks";
 import { SearchableSelect, type SelectOption } from "@/components/ui/SearchableSelect";
 import { ImageUploader } from "@/components/ui/ImageUploader";
 import toast from "react-hot-toast";
@@ -622,6 +623,7 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   const { data, isLoading } = useProducts({
     page,
@@ -633,6 +635,9 @@ export default function ProductsPage() {
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useToggleFavorite();
+  const favorites = favoritesData?.favorites ?? [];
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState(defaultForm);
@@ -837,6 +842,9 @@ export default function ProductsPage() {
 
   const products = data?.products || [];
   const totalPages = data?.totalPages || 1;
+  const displayedProducts = showFavoritesOnly
+    ? products.filter((p) => favorites.includes(p._id))
+    : products;
 
   return (
     <div className="space-y-6">
@@ -879,18 +887,44 @@ export default function ProductsPage() {
               placeholder="Filter by category..." 
             />
           </div>
+          {favoritesData && (
+            <button
+              onClick={() => { setShowFavoritesOnly((v) => !v); setPage(1); }}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
+                showFavoritesOnly
+                  ? "bg-pink-500 text-white shadow-md shadow-pink-200"
+                  : "bg-pink-50 text-[#e91e8c] hover:bg-pink-100"
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${showFavoritesOnly ? "fill-white" : ""}`} />
+              Favorites
+              {favorites.length > 0 && (
+                <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
+                  showFavoritesOnly ? "bg-white/30 text-white" : "bg-[#e91e8c]/10 text-[#e91e8c]"
+                }`}>
+                  {favorites.length}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
       {/* Products grid */}
-      {products.length === 0 ? (
+      {displayedProducts.length === 0 ? (
         <div className="bg-white rounded-2xl border border-pink-100 p-12 text-center">
           <Package className="w-16 h-16 mx-auto mb-4 text-[#ad1457]/30" />
-          <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">No products found</h3>
+          <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">
+            {showFavoritesOnly ? "No favorites yet" : "No products found"}
+          </h3>
           <p className="text-sm text-[#6d1b3b]/50 mb-4">
-            {search || filterCategory ? "Try adjusting your filters" : "Create your first product to get started"}
+            {showFavoritesOnly
+              ? "Click the heart icon on any product to save it here"
+              : search || filterCategory
+              ? "Try adjusting your filters"
+              : "Create your first product to get started"}
           </p>
-          {!search && !filterCategory && (
+          {!search && !filterCategory && !showFavoritesOnly && (
             <button 
               onClick={openCreate} 
               className="text-sm text-[#e91e8c] font-semibold hover:underline inline-flex items-center gap-1"
@@ -901,18 +935,12 @@ export default function ProductsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {products.map((product) => {
+          {displayedProducts.map((product) => {
             const status = getStatusInfo(product);
             const StatusIcon = status.icon;
+            const isFavorited = favorites.includes(product._id);
             return (
               <div key={product._id} className="bg-white rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all group relative">
-                {/* Badge */}
-                {/* {product.badge && (
-                  <div className="absolute top-3 right-3 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    {product.badge}
-                  </div>
-                )} */}
-                
                 <div className="flex items-start justify-between mb-3">
                   {product.images?.[0] ? (
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-50 to-pink-100 overflow-hidden flex items-center justify-center">
@@ -923,10 +951,26 @@ export default function ProductsPage() {
                       <Package className="w-6 h-6 text-[#ad1457]/40" />
                     </div>
                   )}
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${status.color}`}>
-                    <StatusIcon className="w-3 h-3" />
-                    {status.label}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {favoritesData && (
+                      <button
+                        onClick={() => toggleFavorite.mutate({ productId: product._id, isFavorited })}
+                        disabled={toggleFavorite.isPending}
+                        className={`p-1.5 rounded-lg transition-all ${
+                          isFavorited
+                            ? "text-pink-500 bg-pink-50"
+                            : "text-[#6d1b3b]/30 hover:text-pink-400 hover:bg-pink-50 opacity-0 group-hover:opacity-100"
+                        }`}
+                        title={isFavorited ? "Remove from favorites" : "Add to favorites"}
+                      >
+                        <Heart className={`w-4 h-4 ${isFavorited ? "fill-pink-500" : ""}`} />
+                      </button>
+                    )}
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${status.color}`}>
+                      <StatusIcon className="w-3 h-3" />
+                      {status.label}
+                    </span>
+                  </div>
                 </div>
                 
                 <h3 className="text-sm font-bold text-[#2d1a24] mb-1 line-clamp-1">{product.name}</h3>

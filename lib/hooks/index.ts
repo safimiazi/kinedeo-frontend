@@ -15,6 +15,8 @@ export {
   useUpdateProfile,
   useLogout,
   useLogoutAll,
+  useFavorites,
+  useToggleFavorite,
 } from './use-auth';
 
 // Product hooks

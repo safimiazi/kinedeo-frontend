@@ -19,7 +19,6 @@ export default function HomePage() {
   const { itemCount } = useCart();
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [emailInput, setEmailInput] = useState("");
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -28,7 +27,7 @@ export default function HomePage() {
 
   return (
     <div className="font-playfair bg-[#fff0f5] min-h-screen text-[#2d1a24]">
-      <Navbar wishlistCount={0} cartCount={itemCount} onCartOpen={() => setCartOpen(true)} />
+      <Navbar cartCount={itemCount} onCartOpen={() => setCartOpen(true)} />
       <AnnouncementBar />
       <HeroSection />
       <FlashSale />
@@ -36,8 +35,7 @@ export default function HomePage() {
       <ProductsSection />
       <PromoBanner />
       <Testimonials />
-      <NewsletterCTA emailInput={emailInput} setEmailInput={setEmailInput}
-        onSubscribe={() => { if (emailInput) { showToast("Welcome to Petal Club! 🌸"); setEmailInput(""); } }} />
+      <NewsletterCTA />
       <Footer />
 
       {cartOpen && <CartPanel onClose={() => setCartOpen(false)} />}

@@ -15,7 +15,7 @@
 
 //   return (
 //     <div className="min-h-screen bg-[#fff0f5] font-nunito">
-//       <Navbar wishlistCount={0} cartCount={itemCount} onCartOpen={() => {}} />
+//       <Navbar cartCount={itemCount} onCartOpen={() => {}} />
 
 //       <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
 //         <h1 className="font-playfair text-3xl md:text-4xl font-extrabold text-[#2d1a24] mb-2">Your Shopping Bag</h1>
@@ -129,7 +129,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-[#fff0f5] font-nunito">
-      <Navbar wishlistCount={0} cartCount={itemCount} onCartOpen={() => {}} />
+      <Navbar cartCount={itemCount} onCartOpen={() => {}} />
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
         <h1 className="font-playfair text-3xl md:text-4xl font-extrabold text-[#2d1a24] mb-2">Your Shopping Bag</h1>

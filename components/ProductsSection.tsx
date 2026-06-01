@@ -123,7 +123,7 @@
 "use client";
 
 import Link from "next/link";
-import { useProducts, useCategories } from "@/lib/hooks";
+import { useProducts, useCategories, useFavorites, useToggleFavorite } from "@/lib/hooks";
 import { useCart } from "@/lib/cart-context";
 import { useState } from "react";
 import type { Product } from "@/lib/api/types";
@@ -135,6 +135,9 @@ export default function ProductsSection() {
   const { data: categories } = useCategories();
   const { addItem } = useCart();
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useToggleFavorite();
+  const favorites = favoritesData?.favorites ?? [];
 
   const products = data?.products || [];
 
@@ -262,11 +265,6 @@ export default function ProductsSection() {
                         )}
                       </div>
 
-                      {/* Wishlist Button */}
-                      <button className="absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#e91e8c] hover:scale-110">
-                        <Heart className="w-4 h-4 text-[#ad1457] group-hover:text-white transition-colors" />
-                      </button>
-
                       {/* Quick View Overlay */}
                       <div className={`absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center gap-3 transition-all duration-300 ${
                         isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -278,6 +276,27 @@ export default function ProductsSection() {
                       </div>
                     </div>
                   </Link>
+
+                  {/* Wishlist Button — outside Link to prevent navigation on click */}
+                  {(() => {
+                    const isFavorited = favorites.includes(p._id);
+                    return (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite.mutate({ productId: p._id, isFavorited });
+                        }}
+                        className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 z-10 ${
+                          isFavorited
+                            ? "bg-[#e91e8c] opacity-100"
+                            : "bg-white/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-[#e91e8c]"
+                        }`}
+                        title={isFavorited ? "Remove from favorites" : "Add to favorites"}
+                      >
+                        <Heart className={`w-4 h-4 transition-colors ${isFavorited ? "fill-white text-white" : "text-[#ad1457] hover:text-white"}`} />
+                      </button>
+                    );
+                  })()}
 
                   {/* Product Info */}
                   <div className="p-4">

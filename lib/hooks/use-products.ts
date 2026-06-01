@@ -91,7 +91,7 @@ export function useUpdateProduct() {
       productsApi.update(id, data),
     onSuccess: (updatedProduct) => {
       queryClient.setQueryData(queryKeys.products.detail(updatedProduct._id), updatedProduct);
-      queryClient.invalidateQueries({ queryKey: queryKeys.products.list() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.products.all() });
     },
   });
 }

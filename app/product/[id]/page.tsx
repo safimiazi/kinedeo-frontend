@@ -27,7 +27,7 @@ export default function ProductDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#fff0f5] font-nunito">
-        <Navbar wishlistCount={0} cartCount={itemCount} onCartOpen={() => {}} />
+        <Navbar cartCount={itemCount} onCartOpen={() => {}} />
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <div className="aspect-square bg-pink-100 rounded-2xl animate-pulse" />
@@ -86,7 +86,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#fff0f5] font-nunito">
-      <Navbar wishlistCount={0} cartCount={itemCount} onCartOpen={() => router.push("/cart")} />
+      <Navbar cartCount={itemCount} onCartOpen={() => router.push("/cart")} />
 
       {/* Breadcrumbs */}
       <nav className="max-w-7xl mx-auto px-4 md:px-8 py-6 flex items-center gap-2 text-xs font-bold text-[#ad1457] uppercase tracking-wider">

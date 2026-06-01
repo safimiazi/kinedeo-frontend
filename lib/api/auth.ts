@@ -77,4 +77,19 @@ export const authApi = {
       method: 'PUT',
       body: data,
     }),
+
+  // ─── Favorites ──────────────────────────────────────────────────────────────
+
+  getFavorites: () =>
+    apiRequest<{ favorites: string[] }>('/auth/me/favorites', {}),
+
+  addFavorite: (productId: string) =>
+    apiRequest<{ favorites: string[] }>(`/auth/me/favorites/${productId}`, {
+      method: 'POST',
+    }),
+
+  removeFavorite: (productId: string) =>
+    apiRequest<{ favorites: string[] }>(`/auth/me/favorites/${productId}`, {
+      method: 'DELETE',
+    }),
 };

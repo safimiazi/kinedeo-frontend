@@ -21,6 +21,7 @@ import CartPanel from "@/components/CartPanel";
 import { useCart } from "@/lib/cart-context";
 import { useInfiniteProducts } from "@/lib/hooks/use-products";
 import { useCategories } from "@/lib/hooks/use-categories";
+import { useFavorites, useToggleFavorite } from "@/lib/hooks";
 import type { Product } from "@/lib/api/types";
 
 const SORT_OPTIONS = [
@@ -40,6 +41,10 @@ export default function ProductsPage() {
   const [sortIdx, setSortIdx] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [addedId, setAddedId] = useState<string | null>(null);
+
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useToggleFavorite();
+  const favorites = favoritesData?.favorites ?? [];
 
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
@@ -108,7 +113,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-[#fff0f5] font-nunito">
-      <Navbar wishlistCount={0} cartCount={itemCount} onCartOpen={() => setCartOpen(true)} />
+      <Navbar cartCount={itemCount} onCartOpen={() => setCartOpen(true)} />
 
       {/* Hero Banner */}
       <div className="bg-gradient-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] text-white py-12 px-[5%]">
@@ -274,24 +279,26 @@ export default function ProductsPage() {
                   return (
                     <div
                       key={p._id}
-                      className="group bg-white rounded-2xl border border-[#fce4ec] hover:border-[#e91e8c] overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#e91e8c]/10 flex flex-col"
+                      className="group relative bg-white rounded-2xl border border-[#fce4ec] hover:border-[#e91e8c] overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#e91e8c]/10 flex flex-col"
                     >
-                      {/* Image */}
-                      <Link href={`/product/${p._id}`} className="block relative aspect-square bg-gradient-to-br from-pink-50 to-rose-50 overflow-hidden">
-                        {p.images?.[0] ? (
-                          <img
-                            src={p.images[0]}
-                            alt={p.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Package className="w-12 h-12 text-[#ad1457]/20" />
-                          </div>
-                        )}
+                      {/* Image — Link wraps only the image, not the heart button */}
+                      <div className="relative aspect-square bg-gradient-to-br from-pink-50 to-rose-50 overflow-hidden">
+                        <Link href={`/product/${p._id}`} className="block w-full h-full">
+                          {p.images?.[0] ? (
+                            <img
+                              src={p.images[0]}
+                              alt={p.name}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="w-12 h-12 text-[#ad1457]/20" />
+                            </div>
+                          )}
+                        </Link>
 
                         {/* Badges */}
-                        <div className="absolute top-2 left-2 flex flex-col gap-1.5">
+                        <div className="absolute top-2 left-2 flex flex-col gap-1.5 pointer-events-none">
                           {p.flashSalePrice && (
                             <span className="bg-orange-500 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">
                               FLASH SALE
@@ -309,11 +316,24 @@ export default function ProductsPage() {
                           )}
                         </div>
 
-                        {/* Wishlist */}
-                        <button className="absolute top-2 right-2 w-7 h-7 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-pink-50">
-                          <Heart className="w-3.5 h-3.5 text-[#ad1457]" />
-                        </button>
-                      </Link>
+                        {/* Wishlist — outside Link, stopPropagation not needed since Link doesn't wrap it */}
+                        {(() => {
+                          const isFav = favorites.includes(p._id);
+                          return (
+                            <button
+                              onClick={() => toggleFavorite.mutate({ productId: p._id, isFavorited: isFav })}
+                              className={`absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 z-10 ${
+                                isFav
+                                  ? "bg-[#e91e8c] opacity-100"
+                                  : "bg-white/90 opacity-0 group-hover:opacity-100 hover:bg-pink-50"
+                              }`}
+                              title={isFav ? "Remove from favorites" : "Add to favorites"}
+                            >
+                              <Heart className={`w-3.5 h-3.5 ${isFav ? "fill-white text-white" : "text-[#ad1457]"}`} />
+                            </button>
+                          );
+                        })()}
+                      </div>
 
                       {/* Info */}
                       <div className="p-3 flex flex-col flex-1">

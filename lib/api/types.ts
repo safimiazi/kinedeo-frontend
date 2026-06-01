@@ -34,6 +34,7 @@ export interface UserProfile {
   isEmailVerified: boolean;
   isActive: boolean;
   addresses: Address[];
+  favoriteProducts?: string[];
   createdAt: string;
 }
 
