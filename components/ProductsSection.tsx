@@ -306,13 +306,17 @@ export default function ProductsSection() {
                       <div>
                         <div className="flex items-baseline gap-1">
                           <span className="font-playfair text-xl font-extrabold text-[#e91e8c]">
-                            ৳{p.basePrice.toLocaleString()}
+                            ৳{(p.flashSalePrice || p.basePrice).toLocaleString()}
                           </span>
-                          {p.originalPrice && p.originalPrice > p.basePrice && (
+                          {p.flashSalePrice ? (
+                            <span className="font-nunito text-xs text-[#ad1457]/50 line-through">
+                              ৳{p.basePrice.toLocaleString()}
+                            </span>
+                          ) : p.originalPrice && p.originalPrice > p.basePrice ? (
                             <span className="font-nunito text-xs text-[#ad1457]/50 line-through">
                               ৳{p.originalPrice.toLocaleString()}
                             </span>
-                          )}
+                          ) : null}
                         </div>
                         {p.flashSalePrice && (
                           <div className="flex items-center gap-1 mt-0.5">

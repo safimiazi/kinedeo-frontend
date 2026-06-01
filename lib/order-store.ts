@@ -35,6 +35,8 @@ export interface LocalOrder {
   shippingCost: number;
   total: number;
   status: OrderStatus;
+  couponCode?: string;
+  discountAmount?: number;
   createdAt: string;
   updatedAt: string;
   paymentVerifiedAt?: string;

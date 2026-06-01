@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import HeroSection from "@/components/HeroSection";
@@ -17,26 +16,10 @@ import Toast from "@/components/Toast";
 import { useCart } from "@/lib/cart-context";
 
 export default function HomePage() {
-  const router = useRouter();
-  const { items, itemCount, subtotal } = useCart();
+  const { itemCount } = useCart();
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState({ h: 5, m: 42, s: 17 });
   const [emailInput, setEmailInput] = useState("");
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setTimeLeft((prev) => {
-        let { h, m, s } = prev;
-        s--;
-        if (s < 0) { s = 59; m--; }
-        if (m < 0) { m = 59; h--; }
-        if (h < 0) return { h: 5, m: 59, s: 59 };
-        return { h, m, s };
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, []);
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -48,7 +31,7 @@ export default function HomePage() {
       <Navbar wishlistCount={0} cartCount={itemCount} onCartOpen={() => setCartOpen(true)} />
       <AnnouncementBar />
       <HeroSection />
-      <FlashSale timeLeft={timeLeft} />
+      <FlashSale />
       <Features />
       <ProductsSection />
       <PromoBanner />
@@ -57,11 +40,7 @@ export default function HomePage() {
         onSubscribe={() => { if (emailInput) { showToast("Welcome to Petal Club! 🌸"); setEmailInput(""); } }} />
       <Footer />
 
-      {cartOpen && (
-        <CartPanel cart={items.map((i, idx) => ({ id: idx + 1, name: i.name, price: i.price, emoji: i.image ? "🛍️" : "📦", qty: i.qty }))}
-          cartTotal={subtotal} onClose={() => setCartOpen(false)}
-          onCheckout={() => { setCartOpen(false); router.push("/cart"); }} />
-      )}
+      {cartOpen && <CartPanel onClose={() => setCartOpen(false)} />}
 
       {toast && <Toast message={toast} />}
     </div>

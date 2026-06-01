@@ -1,8 +1,31 @@
-// "use client";
+"use client";
 
-// import { useState } from "react";
-// import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-// import { apiRequest } from "@/lib/api/client";
+import { useState } from "react";
+import { 
+  Ticket,
+  Plus,
+  Edit,
+  Trash2,
+  X,
+  AlertCircle,
+  Tag,
+  Percent,
+  DollarSign,
+  Calendar,
+  Users,
+  Infinity,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Save,
+  ChevronLeft,
+  ChevronRight,
+  Gift
+} from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/api/client";
+import { productsApi, categoriesApi } from "@/lib/api";
+import { SearchableSelect, type SelectOption } from "@/components/ui/SearchableSelect";
 
 // interface Coupon {
 //   _id: string;
@@ -474,32 +497,6 @@
 //     </div>
 //   );
 // }
-"use client";
-
-import { useState } from "react";
-import { 
-  Ticket, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  X,
-  AlertCircle,
-  Tag,
-  Percent,
-  DollarSign,
-  Calendar,
-  Users,
-  Infinity,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Save,
-  ChevronLeft,
-  ChevronRight,
-  Gift
-} from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/api/client";
 
 interface Coupon {
   _id: string;
@@ -511,6 +508,8 @@ interface Coupon {
   maximumDiscount?: number;
   usageLimit?: number;
   perUserLimit?: number;
+  applicableProducts?: string[];
+  applicableCategories?: string[];
   usedCount: number;
   validFrom: string;
   validUntil: string;
@@ -536,6 +535,8 @@ const defaultForm = {
   maximumDiscount: 0,
   usageLimit: 0,
   perUserLimit: 0,
+  applicableProducts: [] as string[],
+  applicableCategories: [] as string[],
   validFrom: "",
   validUntil: "",
 };
@@ -547,6 +548,26 @@ export default function CouponsPage() {
   const [formData, setFormData] = useState(defaultForm);
   const [error, setError] = useState("");
   const queryClient = useQueryClient();
+
+  const { data: productsData, isLoading: productsLoading } = useQuery({
+    queryKey: ["coupon-admin-products"],
+    queryFn: () => productsApi.getAll({ limit: 1000 }),
+  });
+
+  const { data: categoriesData, isLoading: categoriesLoading } = useQuery({
+    queryKey: ["coupon-admin-categories"],
+    queryFn: () => categoriesApi.getAllAdmin(),
+  });
+
+  const productOptions: SelectOption[] = (productsData?.products || []).map((product) => ({
+    value: product._id,
+    label: product.name,
+  }));
+
+  const categoryOptions: SelectOption[] = (categoriesData || []).map((category) => ({
+    value: category._id,
+    label: category.name,
+  }));
 
   const { data, isLoading } = useQuery({
     queryKey: ["coupons", page],
@@ -594,6 +615,8 @@ export default function CouponsPage() {
       maximumDiscount: coupon.maximumDiscount || 0,
       usageLimit: coupon.usageLimit || 0,
       perUserLimit: coupon.perUserLimit || 0,
+      applicableProducts: coupon.applicableProducts || [],
+      applicableCategories: coupon.applicableCategories || [],
       validFrom: coupon.validFrom ? new Date(coupon.validFrom).toISOString().slice(0, 16) : "",
       validUntil: coupon.validUntil ? new Date(coupon.validUntil).toISOString().slice(0, 16) : "",
     });
@@ -626,6 +649,8 @@ export default function CouponsPage() {
       maximumDiscount: formData.maximumDiscount || undefined,
       usageLimit: formData.usageLimit || undefined,
       perUserLimit: formData.perUserLimit || undefined,
+      applicableProducts: formData.applicableProducts.length ? formData.applicableProducts : undefined,
+      applicableCategories: formData.applicableCategories.length ? formData.applicableCategories : undefined,
       validFrom: new Date(formData.validFrom).toISOString(),
       validUntil: new Date(formData.validUntil).toISOString(),
     };
@@ -788,6 +813,20 @@ export default function CouponsPage() {
                     </span>
                   </div>
                 </div>
+                {(coupon.applicableProducts?.length || coupon.applicableCategories?.length) && (
+                  <div className="space-y-1 text-xs text-[#6d1b3b]/70 mb-3">
+                    {coupon.applicableProducts?.length ? (
+                      <p>
+                        <span className="font-semibold text-[#2d1a24]">Products:</span> {coupon.applicableProducts.join(', ')}
+                      </p>
+                    ) : null}
+                    {coupon.applicableCategories?.length ? (
+                      <p>
+                        <span className="font-semibold text-[#2d1a24]">Categories:</span> {coupon.applicableCategories.join(', ')}
+                      </p>
+                    ) : null}
+                  </div>
+                )}
 
                 <div className="flex items-center gap-3 pt-3 border-t border-pink-50">
                   <button
@@ -1003,6 +1042,35 @@ export default function CouponsPage() {
                       min={0}
                       className="w-full px-4 py-2.5 rounded-xl border border-pink-200 text-sm text-[#2d1a24] outline-none focus:border-[#e91e8c] focus:ring-2 focus:ring-[#e91e8c]/10 transition-all placeholder:text-[#ad1457]/30"
                     />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3">
+                  <div>
+                    <SearchableSelect
+                      label="Applicable Products"
+                      placeholder="Search products..."
+                      multiple
+                      options={productOptions}
+                      value={formData.applicableProducts}
+                      onChange={(values) => setFormData((prev) => ({ ...prev, applicableProducts: values }))}
+                      loading={productsLoading}
+                      className="w-full"
+                    />
+                    <p className="text-xs text-[#6d1b3b]/50 mt-1">Leave empty to apply to all products.</p>
+                  </div>
+                  <div>
+                    <SearchableSelect
+                      label="Applicable Categories"
+                      placeholder="Search categories..."
+                      multiple
+                      options={categoryOptions}
+                      value={formData.applicableCategories}
+                      onChange={(values) => setFormData((prev) => ({ ...prev, applicableCategories: values }))}
+                      loading={categoriesLoading}
+                      className="w-full"
+                    />
+                    <p className="text-xs text-[#6d1b3b]/50 mt-1">Leave empty to apply to all categories.</p>
                   </div>
                 </div>
 

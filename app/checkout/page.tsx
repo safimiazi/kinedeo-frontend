@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   ShoppingBag, 
@@ -9,7 +8,6 @@ import {
   CreditCard, 
   Lock, 
   ArrowLeft, 
-  PartyPopper,
   Loader2,
   Shield,
   Truck
@@ -20,9 +18,26 @@ import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
 import { API_BASE } from "@/lib/api/client";
 
+interface ActiveCoupon {
+  code: string;
+  description?: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  minimumOrderAmount: number;
+  maximumDiscount?: number;
+}
+
+interface CouponValidationResult {
+  valid: boolean;
+  code: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  calculatedDiscount: number;
+  finalAmount: number;
+}
+
 export default function CheckoutPage() {
-  const router = useRouter();
-  const { items, itemCount, subtotal, clearCart } = useCart();
+  const { items, itemCount, subtotal } = useCart();
   const { user, isAuthenticated } = useAuth();
 
   const [form, setForm] = useState({
@@ -36,12 +51,101 @@ export default function CheckoutPage() {
     note: "",
   });
   const [placing, setPlacing] = useState(false);
-  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponValidation, setCouponValidation] = useState<CouponValidationResult | null>(null);
+  const [couponMessage, setCouponMessage] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [activeCoupons, setActiveCoupons] = useState<ActiveCoupon[]>([]);
 
   const shipping = subtotal >= 999 ? 0 : 99;
-  const total = subtotal + shipping;
+  const discount = couponValidation?.calculatedDiscount || 0;
+  const total = Math.max(0, subtotal + shipping - discount);
 
   const updateForm = (field: string, value: string) => setForm((prev) => ({ ...prev, [field]: value }));
+
+  useEffect(() => {
+    async function loadActiveCoupons() {
+      try {
+        const response = await fetch(`${API_BASE}/coupons/active`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const coupons: ActiveCoupon[] = await response.json();
+        setActiveCoupons(coupons);
+      } catch {
+        // ignore silently
+      }
+    }
+
+    loadActiveCoupons();
+  }, []);
+
+  useEffect(() => {
+    if (!couponCode.trim()) {
+      setCouponValidation(null);
+      setCouponMessage("");
+    }
+  }, [couponCode]);
+
+  const handleApplyCoupon = async (codeToApply?: string) => {
+    const normalizedCode = (codeToApply ?? couponCode).trim().toUpperCase();
+    if (!normalizedCode) {
+      setCouponMessage("Enter a coupon code first.");
+      setCouponValidation(null);
+      return;
+    }
+
+    if (subtotal === 0) {
+      setCouponMessage("Add items to your cart before applying a coupon.");
+      setCouponValidation(null);
+      return;
+    }
+
+    // Sync input field when applying from suggestion buttons
+    if (codeToApply) {
+      setCouponCode(normalizedCode);
+    }
+
+    setCouponLoading(true);
+    setCouponMessage("");
+
+    try {
+      const response = await fetch(`${API_BASE}/coupons/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: normalizedCode,
+          orderAmount: subtotal,
+          userEmail: form.email,
+          items: items.map((item) => ({
+            productId: item.productId,
+            sku: item.sku,
+            qty: item.qty,
+            price: item.price,
+          })),
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || "Invalid coupon code");
+      }
+
+      setCouponValidation(result);
+      setCouponMessage(`Coupon applied: ${result.code} — you saved ৳${result.calculatedDiscount.toLocaleString()}`);
+      setCouponCode(result.code);
+    } catch (error: unknown) {
+      setCouponValidation(null);
+      setCouponMessage(error instanceof Error ? error.message : "Failed to validate coupon");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
 
   const initiateSSLCommerzPayment = async (orderData: any) => {
     try {
@@ -96,6 +200,8 @@ export default function CheckoutPage() {
           note: form.note || undefined,
         },
         deliveryMethod: 'standard',
+        couponCode: couponValidation?.code,
+        discountAmount: discount,
       };
 
       // Initiate SSLCommerz payment
@@ -108,7 +214,7 @@ export default function CheckoutPage() {
     }
   };
 
-  if (items.length === 0 && !orderPlaced) {
+  if (items.length === 0) {
     return (
       <div className="min-h-screen bg-[#fff0f5] font-nunito flex items-center justify-center">
         <div className="text-center">
@@ -116,21 +222,6 @@ export default function CheckoutPage() {
           <h1 className="text-2xl font-bold text-[#2d1a24] mb-3">Your cart is empty</h1>
           <Link href="/" className="text-[#e91e8c] font-semibold hover:underline inline-flex items-center gap-1">
             <ArrowLeft className="w-4 h-4" /> Continue Shopping
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (orderPlaced) {
-    return (
-      <div className="min-h-screen bg-[#fff0f5] font-nunito flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <PartyPopper className="w-20 h-20 mx-auto mb-6 text-[#e91e8c]" />
-          <h1 className="font-playfair text-3xl font-extrabold text-[#2d1a24] mb-3">Order Placed!</h1>
-          <p className="text-sm text-[#6d1b3b]/70 mb-6">Thank you for your order. We will contact you shortly to confirm delivery.</p>
-          <Link href="/" className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-3 rounded-full font-bold text-sm hover:shadow-lg transition-all inline-block">
-            Continue Shopping
           </Link>
         </div>
       </div>
@@ -285,12 +376,81 @@ export default function CheckoutPage() {
               </div>
               
               <div className="border-t border-[#fce4ec] my-4" />
-              
+
+              <div className="bg-pink-50 rounded-2xl p-4 border border-pink-100 mb-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-[#2d1a24]">Apply Coupon</h4>
+                    <p className="text-xs text-[#6d1b3b]/70">Use code PETAL20 or any active coupon below to get a discount.</p>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-[1fr_auto] gap-3">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    placeholder="Enter coupon code"
+                    className="w-full px-4 py-3 rounded-xl border border-pink-200 text-sm text-[#2d1a24] outline-none focus:border-[#e91e8c] transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleApplyCoupon()}
+                    disabled={!couponCode.trim() || couponLoading}
+                    className="px-4 py-3 rounded-xl bg-[#e91e8c] text-white text-sm font-semibold hover:bg-[#c2185b] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {couponLoading ? "Checking..." : "Apply"}
+                  </button>
+                </div>
+                {couponMessage && (
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <p className={`text-xs ${couponValidation ? "text-green-700" : "text-red-500"}`}>
+                      {couponMessage}
+                    </p>
+                    {couponValidation && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCouponValidation(null);
+                          setCouponMessage("");
+                          setCouponCode("");
+                        }}
+                        className="text-[10px] text-red-400 hover:text-red-600 font-semibold underline shrink-0"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                )}
+                {activeCoupons.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-[10px] text-[#6d1b3b]/70 mb-2">Available coupons</p>
+                    <div className="flex flex-wrap gap-2">
+                      {activeCoupons.map((active) => (
+                        <button
+                          key={active.code}
+                          type="button"
+                          onClick={() => handleApplyCoupon(active.code)}
+                          className="text-[10px] bg-white px-3 py-1 rounded-full border border-pink-100 text-[#2d1a24] hover:bg-pink-50 transition-all"
+                        >
+                          <strong>{active.code}</strong>{active.description ? ` • ${active.description}` : ''}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2.5 mb-5">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#2d1a24]/70">Subtotal</span>
                   <span className="font-semibold text-[#2d1a24]">৳{subtotal.toLocaleString()}</span>
                 </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#2d1a24]/70">Coupon Discount</span>
+                    <span className="font-semibold text-red-600">-৳{discount.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-[#2d1a24]/70 flex items-center gap-1">
                     <Truck className="w-3 h-3" />

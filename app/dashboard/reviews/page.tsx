@@ -1,276 +1,35 @@
-// "use client";
-
-// import { useState } from "react";
-// import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-// import { apiRequest } from "@/lib/api/client";
-
-// interface Review {
-//   _id: string;
-//   userId: string | { _id: string; name: string; email: string };
-//   productId: string | { _id: string; name: string };
-//   rating: number;
-//   comment: string;
-//   isApproved: boolean;
-//   isVerifiedPurchase: boolean;
-//   createdAt: string;
-// }
-
-// interface ReviewsResponse {
-//   reviews: Review[];
-//   total: number;
-//   page: number;
-//   totalPages: number;
-// }
-
-// type FilterTab = "all" | "approved" | "pending";
-
-// export default function ReviewsPage() {
-//   const [page, setPage] = useState(1);
-//   const [filter, setFilter] = useState<FilterTab>("all");
-//   const queryClient = useQueryClient();
-
-//   const getFilterParam = () => {
-//     if (filter === "approved") return "&isApproved=true";
-//     if (filter === "pending") return "&isApproved=false";
-//     return "";
-//   };
-
-//   const { data, isLoading } = useQuery({
-//     queryKey: ["reviews", page, filter],
-//     queryFn: () =>
-//       apiRequest<ReviewsResponse>(
-//         `/reviews/admin/all?page=${page}&limit=10${getFilterParam()}`
-//       ),
-//   });
-
-//   const approveMutation = useMutation({
-//     mutationFn: (id: string) =>
-//       apiRequest(`/reviews/admin/${id}/approve`, { method: "PUT" }),
-//     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reviews"] }),
-//   });
-
-//   const rejectMutation = useMutation({
-//     mutationFn: (id: string) =>
-//       apiRequest(`/reviews/admin/${id}/reject`, { method: "PUT" }),
-//     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reviews"] }),
-//   });
-
-//   const deleteMutation = useMutation({
-//     mutationFn: (id: string) =>
-//       apiRequest(`/reviews/admin/${id}`, { method: "DELETE" }),
-//     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reviews"] }),
-//   });
-
-//   const getCustomerName = (userId: Review["userId"]) => {
-//     if (typeof userId === "object" && userId !== null) return userId.name;
-//     return userId || "Unknown";
-//   };
-
-//   const getProductName = (productId: Review["productId"]) => {
-//     if (typeof productId === "object" && productId !== null) return productId.name;
-//     return productId || "Unknown Product";
-//   };
-
-//   const renderStars = (rating: number) => {
-//     return Array.from({ length: 5 }, (_, i) => (
-//       <span key={i} className={i < rating ? "text-yellow-400" : "text-gray-200"}>
-//         ★
-//       </span>
-//     ));
-//   };
-
-//   if (isLoading) {
-//     return (
-//       <div className="space-y-6">
-//         <div className="h-8 w-40 bg-pink-100 rounded-lg animate-pulse" />
-//         <div className="space-y-4">
-//           {[1, 2, 3, 4].map((i) => (
-//             <div key={i} className="bg-white rounded-2xl border border-pink-100 p-6 h-32 animate-pulse" />
-//           ))}
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   const reviews = data?.reviews || [];
-//   const totalPages = data?.totalPages || 1;
-
-//   return (
-//     <div className="space-y-6">
-//       {/* Header */}
-//       <div>
-//         <h1 className="text-2xl font-bold text-[#2d1a24] font-playfair">Reviews</h1>
-//         <p className="text-sm text-[#6d1b3b]/60 mt-1">
-//           {data?.total || 0} reviews total
-//         </p>
-//       </div>
-
-//       {/* Filter Tabs */}
-//       <div className="bg-white rounded-2xl border border-pink-100 p-2 inline-flex gap-1">
-//         {(["all", "approved", "pending"] as FilterTab[]).map((tab) => (
-//           <button
-//             key={tab}
-//             onClick={() => {
-//               setFilter(tab);
-//               setPage(1);
-//             }}
-//             className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all capitalize ${
-//               filter === tab
-//                 ? "bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md shadow-pink-200"
-//                 : "text-[#6d1b3b]/60 hover:bg-pink-50"
-//             }`}
-//           >
-//             {tab}
-//           </button>
-//         ))}
-//       </div>
-
-//       {/* Reviews List */}
-//       {reviews.length === 0 ? (
-//         <div className="bg-white rounded-2xl border border-pink-100 p-12 text-center">
-//           <span className="text-4xl mb-4 block">⭐</span>
-//           <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">No reviews found</h3>
-//           <p className="text-sm text-[#6d1b3b]/50">
-//             {filter !== "all" ? "Try a different filter" : "Reviews will appear here once customers leave them"}
-//           </p>
-//         </div>
-//       ) : (
-//         <div className="space-y-4">
-//           {reviews.map((review) => (
-//             <div
-//               key={review._id}
-//               className="bg-white rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all"
-//             >
-//               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-//                 <div className="flex-1">
-//                   <div className="flex items-center gap-3 mb-2">
-//                     <span className="text-sm font-semibold text-[#2d1a24]">
-//                       {getCustomerName(review.userId)}
-//                     </span>
-//                     <span className="text-xs text-[#6d1b3b]/40">→</span>
-//                     <span className="text-sm text-[#6d1b3b]/70">
-//                       {getProductName(review.productId)}
-//                     </span>
-//                   </div>
-//                   <div className="flex items-center gap-2 mb-2">
-//                     <span className="text-sm">{renderStars(review.rating)}</span>
-//                     <span className="text-xs text-[#6d1b3b]/50">({review.rating}/5)</span>
-//                   </div>
-//                   <p className="text-sm text-[#2d1a24]/80 mb-3">{review.comment}</p>
-//                   <div className="flex items-center gap-2 flex-wrap">
-//                     {review.isVerifiedPurchase && (
-//                       <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
-//                         ✓ Verified Purchase
-//                       </span>
-//                     )}
-//                     <span
-//                       className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-//                         review.isApproved
-//                           ? "bg-green-100 text-green-700"
-//                           : "bg-yellow-100 text-yellow-700"
-//                       }`}
-//                     >
-//                       {review.isApproved ? "Approved" : "Pending"}
-//                     </span>
-//                     <span className="text-[10px] text-[#6d1b3b]/40">
-//                       {new Date(review.createdAt).toLocaleDateString()}
-//                     </span>
-//                   </div>
-//                 </div>
-
-//                 {/* Actions */}
-//                 <div className="flex items-center gap-2 shrink-0">
-//                   {!review.isApproved && (
-//                     <button
-//                       onClick={() => approveMutation.mutate(review._id)}
-//                       disabled={approveMutation.isPending}
-//                       className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-all"
-//                     >
-//                       Approve
-//                     </button>
-//                   )}
-//                   {review.isApproved && (
-//                     <button
-//                       onClick={() => rejectMutation.mutate(review._id)}
-//                       disabled={rejectMutation.isPending}
-//                       className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-all"
-//                     >
-//                       Reject
-//                     </button>
-//                   )}
-//                   <button
-//                     onClick={() => {
-//                       if (confirm("Are you sure you want to delete this review?")) {
-//                         deleteMutation.mutate(review._id);
-//                       }
-//                     }}
-//                     disabled={deleteMutation.isPending}
-//                     className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all"
-//                   >
-//                     Delete
-//                   </button>
-//                 </div>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       )}
-
-//       {/* Pagination */}
-//       {totalPages > 1 && (
-//         <div className="flex items-center justify-center gap-2">
-//           <button
-//             onClick={() => setPage((p) => Math.max(1, p - 1))}
-//             disabled={page === 1}
-//             className="px-3 py-2 rounded-lg border border-pink-200 text-sm text-[#6d1b3b] disabled:opacity-40 hover:bg-pink-50 transition-all"
-//           >
-//             ← Prev
-//           </button>
-//           <span className="text-sm text-[#6d1b3b]/60 px-3">
-//             Page {page} of {totalPages}
-//           </span>
-//           <button
-//             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-//             disabled={page === totalPages}
-//             className="px-3 py-2 rounded-lg border border-pink-200 text-sm text-[#6d1b3b] disabled:opacity-40 hover:bg-pink-50 transition-all"
-//           >
-//             Next →
-//           </button>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
 "use client";
 
 import { useState } from "react";
-import { 
-  Star, 
-  CheckCircle, 
-  Clock, 
-  Trash2, 
-  ThumbsUp, 
+import {
+  Star,
+  CheckCircle,
+  Clock,
+  Trash2,
+  ThumbsUp,
   ThumbsDown,
-  User,
   Package,
   Calendar,
   ChevronLeft,
   ChevronRight,
   MessageSquare,
-  Filter,
-  Shield
+  Shield,
+  Eye,
+  AlertTriangle,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api/client";
 
 interface Review {
   _id: string;
-  userId: string | { _id: string; name: string; email: string };
-  productId: string | { _id: string; name: string };
+  userId: { _id: string; name: string; email: string } | string;
+  productId: { _id: string; name: string; images: string[] } | string;
   rating: number;
+  title?: string;
   comment: string;
   isApproved: boolean;
   isVerifiedPurchase: boolean;
+  helpfulCount: number;
   createdAt: string;
 }
 
@@ -283,259 +42,393 @@ interface ReviewsResponse {
 
 type FilterTab = "all" | "approved" | "pending";
 
+const TABS: { key: FilterTab; label: string; icon: React.ReactNode; color: string }[] = [
+  { key: "all", label: "All Reviews", icon: <MessageSquare className="w-3.5 h-3.5" />, color: "" },
+  { key: "approved", label: "Approved", icon: <CheckCircle className="w-3.5 h-3.5" />, color: "text-green-600" },
+  { key: "pending", label: "Pending", icon: <Clock className="w-3.5 h-3.5" />, color: "text-yellow-600" },
+];
+
+function StarRow({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Star
+          key={s}
+          className={`w-3.5 h-3.5 ${s <= rating ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-200"}`}
+        />
+      ))}
+      <span className="text-xs text-[#6d1b3b]/50 ml-1">{rating}/5</span>
+    </div>
+  );
+}
+
+function ConfirmDialog({
+  message,
+  onConfirm,
+  onCancel,
+}: {
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl border border-pink-100 shadow-xl p-6 max-w-sm w-full">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+            <AlertTriangle className="w-5 h-5 text-red-500" />
+          </div>
+          <div>
+            <h3 className="font-bold text-[#2d1a24] text-sm">Confirm Action</h3>
+            <p className="text-xs text-[#6d1b3b]/60 mt-0.5">{message}</p>
+          </div>
+        </div>
+        <div className="flex gap-2 justify-end">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 rounded-xl text-sm font-semibold text-[#6d1b3b] hover:bg-pink-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 rounded-xl text-sm font-semibold bg-red-500 text-white hover:bg-red-600 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ReviewsPage() {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<FilterTab>("all");
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const getFilterParam = () => {
-    if (filter === "approved") return "&isApproved=true";
-    if (filter === "pending") return "&isApproved=false";
-    return "";
-  };
+  const filterParam =
+    filter === "approved" ? "&isApproved=true" : filter === "pending" ? "&isApproved=false" : "";
 
   const { data, isLoading } = useQuery({
     queryKey: ["reviews", page, filter],
     queryFn: () =>
-      apiRequest<ReviewsResponse>(
-        `/reviews/admin/all?page=${page}&limit=10${getFilterParam()}`
-      ),
+      apiRequest<ReviewsResponse>(`/reviews/admin/all?page=${page}&limit=10${filterParam}`),
   });
 
   const approveMutation = useMutation({
-    mutationFn: (id: string) =>
-      apiRequest(`/reviews/admin/${id}/approve`, { method: "PUT" }),
+    mutationFn: (id: string) => apiRequest(`/reviews/admin/${id}/approve`, { method: "PUT" }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reviews"] }),
   });
 
   const rejectMutation = useMutation({
-    mutationFn: (id: string) =>
-      apiRequest(`/reviews/admin/${id}/reject`, { method: "PUT" }),
+    mutationFn: (id: string) => apiRequest(`/reviews/admin/${id}/reject`, { method: "PUT" }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reviews"] }),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) =>
-      apiRequest(`/reviews/admin/${id}`, { method: "DELETE" }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["reviews"] }),
+    mutationFn: (id: string) => apiRequest(`/reviews/admin/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reviews"] });
+      setDeleteTarget(null);
+    },
   });
 
-  const getCustomerName = (userId: Review["userId"]) => {
-    if (typeof userId === "object" && userId !== null) return userId.name;
-    return userId || "Unknown";
-  };
+  const getName = (u: Review["userId"]) =>
+    typeof u === "object" && u ? u.name : "Unknown";
 
-  const getProductName = (productId: Review["productId"]) => {
-    if (typeof productId === "object" && productId !== null) return productId.name;
-    return productId || "Unknown Product";
-  };
+  const getProduct = (p: Review["productId"]) =>
+    typeof p === "object" && p ? p : null;
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star
-        key={i}
-        className={`w-4 h-4 inline-block ${
-          i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-200"
-        }`}
-      />
-    ));
-  };
+  const reviews = data?.reviews ?? [];
+  const totalPages = data?.totalPages ?? 1;
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <div className="h-8 w-40 bg-pink-100 rounded-lg animate-pulse" />
-          <div className="h-4 w-32 bg-pink-50 rounded-lg animate-pulse" />
-        </div>
-        <div className="space-y-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-2xl border border-pink-100 p-6 h-32 animate-pulse" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  const reviews = data?.reviews || [];
-  const totalPages = data?.totalPages || 1;
+  // Stats
+  const total = data?.total ?? 0;
+  const approvedCount = filter === "approved" ? total : undefined;
+  const pendingCount = filter === "pending" ? total : undefined;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-[#2d1a24] font-playfair flex items-center gap-2">
-          <MessageSquare className="w-6 h-6 text-[#e91e8c]" />
-          Reviews
-        </h1>
-        <p className="text-sm text-[#6d1b3b]/60 mt-1 flex items-center gap-1">
-          <Shield className="w-3 h-3" />
-          {data?.total || 0} reviews total
-        </p>
-      </div>
+    <>
+      {deleteTarget && (
+        <ConfirmDialog
+          message="This review will be permanently deleted and cannot be recovered."
+          onConfirm={() => deleteMutation.mutate(deleteTarget)}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
 
-      {/* Filter Tabs */}
-      <div className="bg-white rounded-2xl border border-pink-100 p-1.5 inline-flex gap-1 shadow-sm">
-        {(["all", "approved", "pending"] as FilterTab[]).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => {
-              setFilter(tab);
-              setPage(1);
-            }}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all capitalize ${
-              filter === tab
-                ? "bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
-                : "text-[#6d1b3b]/60 hover:bg-pink-50"
-            }`}
-          >
-            {tab === "all" && <Filter className="w-3.5 h-3.5" />}
-            {tab === "approved" && <CheckCircle className="w-3.5 h-3.5" />}
-            {tab === "pending" && <Clock className="w-3.5 h-3.5" />}
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* Reviews List */}
-      {reviews.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-pink-100 p-12 text-center">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center">
-            <Star className="w-10 h-10 text-[#ad1457]/40" />
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-[#2d1a24] font-playfair flex items-center gap-2">
+              <MessageSquare className="w-6 h-6 text-[#e91e8c]" />
+              Reviews
+            </h1>
+            <p className="text-sm text-[#6d1b3b]/60 mt-1 flex items-center gap-1">
+              <Shield className="w-3 h-3" />
+              Approved reviews appear on the home page
+            </p>
           </div>
-          <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">No reviews found</h3>
-          <p className="text-sm text-[#6d1b3b]/50">
-            {filter !== "all" ? "Try a different filter" : "Reviews will appear here once customers leave them"}
-          </p>
+          <div className="text-right">
+            <p className="text-2xl font-bold text-[#2d1a24]">{total}</p>
+            <p className="text-xs text-[#6d1b3b]/50">
+              {filter === "all" ? "total reviews" : filter === "approved" ? "approved" : "pending"}
+            </p>
+          </div>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {reviews.map((review) => (
-            <div
-              key={review._id}
-              className="bg-white rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all group"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white text-xs font-bold">
-                        {getCustomerName(review.userId).charAt(0).toUpperCase()}
-                      </div>
-                      <span className="text-sm font-semibold text-[#2d1a24]">
-                        {getCustomerName(review.userId)}
-                      </span>
-                    </div>
-                    <span className="text-xs text-[#6d1b3b]/30">→</span>
-                    <div className="flex items-center gap-1">
-                      <Package className="w-3 h-3 text-[#ad1457]/50" />
-                      <span className="text-sm text-[#6d1b3b]/70">
-                        {getProductName(review.productId)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex items-center gap-0.5">
-                      {renderStars(review.rating)}
-                    </div>
-                    <span className="text-xs text-[#6d1b3b]/50">({review.rating}/5)</span>
-                  </div>
-                  <p className="text-sm text-[#2d1a24]/80 mb-3 leading-relaxed">
-                    "{review.comment}"
-                  </p>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {review.isVerifiedPurchase && (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
-                        <CheckCircle className="w-3 h-3" />
-                        Verified Purchase
-                      </span>
-                    )}
-                    <span
-                      className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                        review.isApproved
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {review.isApproved ? (
-                        <CheckCircle className="w-3 h-3" />
-                      ) : (
-                        <Clock className="w-3 h-3" />
-                      )}
-                      {review.isApproved ? "Approved" : "Pending"}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] text-[#6d1b3b]/40">
-                      <Calendar className="w-3 h-3" />
-                      {new Date(review.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-2 shrink-0">
-                  {!review.isApproved && (
-                    <button
-                      onClick={() => approveMutation.mutate(review._id)}
-                      disabled={approveMutation.isPending}
-                      className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-all"
-                    >
-                      <ThumbsUp className="w-3 h-3" />
-                      Approve
-                    </button>
-                  )}
-                  {review.isApproved && (
-                    <button
-                      onClick={() => rejectMutation.mutate(review._id)}
-                      disabled={rejectMutation.isPending}
-                      className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-all"
-                    >
-                      <ThumbsDown className="w-3 h-3" />
-                      Reject
-                    </button>
-                  )}
-                  <button
-                    onClick={() => {
-                      if (confirm("Are you sure you want to delete this review?")) {
-                        deleteMutation.mutate(review._id);
-                      }
-                    }}
-                    disabled={deleteMutation.isPending}
-                    className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-all"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
+        {/* Filter Tabs */}
+        <div className="bg-white rounded-2xl border border-pink-100 p-1.5 inline-flex gap-1 shadow-sm">
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => { setFilter(tab.key); setPage(1); }}
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                filter === tab.key
+                  ? "bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
+                  : `text-[#6d1b3b]/60 hover:bg-pink-50 ${tab.color}`
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
           ))}
         </div>
-      )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-pink-200 text-sm text-[#6d1b3b] disabled:opacity-40 hover:bg-pink-50 transition-all"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Prev
-          </button>
-          <span className="text-sm text-[#6d1b3b]/60 px-3">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-pink-200 text-sm text-[#6d1b3b] disabled:opacity-40 hover:bg-pink-50 transition-all"
-          >
-            Next
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-    </div>
+        {/* Loading */}
+        {isLoading && (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-2xl border border-pink-100 p-5 h-36 animate-pulse" />
+            ))}
+          </div>
+        )}
+
+        {/* Empty */}
+        {!isLoading && reviews.length === 0 && (
+          <div className="bg-white rounded-2xl border border-pink-100 p-14 text-center">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center">
+              <Star className="w-10 h-10 text-[#ad1457]/30" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">No reviews found</h3>
+            <p className="text-sm text-[#6d1b3b]/50">
+              {filter !== "all" ? "Try a different filter" : "Reviews will appear here once customers submit them"}
+            </p>
+          </div>
+        )}
+
+        {/* Reviews List */}
+        {!isLoading && reviews.length > 0 && (
+          <div className="space-y-3">
+            {reviews.map((review) => {
+              const product = getProduct(review.productId);
+              const name = getName(review.userId);
+              const isExpanded = expandedId === review._id;
+              const isLong = review.comment.length > 120;
+
+              return (
+                <div
+                  key={review._id}
+                  className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+                    review.isApproved
+                      ? "border-green-100 hover:border-green-200"
+                      : "border-yellow-100 hover:border-yellow-200"
+                  } hover:shadow-md`}
+                >
+                  {/* Status stripe */}
+                  <div
+                    className={`h-1 w-full ${
+                      review.isApproved
+                        ? "bg-gradient-to-r from-green-400 to-emerald-400"
+                        : "bg-gradient-to-r from-yellow-400 to-amber-400"
+                    }`}
+                  />
+
+                  <div className="p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                      {/* Left: content */}
+                      <div className="flex-1 min-w-0">
+                        {/* Top row */}
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
+                          {/* Avatar + name */}
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#f48fb1] to-[#e91e8c] flex items-center justify-center text-white text-xs font-bold shrink-0">
+                              {name.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="text-sm font-semibold text-[#2d1a24]">{name}</span>
+                          </div>
+
+                          <span className="text-[#6d1b3b]/20">•</span>
+
+                          {/* Product */}
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            {product?.images?.[0] ? (
+                              <img
+                                src={product.images[0]}
+                                alt={product.name}
+                                className="w-5 h-5 rounded object-cover shrink-0"
+                              />
+                            ) : (
+                              <Package className="w-3.5 h-3.5 text-[#ad1457]/40 shrink-0" />
+                            )}
+                            <span className="text-sm text-[#6d1b3b]/70 truncate max-w-[160px]">
+                              {product?.name ?? "Unknown Product"}
+                            </span>
+                          </div>
+
+                          <span className="text-[#6d1b3b]/20">•</span>
+
+                          {/* Date */}
+                          <div className="flex items-center gap-1 text-[11px] text-[#6d1b3b]/40">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(review.createdAt).toLocaleDateString("en-BD", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Stars */}
+                        <div className="mb-2">
+                          <StarRow rating={review.rating} />
+                        </div>
+
+                        {/* Title */}
+                        {review.title && (
+                          <p className="font-semibold text-sm text-[#2d1a24] mb-1">{review.title}</p>
+                        )}
+
+                        {/* Comment */}
+                        <p className="text-sm text-[#2d1a24]/75 leading-relaxed">
+                          {isLong && !isExpanded
+                            ? `${review.comment.slice(0, 120)}...`
+                            : review.comment}
+                        </p>
+                        {isLong && (
+                          <button
+                            onClick={() => setExpandedId(isExpanded ? null : review._id)}
+                            className="text-xs text-[#e91e8c] font-semibold mt-1 hover:underline flex items-center gap-1"
+                          >
+                            <Eye className="w-3 h-3" />
+                            {isExpanded ? "Show less" : "Read more"}
+                          </button>
+                        )}
+
+                        {/* Badges */}
+                        <div className="flex flex-wrap items-center gap-2 mt-3">
+                          <span
+                            className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                              review.isApproved
+                                ? "bg-green-100 text-green-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {review.isApproved ? (
+                              <CheckCircle className="w-3 h-3" />
+                            ) : (
+                              <Clock className="w-3 h-3" />
+                            )}
+                            {review.isApproved ? "Approved — visible on home page" : "Pending approval"}
+                          </span>
+
+                          {review.isVerifiedPurchase && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+                              <CheckCircle className="w-3 h-3" />
+                              Verified Purchase
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Right: actions */}
+                      <div className="flex sm:flex-col items-center gap-2 shrink-0">
+                        {!review.isApproved ? (
+                          <button
+                            onClick={() => approveMutation.mutate(review._id)}
+                            disabled={approveMutation.isPending}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 transition-all disabled:opacity-50 w-full sm:w-auto justify-center"
+                          >
+                            <ThumbsUp className="w-3.5 h-3.5" />
+                            Approve
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => rejectMutation.mutate(review._id)}
+                            disabled={rejectMutation.isPending}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200 transition-all disabled:opacity-50 w-full sm:w-auto justify-center"
+                          >
+                            <ThumbsDown className="w-3.5 h-3.5" />
+                            Reject
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => setDeleteTarget(review._id)}
+                          disabled={deleteMutation.isPending}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 transition-all disabled:opacity-50 w-full sm:w-auto justify-center"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 pt-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl border border-pink-200 text-sm font-semibold text-[#6d1b3b] disabled:opacity-40 hover:bg-pink-50 transition-all"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Prev
+            </button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                const p = i + 1;
+                return (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`w-9 h-9 rounded-xl text-sm font-semibold transition-all ${
+                      page === p
+                        ? "bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
+                        : "text-[#6d1b3b]/60 hover:bg-pink-50 border border-pink-100"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+              {totalPages > 5 && (
+                <span className="text-sm text-[#6d1b3b]/40 px-1">... {totalPages}</span>
+              )}
+            </div>
+
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="inline-flex items-center gap-1 px-4 py-2 rounded-xl border border-pink-200 text-sm font-semibold text-[#6d1b3b] disabled:opacity-40 hover:bg-pink-50 transition-all"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

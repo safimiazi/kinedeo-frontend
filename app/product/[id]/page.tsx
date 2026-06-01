@@ -55,7 +55,7 @@ export default function ProductDetailPage() {
   }
 
   const variant = product.variants?.[selectedVariant];
-  const currentPrice = variant?.priceOverride || product.basePrice;
+  const currentPrice = product.flashSalePrice ?? variant?.priceOverride ?? product.basePrice;
   const discount = product.originalPrice ? Math.round((1 - currentPrice / product.originalPrice) * 100) : 0;
   const inStock = variant ? variant.stockQuantity > 0 : true;
   const availableQty = variant?.stockQuantity ?? 99;

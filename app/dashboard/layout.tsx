@@ -170,6 +170,7 @@ const menuItems = [
   { label: "Flash Sales", href: "/dashboard/flash-sales", icon: Zap },
   { label: "Reviews", href: "/dashboard/reviews", icon: Star },
   { label: "Coupons", href: "/dashboard/coupons", icon: Ticket },
+  { label: "Announcements", href: "/dashboard/announcements", icon: Bell },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 

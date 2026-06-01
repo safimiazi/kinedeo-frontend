@@ -121,6 +121,36 @@ export interface FlashSale {
   createdAt: string;
 }
 
+export interface Announcement {
+  _id: string;
+  message: string;
+  isActive: boolean;
+  priority: number;
+  startsAt?: string;
+  endsAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FeaturedReview {
+  _id: string;
+  userId: { _id: string; name: string };
+  productId: { _id: string; name: string; images: string[] };
+  rating: number;
+  title?: string;
+  comment: string;
+  isVerifiedPurchase: boolean;
+  createdAt: string;
+}
+
+export interface PaginatedAnnouncements {
+  announcements: Announcement[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 // ─── Pagination ─────────────────────────────────────────────────────────────────
 
 export interface PaginationParams {

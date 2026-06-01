@@ -18,8 +18,10 @@ export interface OrderItem {
 export interface ShippingAddress {
   name: string;
   phone: string;
+  email: string;
   street: string;
   city: string;
+  postcode: string;
   area?: string;
   note?: string;
 }
@@ -30,12 +32,17 @@ export interface Order {
   items: OrderItem[];
   shippingAddress: ShippingAddress;
   deliveryMethod: 'standard' | 'express';
-  paymentMethod: 'cod' | 'bkash' | 'nagad';
+  paymentMethod: 'cod' | 'bkash' | 'nagad' | 'sslcommerz';
+  transactionId?: string;
+  couponCode?: string;
+  discountAmount?: number;
   subtotal: number;
   shippingCost: number;
   total: number;
   status: string;
   cancelReason?: string;
+  paymentVerified?: boolean;
+  paymentVerifiedAt?: string;
   orderNumber: string;
   createdAt: string;
   updatedAt: string;
@@ -92,6 +99,12 @@ export const ordersApi = {
 
   getStats: () =>
     apiRequest<OrderStats>('/orders/admin/stats', {}),
+
+  getRevenueChart: (days: number = 7) =>
+    apiRequest<{ date: string; revenue: number; orders: number }[]>(
+      `/orders/admin/revenue-chart?days=${days}`,
+      {},
+    ),
 
   getOrderAdmin: (id: string) =>
     apiRequest<Order>(`/orders/admin/${id}`, {}),

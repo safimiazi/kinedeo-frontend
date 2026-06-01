@@ -4,7 +4,7 @@ import { savePendingOrder } from '@/lib/order-store';
 
 export async function POST(request: Request) {
   const payload = await request.json();
-  const { items, customerInfo, subtotal, shipping, total } = payload;
+  const { items, customerInfo, subtotal, shipping, total, couponCode, discountAmount } = payload;
 
   if (!items || !Array.isArray(items) || items.length === 0) {
     return NextResponse.json({ success: false, message: 'Cart is empty.' }, { status: 400 });
@@ -35,6 +35,8 @@ export async function POST(request: Request) {
     subtotal,
     shippingCost: shipping,
     total,
+    couponCode: couponCode || undefined,
+    discountAmount: discountAmount || undefined,
     status: 'pending',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

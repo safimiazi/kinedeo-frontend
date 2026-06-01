@@ -20,6 +20,7 @@ export {
 // Product hooks
 export {
   useProducts,
+  useInfiniteProducts,
   useProduct,
   useActiveFlashSales,
   useAllFlashSales,

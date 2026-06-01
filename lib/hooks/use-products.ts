@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import { productsApi } from '../api';
 import { queryKeys } from './query-keys';
 import type { Product, PaginatedProducts, FlashSale } from '../api/types';
@@ -11,6 +11,21 @@ export function useProducts(params?: { page?: number; limit?: number; categoryId
   return useQuery<PaginatedProducts>({
     queryKey: queryKeys.products.list(params),
     queryFn: () => productsApi.getAll(params),
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+// ─── Infinite Products (for /products page with infinite scroll) ────────────────
+
+export function useInfiniteProducts(params?: { limit?: number; categoryId?: string; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc' }) {
+  const limit = params?.limit ?? 12;
+  return useInfiniteQuery<PaginatedProducts>({
+    queryKey: ['products', 'infinite', { ...params, limit }],
+    queryFn: ({ pageParam = 1 }) =>
+      productsApi.getAll({ ...params, page: pageParam as number, limit }),
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+    initialPageParam: 1,
     staleTime: 2 * 60 * 1000,
   });
 }
