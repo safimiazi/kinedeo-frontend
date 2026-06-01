@@ -564,6 +564,7 @@ import {
 import { useProducts, useCategories, useCreateProduct, useUpdateProduct, useDeleteProduct } from "@/lib/hooks";
 import { SearchableSelect, type SelectOption } from "@/components/ui/SearchableSelect";
 import { ImageUploader } from "@/components/ui/ImageUploader";
+import toast from "react-hot-toast";
 import type { Product } from "@/lib/api/types";
 
 type ModalMode = "create" | "edit" | null;
@@ -722,6 +723,7 @@ export default function ProductsPage() {
         }
 
         await createProduct.mutateAsync(payload);
+        toast.success("Product created successfully!");
       } else if (modalMode === "edit" && editingProduct) {
         const payload: ProductPayload = {
           name: formData.name,
@@ -750,6 +752,7 @@ export default function ProductsPage() {
           id: editingProduct._id,
           data: payload,
         });
+        toast.success("Product updated successfully!");
       }
       closeModal();
     } catch (err: unknown) {
@@ -761,8 +764,9 @@ export default function ProductsPage() {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
       await deleteProduct.mutateAsync(id);
+      toast.success("Product deleted!");
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Failed to delete product");
+      toast.error(err instanceof Error ? err.message : "Failed to delete product");
     }
   };
 

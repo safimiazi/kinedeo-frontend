@@ -348,6 +348,7 @@ import {
 } from "lucide-react";
 import { useCategoriesAdmin, useCreateCategory, useUpdateCategory, useDeleteCategory } from "@/lib/hooks";
 import { ImageUploader } from "@/components/ui/ImageUploader";
+import toast from "react-hot-toast";
 import type { Category } from "@/lib/api/types";
 
 type ModalMode = "create" | "edit" | null;
@@ -433,6 +434,7 @@ export default function CategoriesPage() {
           image: formData.image || undefined,
           sortOrder: formData.sortOrder,
         });
+        toast.success("Category created successfully!");
       } else if (modalMode === "edit" && editingCategory) {
         await updateCategory.mutateAsync({
           id: editingCategory._id,
@@ -444,6 +446,7 @@ export default function CategoriesPage() {
             sortOrder: formData.sortOrder,
           },
         });
+        toast.success("Category updated successfully!");
       }
       closeModal();
     } catch (err: any) {
@@ -455,16 +458,18 @@ export default function CategoriesPage() {
     if (!confirm("Are you sure you want to deactivate this category?")) return;
     try {
       await deleteCategory.mutateAsync(id);
+      toast.success("Category deactivated");
     } catch (err: any) {
-      alert(err.message || "Failed to deactivate category");
+      toast.error(err.message || "Failed to deactivate category");
     }
   };
 
   const handleReactivate = async (cat: Category) => {
     try {
       await updateCategory.mutateAsync({ id: cat._id, data: { isActive: true } });
+      toast.success(`"${cat.name}" reactivated`);
     } catch (err: any) {
-      alert(err.message || "Failed to reactivate category");
+      toast.error(err.message || "Failed to reactivate category");
     }
   };
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api/client";
 import { Bell, CheckCircle, Edit, Plus, Save, Trash2, Clock, Pin } from "lucide-react";
+import toast from "react-hot-toast";
 import type { Announcement } from "@/lib/api/types";
 
 const defaultForm = {
@@ -18,7 +19,6 @@ export default function AnnouncementsPage() {
   const [formData, setFormData] = useState(defaultForm);
   const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null);
   const [error, setError] = useState("");
-  const [saved, setSaved] = useState(false);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -32,9 +32,9 @@ export default function AnnouncementsPage() {
       queryClient.invalidateQueries({ queryKey: ["announcements"] });
       setFormData(defaultForm);
       setEditingAnnouncement(null);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
+      toast.success("Announcement saved successfully!");
     },
+    onError: (err: Error) => toast.error(err.message || "Failed to save announcement"),
   });
 
   const updateMutation = useMutation({
@@ -44,14 +44,18 @@ export default function AnnouncementsPage() {
       queryClient.invalidateQueries({ queryKey: ["announcements"] });
       setFormData(defaultForm);
       setEditingAnnouncement(null);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
+      toast.success("Announcement updated successfully!");
     },
+    onError: (err: Error) => toast.error(err.message || "Failed to update announcement"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiRequest(`/announcements/${id}`, { method: "DELETE" }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["announcements"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["announcements"] });
+      toast.success("Announcement deactivated");
+    },
+    onError: (err: Error) => toast.error(err.message || "Failed to deactivate announcement"),
   });
 
   const openCreate = () => {
@@ -116,11 +120,7 @@ export default function AnnouncementsPage() {
 
   const handleDeactivate = async (id: string) => {
     if (!confirm("Are you sure you want to deactivate this announcement?")) return;
-    try {
-      await deleteMutation.mutateAsync(id);
-    } catch (err: any) {
-      alert(err.message || "Failed to deactivate announcement");
-    }
+    deleteMutation.mutate(id);
   };
 
   const announcements = data?.announcements || [];
@@ -232,7 +232,6 @@ export default function AnnouncementsPage() {
               <Save className="w-4 h-4" />
               {editingAnnouncement ? "Update Announcement" : "Save Announcement"}
             </button>
-            {saved && <p className="text-sm text-green-600">Announcement saved successfully.</p>}
           </form>
         </div>
 

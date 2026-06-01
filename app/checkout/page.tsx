@@ -17,6 +17,7 @@ import Footer from "@/components/Footer";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
 import { API_BASE } from "@/lib/api/client";
+import toast from "react-hot-toast";
 
 interface ActiveCoupon {
   code: string;
@@ -164,14 +165,14 @@ export default function CheckoutPage() {
         throw new Error(data.message || "Failed to initiate payment");
       }
     } catch (error: any) {
-      alert(error.message || "Payment initiation failed");
+      toast.error(error.message || "Payment initiation failed");
       setPlacing(false);
     }
   };
 
   const handlePlaceOrder = async () => {
     if (!form.name || !form.email || !form.phone || !form.address || !form.city || !form.postcode) {
-      alert("Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return;
     }
 
@@ -209,7 +210,7 @@ export default function CheckoutPage() {
       
       // Note: Order will be created after successful payment via IPN
     } catch (err: any) {
-      alert(err.message || "Failed to place order. Please try again.");
+      toast.error(err.message || "Failed to place order. Please try again.");
       setPlacing(false);
     }
   };

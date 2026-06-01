@@ -26,6 +26,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api/client";
 import { productsApi, categoriesApi } from "@/lib/api";
 import { SearchableSelect, type SelectOption } from "@/components/ui/SearchableSelect";
+import toast from "react-hot-toast";
 
 // interface Coupon {
 //   _id: string;
@@ -580,7 +581,9 @@ export default function CouponsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["coupons"] });
       closeModal();
+      toast.success("Coupon created successfully!");
     },
+    onError: (err: Error) => toast.error(err.message || "Failed to create coupon"),
   });
 
   const updateMutation = useMutation({
@@ -589,13 +592,19 @@ export default function CouponsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["coupons"] });
       closeModal();
+      toast.success("Coupon updated successfully!");
     },
+    onError: (err: Error) => toast.error(err.message || "Failed to update coupon"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) =>
       apiRequest(`/coupons/${id}`, { method: "DELETE" }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["coupons"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["coupons"] });
+      toast.success("Coupon deactivated");
+    },
+    onError: (err: Error) => toast.error(err.message || "Failed to deactivate coupon"),
   });
 
   const openCreate = () => {
@@ -668,11 +677,7 @@ export default function CouponsPage() {
 
   const handleDeactivate = async (id: string) => {
     if (!confirm("Are you sure you want to deactivate this coupon?")) return;
-    try {
-      await deleteMutation.mutateAsync(id);
-    } catch (err: any) {
-      alert(err.message || "Failed to deactivate coupon");
-    }
+    deleteMutation.mutate(id);
   };
 
   const formatDiscount = (coupon: Coupon) => {

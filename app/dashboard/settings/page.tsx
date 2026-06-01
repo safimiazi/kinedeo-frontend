@@ -116,17 +116,17 @@ import {
   Shield,
   Clock
 } from "lucide-react";
+import toast from "react-hot-toast";
+import toast from "react-hot-toast";
 
 export default function SettingsPage() {
   const [storeName, setStoreName] = useState("Petal Beauty");
   const [email, setEmail] = useState("admin@petalbeauty.com");
   const [currency, setCurrency] = useState("INR");
   const [freeShipping, setFreeShipping] = useState("999");
-  const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    toast.success("Settings saved successfully!");
   };
 
   return (
@@ -307,27 +307,10 @@ export default function SettingsPage() {
           onClick={handleSave}
           className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all flex items-center gap-2 group"
         >
-          {saved ? (
-            <>
-              <CheckCircle className="w-4 h-4" />
-              Saved!
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4 group-hover:scale-110 transition-transform" />
-              Save Changes
-            </>
-          )}
+          <Save className="w-4 h-4 group-hover:scale-110 transition-transform" />
+          Save Changes
         </button>
       </div>
-
-      {/* Success toast */}
-      {saved && (
-        <div className="fixed bottom-4 right-4 bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-bottom-2">
-          <CheckCircle className="w-4 h-4" />
-          Settings saved successfully!
-        </div>
-      )}
     </div>
   );
 }

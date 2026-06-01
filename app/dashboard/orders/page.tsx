@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ordersApi, type Order, type OrderStats } from "@/lib/api/orders";
+import toast from "react-hot-toast";
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
   pending:    { bg: "bg-yellow-100",  text: "text-yellow-700",  dot: "bg-yellow-400" },
@@ -73,7 +74,9 @@ export default function OrdersPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       setSelectedOrder(null);
+      toast.success("Order status updated!");
     },
+    onError: (err: Error) => toast.error(err.message || "Failed to update status"),
   });
 
   const stats = statsData as OrderStats | undefined;
