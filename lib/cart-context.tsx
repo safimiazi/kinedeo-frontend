@@ -12,6 +12,9 @@ export interface CartItem {
   sku?: string;
   variantLabel?: string;
   qty: number;
+  /** True for bundle items — price is pre-calculated and must not be re-fetched */
+  isBundleItem?: boolean;
+  bundleId?: string;
 }
 
 interface CartContextType {

@@ -112,6 +112,36 @@ export interface FlashSaleProduct {
   salePrice: number;
 }
 
+// ─── Bundle Types ───────────────────────────────────────────────────────────────
+
+export interface BundleProduct {
+  _id: string;
+  name: string;
+  basePrice: number;
+  originalPrice?: number;
+  images: string[];
+  shortDescription: string;
+  badge?: string;
+  salesCount?: number;
+  averageRating?: number;
+  reviewCount?: number;
+  variants?: { _id: string; stockQuantity: number; sku: string }[];
+}
+
+export interface Bundle {
+  _id: string;
+  name: string;
+  description: string;
+  badge?: string;
+  emoji?: string;
+  bundlePrice: number;
+  originalPrice?: number;
+  productIds: BundleProduct[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface FlashSale {
   _id: string;
   name: string;

@@ -24,8 +24,9 @@ export default function NewsletterCTA() {
   };
 
   return (
-    <section className="bg-linear-to-br from-[#fce4ec] via-[#f8bbd0] to-[#fce4ec] py-20 px-[5%]">
-      <div className="max-w-[600px] mx-auto text-center">
+    <section className="bg-linear-to-br from-[#fce4ec] via-[#f8bbd0] to-[#fce4ec] py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto text-center">
         <div className="text-5xl mb-5">🌸</div>
         <h2 className="font-playfair text-3xl md:text-4xl font-extrabold text-[#2d1a24] mb-3.5">
           Join the Petal Club
@@ -83,6 +84,7 @@ export default function NewsletterCTA() {
             🔒 No spam, ever. Unsubscribe anytime.
           </p>
         )}
+      </div>
       </div>
     </section>
   );

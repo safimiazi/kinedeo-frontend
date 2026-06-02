@@ -28,7 +28,7 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen bg-[#fff0f5] font-nunito">
         <Navbar cartCount={itemCount} onCartOpen={() => {}} />
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <div className="aspect-square bg-pink-100 rounded-2xl animate-pulse" />
             <div className="space-y-4">
@@ -89,14 +89,14 @@ export default function ProductDetailPage() {
       <Navbar cartCount={itemCount} onCartOpen={() => router.push("/cart")} />
 
       {/* Breadcrumbs */}
-      <nav className="max-w-7xl mx-auto px-4 md:px-8 py-6 flex items-center gap-2 text-xs font-bold text-[#ad1457] uppercase tracking-wider">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex items-center gap-2 text-xs font-bold text-[#ad1457] uppercase tracking-wider">
         <Link className="hover:text-[#e91e8c] transition-colors" href="/">Home</Link>
         <span className="text-[#ad1457]/50">›</span>
         <span className="text-[#2d1a24]">{product.name}</span>
       </nav>
 
       {/* Product Detail */}
-      <section className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 mb-24">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 mb-24">
         {/* Image Gallery */}
         <div className="md:col-span-7 flex flex-col gap-5">
           <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-pink-50 border border-pink-100 flex items-center justify-center">
@@ -237,7 +237,7 @@ export default function ProductDetailPage() {
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 md:px-8 mb-24">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
           <h2 className="font-playfair text-2xl font-extrabold text-[#2d1a24] mb-8">You May Also Like</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {relatedProducts.map((p) => (
@@ -319,7 +319,7 @@ function ReviewsSection({ productId }: { productId: string }) {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-8 mb-16">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
       <div className="flex items-center justify-between mb-6">
         <h2 className="font-playfair text-2xl font-extrabold text-[#2d1a24]">
           Customer Reviews {total > 0 && <span className="text-base font-normal text-[#6d1b3b]/50">({total})</span>}

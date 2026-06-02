@@ -22,8 +22,8 @@ export default function Testimonials() {
   if (!loaded || reviews.length === 0) return null;
 
   return (
-    <section className="py-20 px-[5%] bg-[#fff8fa]">
-      <div className="max-w-7xl mx-auto">
+    <section className="py-20 bg-[#fff8fa]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <span className="inline-block font-nunito text-[11px] font-extrabold text-[#e91e8c] tracking-[0.25em] uppercase mb-3 px-4 py-1.5 rounded-full bg-[#fce4ec] border border-[#f48fb1]/40">
             ✦ Customer Reviews

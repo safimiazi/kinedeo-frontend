@@ -17,7 +17,7 @@
 //     <div className="min-h-screen bg-[#fff0f5] font-nunito">
 //       <Navbar cartCount={itemCount} onCartOpen={() => {}} />
 
-//       <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
+//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 //         <h1 className="font-playfair text-3xl md:text-4xl font-extrabold text-[#2d1a24] mb-2">Your Shopping Bag</h1>
 //         <p className="font-nunito text-sm text-[#ad1457] mb-8">{itemCount} item{itemCount !== 1 ? "s" : ""} in your cart</p>
 
@@ -131,7 +131,7 @@ export default function CartPage() {
     <div className="min-h-screen bg-[#fff0f5] font-nunito">
       <Navbar cartCount={itemCount} onCartOpen={() => {}} />
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <h1 className="font-playfair text-3xl md:text-4xl font-extrabold text-[#2d1a24] mb-2">Your Shopping Bag</h1>
         <p className="font-nunito text-sm text-[#ad1457] mb-8">{itemCount} item{itemCount !== 1 ? "s" : ""} in your cart</p>
 

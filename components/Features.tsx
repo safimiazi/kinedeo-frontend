@@ -43,14 +43,14 @@ export default function Features() {
   ];
 
   return (
-    <section className="relative py-16 px-[5%] bg-gradient-to-b from-[#fff8fa] to-white overflow-hidden">
+    <section className="relative py-16 bg-gradient-to-b from-[#fff8fa] to-white overflow-hidden">
       {/* Background Decoration */}
       <div className="absolute top-0 left-0 w-full h-full">
         <div className="absolute top-20 left-10 w-40 h-40 bg-gradient-to-r from-pink-200/20 to-rose-200/20 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-10 w-60 h-60 bg-gradient-to-l from-purple-200/10 to-pink-200/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#e91e8c]/10 to-[#c2185b]/10 rounded-full px-4 py-1.5 mb-4">

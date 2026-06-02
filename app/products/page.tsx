@@ -116,8 +116,8 @@ export default function ProductsPage() {
       <Navbar cartCount={itemCount} onCartOpen={() => setCartOpen(true)} />
 
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] text-white py-12 px-[5%]">
-        <div className="max-w-7xl mx-auto text-center">
+      <div className="bg-gradient-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="font-playfair text-4xl md:text-5xl font-extrabold mb-3">All Products</h1>
           <p className="font-nunito text-white/80 text-base">
             {total > 0 ? `${total} products available` : "Discover our full collection"}
@@ -125,7 +125,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search + Filter Bar */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           {/* Search */}

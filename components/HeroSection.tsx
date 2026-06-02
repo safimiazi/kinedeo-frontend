@@ -1,7 +1,9 @@
+import Link from "next/link";
+
 export default function HeroSection() {
   return (
-    <section className="bg-linear-to-br from-[#fff0f5] via-[#fce4ec] to-[#f8bbd0] py-20 px-[5%]">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
+    <section className="bg-linear-to-br from-[#fff0f5] via-[#fce4ec] to-[#f8bbd0] py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-16">
         {/* Left Content */}
         <div className="flex-1 min-w-0">
           <div className="inline-flex items-center gap-2 bg-[#e91e8c]/10 border border-[#e91e8c]/20 rounded-full px-4 py-1.5 mb-6">
@@ -14,16 +16,22 @@ export default function HeroSection() {
             Glow Like<br />
             <span className="text-[#e91e8c]">Never Before</span> 🌹
           </h1>
-          <p className="font-nunito text-[17px] text-[#6d1b3b] leading-relaxed mb-9 max-w-[480px]">
+          <p className="font-nunito text-[17px] text-[#6d1b3b] leading-relaxed mb-9 max-w-120">
             Discover luxury beauty crafted for the modern woman. From silky serums to bold lip colors — your perfect look awaits.
           </p>
           <div className="flex gap-3.5 flex-wrap">
-            <button className="bg-linear-to-br from-[#e91e8c] to-[#c2185b] text-white border-none px-9 py-3.5 rounded-full cursor-pointer font-nunito font-bold text-base tracking-wide hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all">
+            <Link
+              href="/products"
+              className="bg-linear-to-br from-[#e91e8c] to-[#c2185b] text-white border-none px-9 py-3.5 rounded-full font-nunito font-bold text-base tracking-wide hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all inline-block"
+            >
               Shop Now ✨
-            </button>
-            <button className="bg-transparent border-2 border-[#e91e8c] text-[#e91e8c] px-7 py-3 rounded-full cursor-pointer font-nunito font-bold text-[15px] hover:bg-[#e91e8c] hover:text-white transition-all">
+            </Link>
+            <Link
+              href="/products"
+              className="bg-transparent border-2 border-[#e91e8c] text-[#e91e8c] px-7 py-3 rounded-full font-nunito font-bold text-[15px] hover:bg-[#e91e8c] hover:text-white transition-all inline-block"
+            >
               View Lookbook
-            </button>
+            </Link>
           </div>
           <div className="flex gap-8 mt-10">
             {[["50K+", "Happy Customers"], ["4.9★", "Average Rating"], ["100%", "Natural Ingredients"]].map(([val, lbl]) => (

@@ -181,8 +181,11 @@ export default function CheckoutPage() {
 
     try {
       // Re-fetch current prices to avoid stale cart prices (e.g. flash sale ended)
+      // Bundle items are skipped — their price is pre-calculated and locked at cart time
       const freshItems = await Promise.all(
         items.map(async (item) => {
+          // Don't re-fetch price for bundle items — bundle discount must be preserved
+          if (item.isBundleItem) return item;
           try {
             const res = await fetch(`${API_BASE}/products/${item.productId}`);
             if (!res.ok) return item;
@@ -207,6 +210,8 @@ export default function CheckoutPage() {
           qty: item.qty,
           sku: item.sku,
           variantLabel: item.variantLabel,
+          isBundleItem: item.isBundleItem,
+          bundleId: item.bundleId,
         })),
         shippingAddress: {
           name: form.name,
@@ -267,7 +272,7 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-[#fff0f5] font-nunito">
       <Navbar cartCount={itemCount} onCartOpen={() => {}} />
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col lg:flex-row gap-8">
 
           {/* ── Left: Form ── */}

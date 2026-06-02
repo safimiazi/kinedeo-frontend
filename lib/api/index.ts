@@ -10,4 +10,5 @@ export { announcementsApi } from './announcements';
 export { uploadApi, uploadImage, uploadImages, uploadCategoryImage, deleteImage } from './upload';
 export { ordersApi } from './orders';
 export { newsletterApi } from './newsletter';
+export { bundlesApi } from './bundles';
 export type * from './types';

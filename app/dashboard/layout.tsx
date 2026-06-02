@@ -156,7 +156,9 @@ import {
   Bell,
   LogOut,
   Menu,
-  Store
+  Store,
+  Mail,
+  Gift
 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
@@ -171,6 +173,8 @@ const menuItems = [
   { label: "Reviews", href: "/dashboard/reviews", icon: Star },
   { label: "Coupons", href: "/dashboard/coupons", icon: Ticket },
   { label: "Announcements", href: "/dashboard/announcements", icon: Bell },
+  { label: "Subscribers", href: "/dashboard/subscribers", icon: Mail },
+  { label: "Bundles", href: "/dashboard/bundles", icon: Gift },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 

@@ -45,12 +45,12 @@ export default function FlashSale() {
   const saleProducts = sale.products.slice(0, 4);
 
   return (
-    <section className="bg-gradient-to-br from-[#c2185b] via-[#e91e8c] to-[#ad1457] py-10 px-[5%] overflow-hidden relative">
+    <section className="bg-gradient-to-br from-[#c2185b] via-[#e91e8c] to-[#ad1457] py-10 overflow-hidden relative">
       {/* Decorative blobs */}
       <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header row */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
           <div>

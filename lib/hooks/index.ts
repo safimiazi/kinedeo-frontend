@@ -44,3 +44,13 @@ export {
   useUpdateCategory,
   useDeleteCategory,
 } from './use-categories';
+
+// Bundle hooks
+export {
+  useActiveBundle,
+  useBundle,
+  useAllBundles,
+  useCreateBundle,
+  useUpdateBundle,
+  useDeleteBundle,
+} from './use-bundles';

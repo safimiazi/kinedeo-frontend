@@ -55,8 +55,8 @@ export default function WishlistPage() {
       <Navbar cartCount={itemCount} onCartOpen={() => setCartOpen(true)} />
 
       {/* Hero */}
-      <div className="bg-gradient-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] text-white py-10 px-[5%]">
-        <div className="max-w-7xl mx-auto">
+      <div className="bg-gradient-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] text-white py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             href="/products"
             className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm font-semibold mb-4 transition-colors"
@@ -75,7 +75,7 @@ export default function WishlistPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Loading */}
         {isLoading && (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

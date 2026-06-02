@@ -31,4 +31,10 @@ export const queryKeys = {
     all: () => ['flash-sales'] as const,
     active: () => ['flash-sales', 'active'] as const,
   },
+
+  bundles: {
+    all: () => ['bundles'] as const,
+    active: () => ['bundles', 'active'] as const,
+    detail: (id: string) => ['bundles', 'detail', id] as const,
+  },
 } as const;

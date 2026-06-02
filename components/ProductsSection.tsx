@@ -155,12 +155,12 @@ export default function ProductsSection() {
   };
 
   return (
-    <section className="py-20 px-[5%] bg-gradient-to-b from-[#fff0f5] via-[#fdf2f8] to-[#fff0f5] relative overflow-hidden">
+    <section className="py-20 bg-gradient-to-b from-[#fff0f5] via-[#fdf2f8] to-[#fff0f5] relative overflow-hidden">
       {/* Decorative background blobs */}
       <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#fce4ec]/60 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-[#f8bbd0]/40 blur-3xl" />
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
         <div className="text-center mb-14">
           <span className="inline-block font-nunito text-[11px] font-extrabold text-[#e91e8c] tracking-[0.25em] uppercase mb-3 px-4 py-1.5 rounded-full bg-[#fce4ec] border border-[#f48fb1]/40">
