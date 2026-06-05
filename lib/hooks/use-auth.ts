@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api';
-import { storeTokens, clearTokens, getRefreshToken, getAccessToken } from '../api/client';
+import { storeTokens, clearTokens, getAccessToken } from '../api/client';
 import { queryKeys } from './query-keys';
 import type { TokenResponse, UserProfile } from '../api/types';
 
@@ -28,7 +28,7 @@ function useAuthSuccess() {
   const queryClient = useQueryClient();
 
   return (data: TokenResponse) => {
-    storeTokens(data);
+    storeTokens({ accessToken: data.accessToken, user: data.user });
     queryClient.setQueryData(queryKeys.auth.profile(), {
       id: data.user.id,
       name: data.user.name,
@@ -102,10 +102,8 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: async () => {
-      const refreshToken = getRefreshToken();
-      if (refreshToken) {
-        await authApi.logout(refreshToken);
-      }
+      // Backend reads the refresh token from the HttpOnly cookie and revokes it
+      await authApi.logout();
     },
     onSettled: () => {
       clearTokens();

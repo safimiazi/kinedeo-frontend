@@ -1,5 +1,8 @@
 /**
  * Auth API functions — all auth-related HTTP calls.
+ *
+ * Note: refresh token is managed as an HttpOnly cookie by the backend.
+ * No JS code ever reads or writes the refresh token directly.
  */
 
 import { apiRequest } from './client';
@@ -49,17 +52,23 @@ export const authApi = {
 
   // ─── Token Management ──────────────────────────────────────────────────────
 
-  refresh: (refreshToken: string) =>
+  /**
+   * Refresh the access token.
+   * The refresh token cookie is sent automatically — no body payload needed.
+   */
+  refresh: () =>
     apiRequest<TokenResponse>('/auth/refresh', {
       method: 'POST',
-      body: { refreshToken },
       auth: false,
+      // credentials: 'include' is set globally in apiRequest
     }),
 
-  logout: (refreshToken: string) =>
+  /**
+   * Logout — backend revokes the refresh token and clears the cookie.
+   */
+  logout: () =>
     apiRequest<{ message: string }>('/auth/logout', {
       method: 'POST',
-      body: { refreshToken },
     }),
 
   logoutAll: () =>

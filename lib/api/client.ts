@@ -1,6 +1,12 @@
 /**
  * Base API client — handles fetch, auth headers, token refresh, and error handling.
- * All API modules use this as the single HTTP layer.
+ *
+ * Token strategy:
+ *  - accessToken  → localStorage (short-lived, read by JS to set Authorization header)
+ *  - refreshToken → HttpOnly cookie (set by backend, never accessible to JS — XSS safe)
+ *
+ * All requests use `credentials: 'include'` so the browser automatically sends the
+ * refresh token cookie to the backend without any JS intervention.
  */
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -22,7 +28,6 @@ export class ApiError extends Error {
 // ─── Token Helpers ──────────────────────────────────────────────────────────────
 
 const TOKEN_KEY = 'petal_access_token';
-const REFRESH_KEY = 'petal_refresh_token';
 const USER_KEY = 'petal_user';
 
 export function getAccessToken(): string | null {
@@ -30,9 +35,15 @@ export function getAccessToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
-export function getRefreshToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(REFRESH_KEY);
+/**
+ * The refresh token lives in an HttpOnly cookie managed by the backend.
+ * This function is intentionally a no-op from the JS side — the browser
+ * sends the cookie automatically with every credentialed request.
+ *
+ * @deprecated Do not call this — refresh token is not readable by JS.
+ */
+export function getRefreshToken(): null {
+  return null;
 }
 
 export function getStoredUser() {
@@ -40,21 +51,23 @@ export function getStoredUser() {
   const stored = localStorage.getItem(USER_KEY);
   if (!stored) return null;
   try {
-    return JSON.parse(stored);
+    return JSON.parse(stored) as unknown;
   } catch {
     return null;
   }
 }
 
-export function storeTokens(data: { accessToken: string; refreshToken: string; user: unknown }) {
+/**
+ * Store access token and user in localStorage.
+ * refreshToken is intentionally excluded — it is managed as an HttpOnly cookie.
+ */
+export function storeTokens(data: { accessToken: string; user: unknown }) {
   localStorage.setItem(TOKEN_KEY, data.accessToken);
-  localStorage.setItem(REFRESH_KEY, data.refreshToken);
   localStorage.setItem(USER_KEY, JSON.stringify(data.user));
 }
 
 export function clearTokens() {
   localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(REFRESH_KEY);
   localStorage.removeItem(USER_KEY);
 }
 
@@ -74,24 +87,24 @@ let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
 
 /**
- * Attempt to refresh the access token using the stored refresh token.
- * Returns true if successful, false otherwise.
+ * Silently refresh the access token.
+ * The refresh token is sent automatically via the HttpOnly cookie.
+ * On success, the backend issues a new rotated cookie + returns a new accessToken.
  */
 async function attemptTokenRefresh(): Promise<boolean> {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) return false;
-
   try {
     const response = await fetch(`${API_BASE}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      credentials: 'include', // Send the HttpOnly refresh token cookie
     });
 
     if (!response.ok) return false;
 
-    const data = await response.json();
-    storeTokens(data);
+    const data = await response.json() as { accessToken?: string };
+    if (data.accessToken) {
+      localStorage.setItem(TOKEN_KEY, data.accessToken);
+    }
     return true;
   } catch {
     return false;
@@ -99,14 +112,18 @@ async function attemptTokenRefresh(): Promise<boolean> {
 }
 
 /**
- * The main request function. Automatically attaches auth token and handles
- * 401 responses by attempting a token refresh + retry.
+ * The main request function. Automatically attaches the auth header and handles
+ * 401 responses by attempting a silent token refresh + one retry.
+ *
+ * `credentials: 'include'` is set on every request so the browser always sends
+ * the HttpOnly refresh token cookie to the backend.
  */
 export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, headers = {}, auth = true } = options;
 
   const config: RequestInit = {
     method,
+    credentials: 'include', // Always include cookies (refresh token)
     headers: {
       'Content-Type': 'application/json',
       ...headers,
@@ -121,13 +138,13 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     }
   }
 
-  if (body) {
+  if (body !== undefined) {
     config.body = JSON.stringify(body);
   }
 
   let response = await fetch(`${API_BASE}${endpoint}`, config);
 
-  // Handle 401 — attempt token refresh and retry once
+  // Handle 401 — attempt silent token refresh and retry once
   if (response.status === 401 && auth) {
     if (!isRefreshing) {
       isRefreshing = true;
@@ -140,14 +157,14 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     const refreshed = await (refreshPromise ?? attemptTokenRefresh());
 
     if (refreshed) {
-      // Retry with new token
+      // Retry with the new access token
       const newToken = getAccessToken();
       if (newToken) {
         (config.headers as Record<string, string>)['Authorization'] = `Bearer ${newToken}`;
       }
       response = await fetch(`${API_BASE}${endpoint}`, config);
     } else {
-      // Refresh failed — clear tokens and throw
+      // Refresh failed — clear local state and throw so the app can redirect to login
       clearTokens();
       throw new ApiError('Session expired. Please login again.', 401);
     }
@@ -167,5 +184,5 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     return {} as T;
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }

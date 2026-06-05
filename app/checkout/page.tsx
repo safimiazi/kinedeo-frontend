@@ -32,10 +32,14 @@ interface CouponValidationResult {
   finalAmount: number;
 }
 
+import { useShippingSettings, calcShipping, DEFAULT_SHIPPING_SETTINGS } from "@/lib/hooks/use-shipping-settings";
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, itemCount, subtotal, clearCart } = useCart();
   const { user, isAuthenticated, sendOtp, verifyOtp } = useAuth();
+  const { data: shippingData } = useShippingSettings();
+  const shippingSettings = shippingData ?? DEFAULT_SHIPPING_SETTINGS;
 
   const [form, setForm] = useState({
     name: "",
@@ -73,7 +77,7 @@ export default function CheckoutPage() {
   const [otpLoading, setOtpLoading] = useState(false);
   const [devOtp, setDevOtp] = useState<string | null>(null);
 
-  const shipping = subtotal >= 999 ? 0 : 99;
+  const shipping = calcShipping(shippingSettings, subtotal);
   const discount = couponValidation?.calculatedDiscount || 0;
   const total = Math.max(0, subtotal + shipping - discount);
 
@@ -492,7 +496,7 @@ export default function CheckoutPage() {
                     {shipping === 0 ? "FREE" : `৳${shipping}`}
                   </span>
                 </div>
-                {shipping > 0 && <p className="text-[10px] text-[#ad1457] text-right">Free shipping on orders above ৳999</p>}
+                {shipping > 0 && <p className="text-[10px] text-[#ad1457] text-right">Free shipping on orders above ৳{shippingSettings.freeShippingThreshold.toLocaleString()}</p>}
               </div>
 
               <div className="border-t border-[#fce4ec]" />

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
+import { useShippingSettings, calcShipping, DEFAULT_SHIPPING_SETTINGS } from "@/lib/hooks/use-shipping-settings";
 
 interface CartPanelProps {
   onClose: () => void;
@@ -24,7 +25,9 @@ export default function CartPanel({ onClose }: CartPanelProps) {
   const router = useRouter();
   const { items, updateQty, removeItem, itemCount, subtotal } = useCart();
 
-  const shipping = subtotal >= 999 ? 0 : 99;
+  const { data: shippingSettings } = useShippingSettings();
+  const settings = shippingSettings ?? DEFAULT_SHIPPING_SETTINGS;
+  const shipping = calcShipping(settings, subtotal);
   const total = subtotal + shipping;
 
   const handleCheckout = () => {
@@ -158,10 +161,10 @@ export default function CartPanel({ onClose }: CartPanelProps) {
               })}
 
               {/* Free shipping nudge */}
-              {subtotal < 999 && (
+              {subtotal < settings.freeShippingThreshold && settings.freeShippingEnabled && (
                 <div className="p-3 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl border border-pink-100 text-center">
                   <p className="font-nunito text-xs text-[#ad1457]">
-                    Add <strong>৳{(999 - subtotal).toLocaleString()}</strong> more for free shipping!
+                    Add <strong>৳{(settings.freeShippingThreshold - subtotal).toLocaleString()}</strong> more for free shipping!
                   </p>
                 </div>
               )}

@@ -158,7 +158,8 @@ import {
   Menu,
   Store,
   Mail,
-  Gift
+  Gift,
+  Truck
 } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
@@ -175,6 +176,7 @@ const menuItems = [
   { label: "Announcements", href: "/dashboard/announcements", icon: Bell },
   { label: "Subscribers", href: "/dashboard/subscribers", icon: Mail },
   { label: "Bundles", href: "/dashboard/bundles", icon: Gift },
+  { label: "Shipping", href: "/dashboard/settings/shipping", icon: Truck },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 

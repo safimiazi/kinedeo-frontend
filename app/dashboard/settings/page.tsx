@@ -117,7 +117,6 @@ import {
   Clock
 } from "lucide-react";
 import toast from "react-hot-toast";
-import toast from "react-hot-toast";
 
 export default function SettingsPage() {
   const [storeName, setStoreName] = useState("Petal Beauty");

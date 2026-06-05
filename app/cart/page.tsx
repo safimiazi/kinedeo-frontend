@@ -119,12 +119,15 @@ import { Trash2, Minus, Plus, ShoppingBag, Package, ArrowLeft } from "lucide-rea
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/lib/cart-context";
+import { useShippingSettings, calcShipping, DEFAULT_SHIPPING_SETTINGS } from "@/lib/hooks/use-shipping-settings";
 
 export default function CartPage() {
   const router = useRouter();
   const { items, updateQty, removeItem, itemCount, subtotal } = useCart();
 
-  const shipping = subtotal >= 999 ? 0 : 99;
+  const { data: shippingSettings } = useShippingSettings();
+  const settings = shippingSettings ?? DEFAULT_SHIPPING_SETTINGS;
+  const shipping = calcShipping(settings, subtotal);
   const total = subtotal + shipping;
 
   return (
@@ -207,7 +210,7 @@ export default function CartPage() {
                     <span className="font-semibold text-green-600">{shipping === 0 ? "FREE" : `৳${shipping}`}</span>
                   </div>
                   {shipping > 0 && (
-                    <p className="text-[10px] text-[#ad1457]">Free shipping on orders above ৳999</p>
+                    <p className="text-[10px] text-[#ad1457]">Free shipping on orders above ৳{settings.freeShippingThreshold.toLocaleString()}</p>
                   )}
                 </div>
                 <div className="border-t border-[#fce4ec] my-4" />

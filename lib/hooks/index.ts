@@ -54,3 +54,11 @@ export {
   useUpdateBundle,
   useDeleteBundle,
 } from './use-bundles';
+
+// Shipping settings hooks
+export {
+  useShippingSettings,
+  calcShipping,
+  DEFAULT_SHIPPING_SETTINGS,
+} from './use-shipping-settings';
+export type { ShippingSettings } from './use-shipping-settings';
