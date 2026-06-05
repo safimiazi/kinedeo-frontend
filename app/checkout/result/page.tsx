@@ -50,7 +50,7 @@ interface OrderDetails {
 }
 
 function CheckoutResult() {
-  const { clearCart } = useCart();
+  const { clearCart, addItem } = useCart();
   const searchParams = useSearchParams();
 
   const status = searchParams.get("status");
@@ -63,17 +63,53 @@ function CheckoutResult() {
   const [loadingOrder, setLoadingOrder] = useState(false);
 
   useEffect(() => {
-    if (success) clearCart();
-  }, [success, clearCart]);
+    if (success) {
+      clearCart();
+      sessionStorage.removeItem("cart_snapshot");
+    } else {
+      // Restore cart from snapshot if payment failed or was cancelled
+      const snapshot = sessionStorage.getItem("cart_snapshot");
+      if (snapshot) {
+        try {
+          const savedItems = JSON.parse(snapshot);
+          if (Array.isArray(savedItems) && savedItems.length > 0) {
+            savedItems.forEach((item: import("@/lib/cart-context").CartItem) => {
+              addItem(
+                {
+                  productId: item.productId,
+                  variantId: item.variantId,
+                  name: item.name,
+                  image: item.image,
+                  price: item.price,
+                  originalPrice: item.originalPrice,
+                  sku: item.sku,
+                  variantLabel: item.variantLabel,
+                  isBundleItem: item.isBundleItem,
+                  bundleId: item.bundleId,
+                },
+                item.qty
+              );
+            });
+          }
+        } catch { /* ignore parse errors */ }
+        sessionStorage.removeItem("cart_snapshot");
+      }
+    }
+  }, [success]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!tranId) return;
-    // Try sessionStorage first (set before redirect), then URL param
-    const tid = tranId || sessionStorage.getItem("pending_tran_id");
-    if (!tid) return;
+
+    // Phone is saved to sessionStorage before SSLCommerz redirect
+    // It's used here to verify order ownership on the backend
+    const phone = sessionStorage.getItem("checkout_phone") ?? "";
 
     setLoadingOrder(true);
-    fetch(`${API_BASE}/orders/by-transaction/${encodeURIComponent(tid)}`)
+    const url = phone
+      ? `${API_BASE}/orders/by-transaction/${encodeURIComponent(tranId)}?phone=${encodeURIComponent(phone)}`
+      : `${API_BASE}/orders/by-transaction/${encodeURIComponent(tranId)}`;
+
+    fetch(url)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data) setOrder(data);
@@ -82,6 +118,7 @@ function CheckoutResult() {
       .finally(() => {
         setLoadingOrder(false);
         sessionStorage.removeItem("pending_tran_id");
+        sessionStorage.removeItem("checkout_phone");
       });
   }, [tranId]);
 

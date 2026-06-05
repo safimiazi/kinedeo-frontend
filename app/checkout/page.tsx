@@ -199,6 +199,12 @@ export default function CheckoutPage() {
               : undefined;
             const currentPrice =
               product.flashSalePrice ?? variant?.priceOverride ?? product.basePrice ?? item.price;
+            if (currentPrice !== item.price) {
+              toast(`Price updated for "${item.name}": ৳${item.price} → ৳${currentPrice}`, {
+                icon: "ℹ️",
+                duration: 4000,
+              });
+            }
             return { ...item, price: currentPrice };
           } catch { return item; }
         })
@@ -248,10 +254,14 @@ export default function CheckoutPage() {
         sessionStorage.setItem("pending_tran_id", data.transactionId);
       }
 
-      // Clear cart before redirect (SSLCommerz will handle the rest)
-      clearCart();
+      // Save cart and phone to sessionStorage so:
+      // - cart can be restored if payment fails/cancels
+      // - phone can verify ownership on the result page
+      sessionStorage.setItem("cart_snapshot", JSON.stringify(items));
+      sessionStorage.setItem("checkout_phone", form.phone);
 
-      // Redirect to SSLCommerz
+      // Redirect to SSLCommerz — do NOT clear cart here
+      // Cart is cleared in checkout/result/page.tsx on success status
       window.location.href = data.redirectUrl;
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to place order. Please try again.");

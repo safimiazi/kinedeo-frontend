@@ -15,14 +15,12 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
-import { useFavorites } from "@/lib/hooks";
+import { useFavorites, useCategories } from "@/lib/hooks";
 
 interface NavbarProps {
   cartCount: number;
   onCartOpen: () => void;
 }
-
-const NAV_LINKS = ["Shop", "Skincare", "Makeup", "About"];
 
 export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
   const { user, isAuthenticated, logout } = useAuth();
@@ -32,6 +30,7 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { data: favoritesData } = useFavorites();
   const wishlistCount = favoritesData?.favorites?.length ?? 0;
+  const { data: categories } = useCategories();
 
   // Close menus on outside click
   useEffect(() => {
@@ -83,15 +82,30 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
 
             {/* ── Desktop Nav Links ── */}
             <div className="hidden md:flex items-center gap-6 lg:gap-8">
-              {NAV_LINKS.map((l) => (
-                <span
-                  key={l}
-                  className="font-nunito font-semibold text-sm text-[#6d1b3b] cursor-pointer hover:text-[#e91e8c] transition-colors tracking-wide relative group"
+              <Link
+                href="/products"
+                className="font-nunito font-semibold text-sm text-[#6d1b3b] hover:text-[#e91e8c] transition-colors tracking-wide relative group"
+              >
+                Shop
+                <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] group-hover:w-full transition-all duration-300" />
+              </Link>
+              {(categories || []).map((cat) => (
+                <Link
+                  key={cat._id}
+                  href={`/category/${cat.slug}`}
+                  className="font-nunito font-semibold text-sm text-[#6d1b3b] hover:text-[#e91e8c] transition-colors tracking-wide relative group"
                 >
-                  {l}
+                  {cat.name}
                   <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] group-hover:w-full transition-all duration-300" />
-                </span>
+                </Link>
               ))}
+              <Link
+                href="/#about"
+                className="font-nunito font-semibold text-sm text-[#6d1b3b] hover:text-[#e91e8c] transition-colors tracking-wide relative group"
+              >
+                About
+                <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] group-hover:w-full transition-all duration-300" />
+              </Link>
             </div>
 
             {/* ── Right Actions ── */}
@@ -243,16 +257,33 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
         {/* Nav links */}
         <div className="flex-1 overflow-y-auto py-3">
           <div className="px-3 space-y-1">
-            {NAV_LINKS.map((l) => (
-              <button
-                key={l}
+            <Link
+              href="/products"
+              onClick={() => setMenuOpen(false)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-[#2d1a24] hover:bg-pink-50 hover:text-[#e91e8c] transition-colors"
+            >
+              Shop
+              <ChevronRight className="w-4 h-4 text-[#ad1457]/40" />
+            </Link>
+            {(categories || []).map((cat) => (
+              <Link
+                key={cat._id}
+                href={`/category/${cat.slug}`}
                 onClick={() => setMenuOpen(false)}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-[#2d1a24] hover:bg-pink-50 hover:text-[#e91e8c] transition-colors text-left"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-[#2d1a24] hover:bg-pink-50 hover:text-[#e91e8c] transition-colors"
               >
-                {l}
+                {cat.name}
                 <ChevronRight className="w-4 h-4 text-[#ad1457]/40" />
-              </button>
+              </Link>
             ))}
+            <Link
+              href="/#about"
+              onClick={() => setMenuOpen(false)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-[#2d1a24] hover:bg-pink-50 hover:text-[#e91e8c] transition-colors"
+            >
+              About
+              <ChevronRight className="w-4 h-4 text-[#ad1457]/40" />
+            </Link>
           </div>
 
           <div className="mx-3 my-3 border-t border-pink-100" />

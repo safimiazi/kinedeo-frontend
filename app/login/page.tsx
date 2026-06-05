@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 
 type LoginMode = "phone" | "email";
 type PhoneStep = "enter" | "otp";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
   const { sendOtp, verifyOtp, login, isAuthenticated, user } = useAuth();
 
   const [mode, setMode] = useState<LoginMode>("phone");
@@ -33,10 +35,10 @@ export default function LoginPage() {
       if (user.role === "admin" || user.role === "super-admin") {
         router.push("/dashboard");
       } else {
-        router.push("/");
+        router.push(redirectTo);
       }
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, router, redirectTo]);
 
   // OTP countdown timer
   useEffect(() => {
@@ -75,7 +77,7 @@ export default function LoginPage() {
     setError("");
     try {
       await verifyOtp(phone, otp);
-      router.push("/");
+      router.push(redirectTo);
     } catch (err: any) {
       setError(err.message || "Invalid OTP");
     } finally {
@@ -93,7 +95,7 @@ export default function LoginPage() {
     setError("");
     try {
       await login(email, password);
-      router.push("/");
+      router.push(redirectTo);
     } catch (err: any) {
       setError(err.message || "Invalid credentials");
     } finally {
@@ -305,5 +307,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#fff0f5]" />}>
+      <LoginForm />
+    </Suspense>
   );
 }

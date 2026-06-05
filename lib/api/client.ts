@@ -144,8 +144,10 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
 
   let response = await fetch(`${API_BASE}${endpoint}`, config);
 
-  // Handle 401 — attempt silent token refresh and retry once
-  if (response.status === 401 && auth) {
+  // Handle 401 — only attempt silent refresh if user has a stored session.
+  // Guest users (no localStorage entry) will never have a refresh cookie,
+  // so calling /auth/refresh would just produce a noisy 403 in the network tab.
+  if (response.status === 401 && auth && getStoredUser() !== null) {
     if (!isRefreshing) {
       isRefreshing = true;
       refreshPromise = attemptTokenRefresh().finally(() => {
@@ -164,7 +166,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
       }
       response = await fetch(`${API_BASE}${endpoint}`, config);
     } else {
-      // Refresh failed — clear local state and throw so the app can redirect to login
+      // Both access token and refresh cookie are gone — clear stale localStorage
       clearTokens();
       throw new ApiError('Session expired. Please login again.', 401);
     }

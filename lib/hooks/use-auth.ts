@@ -3,19 +3,22 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api';
 import { storeTokens, clearTokens, getAccessToken } from '../api/client';
+import { useAuth } from '../auth-context';
 import { queryKeys } from './query-keys';
 import type { TokenResponse, UserProfile } from '../api/types';
 
 // ─── Queries ────────────────────────────────────────────────────────────────────
 
 /**
- * Fetch the current user's profile. Only runs when authenticated.
+ * Fetch the current user's profile.
+ * Only runs when the user is authenticated — prevents /auth/me calls for guests.
  */
 export function useProfile(enabled = true) {
+  const { isAuthenticated } = useAuth();
   return useQuery<UserProfile>({
     queryKey: queryKeys.auth.profile(),
     queryFn: () => authApi.getProfile(),
-    enabled,
+    enabled: enabled && isAuthenticated, // ← never calls /auth/me for guests
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: false,
   });
@@ -140,12 +143,20 @@ export function useFavorites() {
 
 export function useToggleFavorite() {
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
 
   return useMutation({
-    mutationFn: ({ productId, isFavorited }: { productId: string; isFavorited: boolean }) =>
-      isFavorited
+    mutationFn: ({ productId, isFavorited }: { productId: string; isFavorited: boolean }) => {
+      if (!isAuthenticated) {
+        // Redirect to login with current path as redirect param
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/';
+        window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+        return Promise.reject(new Error('Login required'));
+      }
+      return isFavorited
         ? authApi.removeFavorite(productId)
-        : authApi.addFavorite(productId),
+        : authApi.addFavorite(productId);
+    },
     onMutate: async ({ productId, isFavorited }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.auth.favorites() });
       const previous = queryClient.getQueryData<{ favorites: string[] }>(queryKeys.auth.favorites());
