@@ -159,6 +159,14 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
                         </p>
                       </div>
                       <div className="p-2 space-y-1">
+                        <Link
+                          href="/account"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#6d1b3b] hover:bg-pink-50 rounded-lg transition-colors"
+                        >
+                          <User className="w-4 h-4 text-[#e91e8c]" />
+                          My Account
+                        </Link>
                         {(user?.role === "admin" || user?.role === "super-admin") && (
                           <Link
                             href="/dashboard"
@@ -329,6 +337,14 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
           <div className="px-3 space-y-1">
             {isAuthenticated ? (
               <>
+                <Link
+                  href="/account"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-[#2d1a24] hover:bg-pink-50 transition-colors"
+                >
+                  <User className="w-4 h-4 text-[#e91e8c]" />
+                  My Account
+                </Link>
                 {(user?.role === "admin" || user?.role === "super-admin") && (
                   <Link
                     href="/dashboard"
