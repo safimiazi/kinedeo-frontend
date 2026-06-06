@@ -61,7 +61,7 @@ export default function Features() {
             What Makes Us <span className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] bg-clip-text text-transparent">Different</span>
           </h2>
           <p className="font-nunito text-sm text-[#6d1b3b]/60 mt-2 max-w-md mx-auto">
-            Experience the Petal Beauty difference with every purchase
+            Experience the Kine Deo difference with every purchase
           </p>
         </div>
 

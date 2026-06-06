@@ -47,7 +47,7 @@ export default function AdminLoginPage() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2">
             <span className="text-4xl">🌸</span>
-            <span className="font-playfair text-2xl font-extrabold text-[#f48fb1]">Petal</span>
+            <span className="font-playfair text-2xl font-extrabold text-[#f48fb1]">KineDeo</span>
             <span className="font-playfair text-2xl font-normal text-[#f8bbd0]">Admin</span>
           </div>
           <p className="text-sm text-[#f8bbd0]/50 mt-2">Admin Panel Access</p>
@@ -73,7 +73,7 @@ export default function AdminLoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@petalbeauty.com"
+                placeholder="admin@kinedeo.com"
                 className="w-full px-4 py-2.5 rounded-xl border border-[#f48fb1]/20 bg-[#1a0a12]/50 text-sm text-white outline-none focus:border-[#e91e8c] focus:ring-2 focus:ring-[#e91e8c]/20 transition-all placeholder:text-[#f8bbd0]/30"
               />
             </div>

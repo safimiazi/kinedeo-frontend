@@ -84,7 +84,7 @@ export default function SubscribersPage() {
             Newsletter Subscribers
           </h1>
           <p className="text-sm text-[#6d1b3b]/60 mt-1">
-            Manage Petal Club subscribers
+            Manage Kine Deo Club subscribers
           </p>
         </div>
         <button
@@ -162,7 +162,7 @@ export default function SubscribersPage() {
           <p className="text-sm text-[#6d1b3b]/50">
             {search
               ? "Try a different search term"
-              : "Subscribers will appear here once users join the Petal Club"}
+              : "Subscribers will appear here once users join the Kine Deo Club"}
           </p>
         </div>
       ) : (

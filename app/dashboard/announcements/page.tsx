@@ -160,7 +160,7 @@ export default function AnnouncementsPage() {
                 value={formData.message}
                 onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
                 className="w-full rounded-2xl border border-pink-200 px-4 py-3 text-sm text-[#2d1a24] outline-none focus:border-[#e91e8c] focus:ring-2 focus:ring-[#e91e8c]/10 transition-all resize-none"
-                placeholder="✨ FREE SHIPPING ON ORDERS ABOVE ৳999 | USE CODE PETAL20 FOR 20% OFF ✨"
+                placeholder="✨ FREE SHIPPING ON ORDERS ABOVE ৳999 | USE CODE KINEDEO20 FOR 20% OFF ✨"
               />
             </div>
 

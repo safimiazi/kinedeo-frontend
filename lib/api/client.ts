@@ -27,8 +27,8 @@ export class ApiError extends Error {
 
 // ─── Token Helpers ──────────────────────────────────────────────────────────────
 
-const TOKEN_KEY = 'petal_access_token';
-const USER_KEY = 'petal_user';
+const TOKEN_KEY = 'kinedeo_access_token';
+const USER_KEY = 'kinedeo_user';
 
 export function getAccessToken(): string | null {
   if (typeof window === 'undefined') return null;

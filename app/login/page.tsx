@@ -126,8 +126,8 @@ function LoginForm() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2">
             <span className="text-4xl">🌸</span>
-            <span className="font-playfair text-2xl font-extrabold text-[#e91e8c]">Petal</span>
-            <span className="font-playfair text-2xl font-normal text-[#ad1457]">Beauty</span>
+            <span className="font-playfair text-2xl font-extrabold text-[#e91e8c]">Kine</span>
+            <span className="font-playfair text-2xl font-normal text-[#ad1457]">Deo</span>
           </Link>
           <p className="text-sm text-[#6d1b3b]/60 mt-2">Welcome back! Login to continue shopping.</p>
         </div>

@@ -9,7 +9,7 @@ export default function HeroSection() {
           <div className="inline-flex items-center gap-2 bg-[#e91e8c]/10 border border-[#e91e8c]/20 rounded-full px-4 py-1.5 mb-6">
             <span className="w-2 h-2 bg-[#e91e8c] rounded-full inline-block animate-pulse-dot" />
             <span className="font-nunito text-xs font-bold text-[#c2185b] tracking-wider uppercase">
-              New Collection 2024
+              New Collection 2026
             </span>
           </div>
           <h1 className="font-playfair text-4xl md:text-5xl lg:text-[60px] leading-[1.15] text-[#2d1a24] font-extrabold mb-5">

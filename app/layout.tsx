@@ -19,7 +19,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Petal Beauty - Luxury Beauty Products",
+  title: "Kine Deo - Luxury Beauty Products",
   description: "Discover luxury beauty crafted for the modern woman",
 };
 

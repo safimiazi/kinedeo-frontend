@@ -12,7 +12,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-2xl">🌸</span>
-              <span className="font-playfair text-xl font-extrabold text-[#f48fb1]">Petal Beauty</span>
+              <span className="font-playfair text-xl font-extrabold text-[#f48fb1]">Kine Deo</span>
             </div>
             <p className="font-nunito text-[#f8bbd0] text-[13px] leading-relaxed">
               Luxury beauty for every woman. Cruelty-free, dermatologist tested, made with love.
@@ -33,7 +33,7 @@ export default function Footer() {
         </div>
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between gap-3">
           <div className="font-nunito text-[#ad1457] text-xs">
-            © 2024 Petal Beauty. All rights reserved.
+            © 2024 Kine Deo. All rights reserved.
           </div>
           <div className="flex gap-4">
             {["Privacy", "Terms", "Cookies"].map((l) => (
