@@ -25,6 +25,15 @@ export const authApi = {
       auth: false,
     }),
 
+  // ─── Phone-only login (no OTP) ──────────────────────────────────────────────
+
+  phoneLogin: (phone: string) =>
+    apiRequest<TokenResponse>('/auth/phone-login', {
+      method: 'POST',
+      body: { phone },
+      auth: false,
+    }),
+
   // ─── Email + Password ───────────────────────────────────────────────────────
 
   register: (name: string, email: string, password: string, phone?: string) =>

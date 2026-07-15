@@ -183,9 +183,31 @@ function OrderCard({ order }: { order: Order }) {
               </span>
             </div>
             <div className="border-t border-pink-100 pt-2 flex justify-between font-bold text-sm">
-              <span className="text-[#2d1a24]">Total Paid</span>
+              <span className="text-[#2d1a24]">Total</span>
               <span className="text-[#e91e8c]">৳{order.total.toLocaleString()}</span>
             </div>
+            {/* COD payment collection status */}
+            {order.paymentMethod === "cod" && (
+              <div className={`flex items-center justify-between text-xs font-semibold pt-1 border-t border-pink-50 ${
+                order.paymentCollectionStatus === "collected" ? "text-green-600" : "text-amber-600"
+              }`}>
+                <span>💵 Cash on Delivery</span>
+                <span>
+                  {order.paymentCollectionStatus === "collected"
+                    ? "✓ Payment collected"
+                    : "⏳ Pay on delivery"}
+                </span>
+              </div>
+            )}
+            {/* Online payment status */}
+            {order.paymentMethod === "sslcommerz" && (
+              <div className={`flex items-center justify-between text-xs font-semibold pt-1 border-t border-pink-50 ${
+                order.paymentVerified ? "text-green-600" : "text-yellow-600"
+              }`}>
+                <span>💳 Online Payment</span>
+                <span>{order.paymentVerified ? "✓ Verified" : "⏳ Pending"}</span>
+              </div>
+            )}
           </div>
 
           {/* Shipping address */}
@@ -204,10 +226,24 @@ function OrderCard({ order }: { order: Order }) {
             </div>
             <div className="bg-white rounded-xl border border-pink-100 p-3">
               <p className="font-bold text-[#ad1457] uppercase tracking-wide mb-2">Payment</p>
-              <p className="font-semibold text-[#2d1a24] capitalize">{order.paymentMethod}</p>
-              <p className={`text-xs font-semibold mt-1 ${order.paymentVerified ? "text-green-600" : "text-yellow-600"}`}>
-                {order.paymentVerified ? "✓ Verified" : "⏳ Pending verification"}
+              <p className="font-semibold text-[#2d1a24] capitalize">
+                {order.paymentMethod === "cod" ? "Cash on Delivery" :
+                 order.paymentMethod === "sslcommerz" ? "Online (SSLCommerz)" :
+                 order.paymentMethod}
               </p>
+              {order.paymentMethod === "cod" ? (
+                <p className={`text-xs font-semibold mt-1 ${
+                  order.paymentCollectionStatus === "collected" ? "text-green-600" : "text-amber-600"
+                }`}>
+                  {order.paymentCollectionStatus === "collected"
+                    ? "✓ Payment collected"
+                    : "⏳ Pay when delivered"}
+                </p>
+              ) : (
+                <p className={`text-xs font-semibold mt-1 ${order.paymentVerified ? "text-green-600" : "text-yellow-600"}`}>
+                  {order.paymentVerified ? "✓ Payment verified" : "⏳ Pending verification"}
+                </p>
+              )}
               {order.cancelReason && (
                 <p className="text-red-500 text-xs mt-1">Reason: {order.cancelReason}</p>
               )}

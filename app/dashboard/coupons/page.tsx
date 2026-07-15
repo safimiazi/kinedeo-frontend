@@ -20,7 +20,10 @@ import {
   Save,
   ChevronLeft,
   ChevronRight,
-  Gift
+  Gift,
+  Zap,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api/client";
@@ -550,6 +553,17 @@ export default function CouponsPage() {
   const [error, setError] = useState("");
   const queryClient = useQueryClient();
 
+  // Quick coupon state
+  const [quickOpen, setQuickOpen] = useState(false);
+  const [quickForm, setQuickForm] = useState({
+    discountType: "fixed" as "fixed" | "percentage",
+    discountValue: 0,
+    expiryHours: 48,
+    note: "",
+  });
+  const [quickResult, setQuickResult] = useState<{ code: string; validUntil: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+
   const { data: productsData, isLoading: productsLoading } = useQuery({
     queryKey: ["coupon-admin-products"],
     queryFn: () => productsApi.getAll({ limit: 1000 }),
@@ -605,6 +619,17 @@ export default function CouponsPage() {
       toast.success("Coupon deactivated");
     },
     onError: (err: Error) => toast.error(err.message || "Failed to deactivate coupon"),
+  });
+
+  const quickMutation = useMutation({
+    mutationFn: (payload: { discountType: string; discountValue: number; expiryHours: number; note?: string }) =>
+      apiRequest<Coupon>("/coupons/quick", { method: "POST", body: payload }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["coupons"] });
+      setQuickResult({ code: data.code, validUntil: data.validUntil });
+      toast.success("Quick coupon created!");
+    },
+    onError: (err: Error) => toast.error(err.message || "Failed to create quick coupon"),
   });
 
   const openCreate = () => {
@@ -680,6 +705,33 @@ export default function CouponsPage() {
     deleteMutation.mutate(id);
   };
 
+  const handleQuickSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickForm.discountValue) {
+      toast.error("Enter a discount amount");
+      return;
+    }
+    quickMutation.mutate({
+      discountType: quickForm.discountType,
+      discountValue: quickForm.discountValue,
+      expiryHours: quickForm.expiryHours,
+      note: quickForm.note || undefined,
+    });
+  };
+
+  const handleCopy = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const openQuick = () => {
+    setQuickOpen(true);
+    setQuickResult(null);
+    setCopied(false);
+    setQuickForm({ discountType: "fixed", discountValue: 0, expiryHours: 48, note: "" });
+  };
+
   const formatDiscount = (coupon: Coupon) => {
     if (coupon.discountType === "percentage") return `${coupon.discountValue}%`;
     return `৳${coupon.discountValue}`;
@@ -721,13 +773,22 @@ export default function CouponsPage() {
             {data?.total || 0} coupons configured
           </p>
         </div>
-        <button
-          onClick={openCreate}
-          className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit inline-flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Add Coupon
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={openQuick}
+            className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:shadow-lg hover:shadow-amber-200"
+          >
+            <Zap className="w-4 h-4" />
+            Quick Coupon
+          </button>
+          <button
+            onClick={openCreate}
+            className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all inline-flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Add Coupon
+          </button>
+        </div>
       </div>
 
       {/* Coupons List */}
@@ -904,6 +965,146 @@ export default function CouponsPage() {
             Next
             <ChevronRight className="w-4 h-4" />
           </button>
+        </div>
+      )}
+
+      {/* Quick Coupon Modal */}
+      {quickOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl border border-amber-200 shadow-xl w-full max-w-sm">
+            <div className="bg-gradient-to-r from-amber-500 to-orange-400 rounded-t-2xl px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-white">
+                <Zap className="w-5 h-5" />
+                <h2 className="text-base font-bold">Quick Coupon</h2>
+              </div>
+              <button
+                onClick={() => { setQuickOpen(false); setQuickResult(null); }}
+                className="text-white/70 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              {!quickResult ? (
+                <>
+                  <p className="text-sm text-[#6d1b3b]/60 mb-4">
+                    Generate a one-time use coupon instantly — perfect for personal deals with customers.
+                  </p>
+                  <form onSubmit={handleQuickSubmit} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-[#2d1a24] mb-1.5">Discount Type</label>
+                        <select
+                          value={quickForm.discountType}
+                          onChange={(e) => setQuickForm((p) => ({ ...p, discountType: e.target.value as "fixed" | "percentage" }))}
+                          className="w-full px-3 py-2.5 rounded-xl border border-amber-200 text-sm text-[#2d1a24] outline-none focus:border-amber-500 transition-all bg-white"
+                        >
+                          <option value="fixed">Fixed (৳)</option>
+                          <option value="percentage">Percent (%)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-[#2d1a24] mb-1.5">
+                          {quickForm.discountType === "fixed" ? "Amount (৳)" : "Percent (%)"}
+                        </label>
+                        <input
+                          type="number"
+                          value={quickForm.discountValue || ""}
+                          onChange={(e) => setQuickForm((p) => ({ ...p, discountValue: Number(e.target.value) }))}
+                          placeholder="e.g. 100"
+                          min={1}
+                          className="w-full px-3 py-2.5 rounded-xl border border-amber-200 text-sm text-[#2d1a24] outline-none focus:border-amber-500 transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-[#2d1a24] mb-1.5">Expires In</label>
+                      <select
+                        value={quickForm.expiryHours}
+                        onChange={(e) => setQuickForm((p) => ({ ...p, expiryHours: Number(e.target.value) }))}
+                        className="w-full px-3 py-2.5 rounded-xl border border-amber-200 text-sm text-[#2d1a24] outline-none focus:border-amber-500 transition-all bg-white"
+                      >
+                        <option value={6}>6 hours</option>
+                        <option value={12}>12 hours</option>
+                        <option value={24}>24 hours</option>
+                        <option value={48}>48 hours</option>
+                        <option value={72}>72 hours</option>
+                        <option value={168}>1 week</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-[#2d1a24] mb-1.5">Note (optional)</label>
+                      <input
+                        type="text"
+                        value={quickForm.note}
+                        onChange={(e) => setQuickForm((p) => ({ ...p, note: e.target.value }))}
+                        placeholder="e.g. Negotiated deal for Rahim vai"
+                        className="w-full px-3 py-2.5 rounded-xl border border-amber-200 text-sm text-[#2d1a24] outline-none focus:border-amber-500 transition-all placeholder:text-[#ad1457]/30"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={quickMutation.isPending || !quickForm.discountValue}
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      <Zap className="w-4 h-4" />
+                      {quickMutation.isPending ? "Generating..." : "Generate Code"}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <div className="text-center space-y-4">
+                  <div className="w-14 h-14 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+                    <Check className="w-7 h-7 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-[#6d1b3b]/60 mb-2">One-time coupon ready — share this code:</p>
+                    <div className="flex items-center gap-2 bg-amber-50 border-2 border-dashed border-amber-300 rounded-xl px-4 py-3">
+                      <span className="flex-1 font-mono text-xl font-bold text-amber-700 tracking-widest">
+                        {quickResult.code}
+                      </span>
+                      <button
+                        onClick={() => handleCopy(quickResult.code)}
+                        className={`shrink-0 p-1.5 rounded-lg transition-all ${copied ? "bg-green-100 text-green-600" : "bg-white text-[#6d1b3b] hover:bg-amber-100"}`}
+                      >
+                        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <p className="text-xs text-[#6d1b3b]/50 mt-2">
+                      Valid for{" "}
+                      <span className="font-semibold text-amber-600">
+                        {quickForm.discountType === "fixed" ? `৳${quickForm.discountValue} off` : `${quickForm.discountValue}% off`}
+                      </span>
+                      {" · "}expires{" "}
+                      <span className="font-semibold">
+                        {new Date(quickResult.validUntil).toLocaleString("en-GB", {
+                          day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+                        })}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setQuickResult(null); setQuickForm({ discountType: "fixed", discountValue: 0, expiryHours: 48, note: "" }); setCopied(false); }}
+                      className="flex-1 py-2.5 rounded-xl border border-amber-200 text-sm font-semibold text-amber-700 hover:bg-amber-50 transition-all"
+                    >
+                      New Code
+                    </button>
+                    <button
+                      onClick={() => { setQuickOpen(false); setQuickResult(null); }}
+                      className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold transition-all"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

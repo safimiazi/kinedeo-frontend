@@ -29,6 +29,8 @@ interface AuthContextType extends AuthState {
   // Phone OTP
   sendOtp: (phone: string) => Promise<{ expiresInSeconds: number; otp?: string }>;
   verifyOtp: (phone: string, otp: string) => Promise<void>;
+  // Phone-only login (no OTP)
+  phoneLogin: (phone: string) => Promise<void>;
   // Email
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string, phone?: string) => Promise<void>;
@@ -125,6 +127,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [handleAuthResponse],
   );
 
+  const phoneLogin = useCallback(
+    async (phone: string) => {
+      const response = await authApi.phoneLogin(phone);
+      handleAuthResponse(response);
+    },
+    [handleAuthResponse],
+  );
+
   const login = useCallback(
     async (email: string, password: string) => {
       const response = await authApi.login(email, password);
@@ -190,6 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         sendOtp,
         verifyOtp,
+        phoneLogin,
         login,
         register,
         adminLogin,

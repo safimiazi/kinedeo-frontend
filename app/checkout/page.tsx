@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ShoppingBag, Package, CreditCard, Lock, ArrowLeft,
-  Loader2, Shield, Truck, User, CheckCircle2
+  Loader2, Shield, Truck, Banknote
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -37,7 +37,7 @@ import { useShippingSettings, calcShipping, DEFAULT_SHIPPING_SETTINGS } from "@/
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, itemCount, subtotal, clearCart } = useCart();
-  const { user, isAuthenticated, sendOtp, verifyOtp } = useAuth();
+  const { user } = useAuth();
   const { data: shippingData } = useShippingSettings();
   const shippingSettings = shippingData ?? DEFAULT_SHIPPING_SETTINGS;
 
@@ -64,18 +64,14 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'sslcommerz' | null>(null);
+  const [paymentMethodError, setPaymentMethodError] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [couponValidation, setCouponValidation] = useState<CouponValidationResult | null>(null);
   const [couponMessage, setCouponMessage] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
   const [activeCoupons, setActiveCoupons] = useState<ActiveCoupon[]>([]);
-
-  // OTP auto-login state
-  const [otpStep, setOtpStep] = useState<"idle" | "sent" | "verified">("idle");
-  const [otp, setOtp] = useState("");
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [devOtp, setDevOtp] = useState<string | null>(null);
 
   const shipping = calcShipping(shippingSettings, subtotal);
   const discount = couponValidation?.calculatedDiscount || 0;
@@ -98,40 +94,6 @@ export default function CheckoutPage() {
     if (!couponCode.trim()) { setCouponValidation(null); setCouponMessage(""); }
   }, [couponCode]);
 
-  // ── OTP auto-login ──────────────────────────────────────────────────────────
-
-  const handleSendOtp = async () => {
-    if (!form.phone || form.phone.length < 11) {
-      toast.error("Enter a valid 11-digit phone number first");
-      return;
-    }
-    setOtpLoading(true);
-    try {
-      const result = await sendOtp(form.phone);
-      setOtpStep("sent");
-      if (result.otp) setDevOtp(result.otp); // dev mode only
-      toast.success("OTP sent to your phone!");
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to send OTP");
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (otp.length !== 6) { toast.error("Enter the 6-digit OTP"); return; }
-    setOtpLoading(true);
-    try {
-      await verifyOtp(form.phone, otp);
-      setOtpStep("verified");
-      toast.success("Phone verified! You're now logged in.");
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Invalid OTP");
-    } finally {
-      setOtpLoading(false);
-    }
-  };
-
   // ── Coupon ──────────────────────────────────────────────────────────────────
 
   const handleApplyCoupon = async (codeToApply?: string) => {
@@ -148,7 +110,8 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           code,
           orderAmount: subtotal,
-          userEmail: form.email,
+          userEmail: form.email || undefined,
+          userPhone: form.phone || undefined,
           items: items.map((i) => ({ productId: i.productId, sku: i.sku, qty: i.qty, price: i.price })),
         }),
       });
@@ -168,16 +131,21 @@ export default function CheckoutPage() {
   // ── Place Order ─────────────────────────────────────────────────────────────
 
   const handlePlaceOrder = async () => {
-    if (!form.name || !form.email || !form.phone || !form.address || !form.city || !form.postcode) {
-      toast.error("Please fill in all required fields");
+    if (!form.name || !form.phone || !form.address || !form.city || !form.area) {
+      toast.error("নাম, ফোন, বিভাগ, এলাকা এবং পূর্ণ ঠিকানা দিন");
       return;
     }
     if (!/^01[3-9]\d{8}$/.test(form.phone)) {
-      toast.error("Enter a valid Bangladeshi phone number (e.g. 01XXXXXXXXX)");
+      toast.error("সঠিক বাংলাদেশি ফোন নম্বর দিন (01XXXXXXXXX)");
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      toast.error("Enter a valid email address");
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      toast.error("সঠিক email ঠিকানা দিন");
+      return;
+    }
+    if (!paymentMethod) {
+      setPaymentMethodError(true);
+      toast.error("Please select a payment method");
       return;
     }
 
@@ -225,11 +193,11 @@ export default function CheckoutPage() {
         })),
         shippingAddress: {
           name: form.name,
-          email: form.email,
+          email: form.email || undefined,
           phone: form.phone,
           street: form.address,
           city: form.city,
-          postcode: form.postcode,
+          postcode: form.postcode || "0000",
           area: form.area || undefined,
           note: form.note || undefined,
         },
@@ -238,31 +206,51 @@ export default function CheckoutPage() {
         discountAmount: discount,
       };
 
-      const res = await fetch(`${API_BASE}/payment/sslcommerz/init`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      if (paymentMethod === 'cod') {
+        // ── COD path ──────────────────────────────────────────────────────────
+        const res = await fetch(`${API_BASE}/orders/cod`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || "Failed to initiate payment");
-      if (!data.redirectUrl) throw new Error("No payment URL received");
+        if (!res.ok) throw new Error(data.message || "Failed to place order");
 
-      // Store transaction ID so result page can show order details
-      if (data.transactionId) {
-        sessionStorage.setItem("pending_tran_id", data.transactionId);
+        // Store the phone from the response so confirmation page can look up the order
+        sessionStorage.setItem("checkout_phone", data.shippingAddress.phone);
+
+        clearCart();
+        router.push(`/checkout/confirmation?orderNumber=${data.orderNumber}`);
+      } else {
+        // ── SSLCommerz path (unchanged) ───────────────────────────────────────
+        const res = await fetch(`${API_BASE}/payment/sslcommerz/init`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || "Failed to initiate payment");
+        if (!data.redirectUrl) throw new Error("No payment URL received");
+
+        // Store transaction ID so result page can show order details
+        if (data.transactionId) {
+          sessionStorage.setItem("pending_tran_id", data.transactionId);
+        }
+
+        // Save cart and phone to sessionStorage so:
+        // - cart can be restored if payment fails/cancels
+        // - phone can verify ownership on the result page
+        sessionStorage.setItem("cart_snapshot", JSON.stringify(items));
+        sessionStorage.setItem("checkout_phone", form.phone);
+
+        // Redirect to SSLCommerz — do NOT clear cart here
+        // Cart is cleared in checkout/result/page.tsx on success status
+        window.location.href = data.redirectUrl;
       }
-
-      // Save cart and phone to sessionStorage so:
-      // - cart can be restored if payment fails/cancels
-      // - phone can verify ownership on the result page
-      sessionStorage.setItem("cart_snapshot", JSON.stringify(items));
-      sessionStorage.setItem("checkout_phone", form.phone);
-
-      // Redirect to SSLCommerz — do NOT clear cart here
-      // Cart is cleared in checkout/result/page.tsx on success status
-      window.location.href = data.redirectUrl;
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to place order. Please try again.");
       setPlacing(false);
@@ -296,65 +284,6 @@ export default function CheckoutPage() {
               <p className="text-sm text-[#ad1457]/70">Complete your information to continue</p>
             </div>
 
-            {/* Auto-login banner for guests */}
-            {!isAuthenticated && (
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
-                <div className="flex items-start gap-3">
-                  <User className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-blue-800 mb-1">
-                      {otpStep === "verified" ? "✓ Phone verified — you're logged in!" : "Verify your phone to track your order"}
-                    </p>
-                    {otpStep === "idle" && (
-                      <p className="text-xs text-blue-700/70 mb-3">
-                        Enter your phone number below, then click "Verify Phone" to create an account and track your orders.
-                      </p>
-                    )}
-                    {otpStep === "idle" && form.phone.length >= 11 && (
-                      <button
-                        onClick={handleSendOtp}
-                        disabled={otpLoading}
-                        className="text-xs font-semibold bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50"
-                      >
-                        {otpLoading ? "Sending..." : "Verify Phone & Create Account"}
-                      </button>
-                    )}
-                    {otpStep === "sent" && (
-                      <div className="space-y-2">
-                        {devOtp && (
-                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-1.5 text-xs text-yellow-700">
-                            Dev OTP: <strong className="text-base">{devOtp}</strong>
-                          </div>
-                        )}
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            value={otp}
-                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                            placeholder="6-digit OTP"
-                            maxLength={6}
-                            className="w-32 px-3 py-1.5 rounded-lg border border-blue-200 text-sm text-center font-bold tracking-widest outline-none focus:border-blue-500"
-                          />
-                          <button
-                            onClick={handleVerifyOtp}
-                            disabled={otpLoading || otp.length !== 6}
-                            className="text-xs font-semibold bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 transition-all disabled:opacity-50"
-                          >
-                            {otpLoading ? "Verifying..." : "Confirm OTP"}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    {otpStep === "verified" && (
-                      <div className="flex items-center gap-1 text-xs text-green-700 font-semibold">
-                        <CheckCircle2 className="w-4 h-4" /> Account created & verified
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Shipping Information */}
             <div className="bg-white rounded-2xl p-6 border border-[#fce4ec] space-y-4">
               <h2 className="font-playfair text-lg font-bold text-[#2d1a24] flex items-center gap-2">
@@ -362,12 +291,10 @@ export default function CheckoutPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { field: "name", label: "Full Name *", placeholder: "Your full name", type: "text" },
-                  { field: "email", label: "Email *", placeholder: "your@email.com", type: "email" },
-                  { field: "phone", label: "Phone *", placeholder: "01XXXXXXXXX", type: "tel" },
-                  { field: "city", label: "City *", placeholder: "e.g. Dhaka", type: "text" },
-                  { field: "area", label: "Area", placeholder: "e.g. Uttara, Mirpur", type: "text" },
-                  { field: "postcode", label: "Postcode *", placeholder: "Enter postcode", type: "text" },
+                  { field: "name",     label: "পুরো নাম *",                     placeholder: "আপনার পুরো নাম",       type: "text" },
+                  { field: "phone",    label: "ফোন নম্বর * (01XXXXXXXXX)",       placeholder: "01XXXXXXXXX",           type: "tel"  },
+                  { field: "city",     label: "বিভাগ / শহর *",                  placeholder: "যেমন: Dhaka, Sylhet",   type: "text" },
+                  { field: "area",     label: "জেলা / উপজেলা / এলাকা *",       placeholder: "যেমন: Uttara, Mirpur", type: "text" },
                 ].map(({ field, label, placeholder, type }) => (
                   <div key={field}>
                     <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">{label}</label>
@@ -382,39 +309,133 @@ export default function CheckoutPage() {
                 ))}
               </div>
               <div>
-                <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">Delivery Address *</label>
-                <input
-                  type="text"
+                <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">পূর্ণ ঠিকানা * (বাড়ি নম্বর, রোড, মহল্লা)</label>
+                <textarea
                   value={form.address}
                   onChange={(e) => updateForm("address", e.target.value)}
-                  placeholder="House/Road/Area"
-                  className="w-full px-4 py-3 border border-[#fce4ec] rounded-xl text-sm outline-none focus:border-[#e91e8c] transition-colors"
+                  placeholder="বাড়ি নম্বর, রোড, মহল্লা লিখুন..."
+                  rows={2}
+                  className="w-full px-4 py-3 border border-[#fce4ec] rounded-xl text-sm outline-none focus:border-[#e91e8c] transition-colors resize-none"
                 />
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">পোস্টকোড</label>
+                  <input
+                    type="text"
+                    value={form.postcode}
+                    onChange={(e) => updateForm("postcode", e.target.value)}
+                    placeholder="পোস্টকোড (ঐচ্ছিক)"
+                    className="w-full px-4 py-3 border border-[#fce4ec] rounded-xl text-sm outline-none focus:border-[#e91e8c] transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">Email (receipt-এর জন্য)</label>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => updateForm("email", e.target.value)}
+                    placeholder="your@email.com (ঐচ্ছিক)"
+                    className="w-full px-4 py-3 border border-[#fce4ec] rounded-xl text-sm outline-none focus:border-[#e91e8c] transition-colors"
+                  />
+                </div>
+              </div>
               <div>
-                <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">Order Note (optional)</label>
+                <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">অর্ডার নোট (ঐচ্ছিক)</label>
                 <textarea
                   value={form.note}
                   onChange={(e) => updateForm("note", e.target.value)}
-                  placeholder="Any special instructions..."
+                  placeholder='যেমন: "দরজায় রেখে যান", "সন্ধ্যার পরে দিন"...'
                   rows={2}
                   className="w-full px-4 py-3 border border-[#fce4ec] rounded-xl text-sm outline-none focus:border-[#e91e8c] transition-colors resize-none"
                 />
               </div>
             </div>
 
-            {/* Payment info */}
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
-              <div className="flex items-start gap-3">
-                <CreditCard className="w-5 h-5 text-purple-600 mt-0.5" />
-                <div>
-                  <h3 className="font-semibold text-sm text-[#2d1a24] mb-1">Secure Payment via SSLCommerz</h3>
-                  <p className="text-xs text-[#6d1b3b]/70">
-                    Pay with Credit/Debit Cards, bKash, Nagad, Rocket, Internet Banking and more.
-                  </p>
+            {/* Payment Method Selector */}
+            <div className="bg-white rounded-2xl p-6 border border-[#fce4ec] space-y-4">
+              <h2 className="font-playfair text-lg font-bold text-[#2d1a24] flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-[#e91e8c]" /> Payment Method
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Pay Online */}
+                <button
+                  type="button"
+                  onClick={() => { setPaymentMethod('sslcommerz'); setPaymentMethodError(false); }}
+                  className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all ${
+                    paymentMethod === 'sslcommerz'
+                      ? 'border-[#e91e8c] bg-pink-50 shadow-sm shadow-[#e91e8c]/20'
+                      : 'border-[#fce4ec] bg-white hover:border-[#e91e8c]/50'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    paymentMethod === 'sslcommerz' ? 'border-[#e91e8c]' : 'border-[#ad1457]/30'
+                  }`}>
+                    {paymentMethod === 'sslcommerz' && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#e91e8c]" />
+                    )}
+                  </div>
+                  <CreditCard className={`w-5 h-5 shrink-0 ${paymentMethod === 'sslcommerz' ? 'text-[#e91e8c]' : 'text-[#ad1457]/50'}`} />
+                  <div>
+                    <p className="text-sm font-bold text-[#2d1a24]">Pay Online</p>
+                    <p className="text-[10px] text-[#6d1b3b]/60">SSLCommerz</p>
+                  </div>
+                </button>
+
+                {/* Cash on Delivery */}
+                <button
+                  type="button"
+                  onClick={() => { setPaymentMethod('cod'); setPaymentMethodError(false); }}
+                  className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all ${
+                    paymentMethod === 'cod'
+                      ? 'border-[#e91e8c] bg-pink-50 shadow-sm shadow-[#e91e8c]/20'
+                      : 'border-[#fce4ec] bg-white hover:border-[#e91e8c]/50'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    paymentMethod === 'cod' ? 'border-[#e91e8c]' : 'border-[#ad1457]/30'
+                  }`}>
+                    {paymentMethod === 'cod' && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#e91e8c]" />
+                    )}
+                  </div>
+                  <Banknote className={`w-5 h-5 shrink-0 ${paymentMethod === 'cod' ? 'text-[#e91e8c]' : 'text-[#ad1457]/50'}`} />
+                  <div>
+                    <p className="text-sm font-bold text-[#2d1a24]">Cash on Delivery</p>
+                    <p className="text-[10px] text-[#6d1b3b]/60">Pay when delivered</p>
+                  </div>
+                </button>
+              </div>
+
+              {/* COD inline note */}
+              {paymentMethod === 'cod' && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800 font-medium">
+                  💵 Payment is due upon delivery. Please have the exact amount ready.
+                </div>
+              )}
+
+              {/* Validation message */}
+              {paymentMethodError && !paymentMethod && (
+                <p className="text-xs text-red-500 font-semibold">
+                  Please select a payment method to continue
+                </p>
+              )}
+            </div>
+
+            {/* Payment info — SSLCommerz (only shown when online payment is selected or nothing selected) */}
+            {paymentMethod !== 'cod' && (
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
+                <div className="flex items-start gap-3">
+                  <CreditCard className="w-5 h-5 text-purple-600 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-sm text-[#2d1a24] mb-1">Secure Payment via SSLCommerz</h3>
+                    <p className="text-xs text-[#6d1b3b]/70">
+                      Pay with Credit/Debit Cards, bKash, Nagad, Rocket, Internet Banking and more.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* ── Right: Order Summary ── */}
@@ -518,11 +539,15 @@ export default function CheckoutPage() {
 
               <button
                 onClick={handlePlaceOrder}
-                disabled={placing}
+                disabled={placing || !paymentMethod}
                 className="w-full bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-4 rounded-full font-bold text-base hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {placing ? (
-                  <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Payment...</>
+                  paymentMethod === 'cod'
+                    ? <><Loader2 className="w-5 h-5 animate-spin" /> Placing Order...</>
+                    : <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Payment...</>
+                ) : paymentMethod === 'cod' ? (
+                  <><Banknote className="w-4 h-4" /> Place Order (Pay on Delivery)</>
                 ) : (
                   <><CreditCard className="w-4 h-4" /> Place Order & Pay</>
                 )}
