@@ -36,9 +36,17 @@ const nextConfig: NextConfig = {
    * points to localhost.
    */
   async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+    // In production (NEXT_PUBLIC_API_URL points to real backend),
+    // skip the proxy — browser calls backend directly.
+    if (apiUrl && !apiUrl.includes('localhost')) {
+      return [];
+    }
+
+    // In development, proxy /api/* to localhost:4000/api/*
     const backendUrl =
-      process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") ||
-      "http://localhost:4000";
+      apiUrl?.replace("/api", "") || "http://localhost:4000";
 
     return [
       {
