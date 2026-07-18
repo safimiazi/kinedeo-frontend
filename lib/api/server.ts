@@ -12,7 +12,7 @@
 import type { Product, PaginatedProducts, Category, Announcement, FlashSale, Bundle } from './types';
 
 const BACKEND =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+  process.env.NEXT_PUBLIC_API_URL || 'https://api.kinedeo.com/api';
 
 // ─── Products ──────────────────────────────────────────────────────────────────
 
