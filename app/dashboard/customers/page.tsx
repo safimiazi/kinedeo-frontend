@@ -95,7 +95,7 @@ export default function CustomersPage() {
   const getRoleColor = (role: string) => {
     switch (role) {
       case "admin": return "bg-purple-100 text-purple-700";
-      case "super-admin": return "bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800";
+      case "super-admin": return "bg-linear-to-r from-purple-100 to-pink-100 text-purple-800";
       default: return "bg-blue-100 text-blue-700";
     }
   };
@@ -118,9 +118,9 @@ export default function CustomersPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-white to-pink-50 rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all">
+        <div className="bg-linear-to-br from-white to-pink-50 rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#e91e8c]/10 to-[#c2185b]/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#e91e8c]/10 to-[#c2185b]/10 flex items-center justify-center">
               <Users className="w-5 h-5 text-[#e91e8c]" />
             </div>
             <div>
@@ -129,9 +129,9 @@ export default function CustomersPage() {
             </div>
           </div>
         </div>
-        <div className="bg-gradient-to-br from-white to-pink-50 rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all">
+        <div className="bg-linear-to-br from-white to-pink-50 rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-green-100 to-green-50 flex items-center justify-center">
               <UserCheck className="w-5 h-5 text-green-600" />
             </div>
             <div>
@@ -140,9 +140,9 @@ export default function CustomersPage() {
             </div>
           </div>
         </div>
-        <div className="bg-gradient-to-br from-white to-pink-50 rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all">
+        <div className="bg-linear-to-br from-white to-pink-50 rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-100 to-blue-50 flex items-center justify-center">
               <UserPlus className="w-5 h-5 text-blue-600" />
             </div>
             <div>
@@ -155,7 +155,7 @@ export default function CustomersPage() {
 
       {/* Search */}
       <div className="bg-white rounded-2xl border border-pink-100 p-4">
-        <div className="flex items-center gap-3 bg-gradient-to-r from-pink-50 to-white rounded-xl px-4 py-2.5 max-w-md border border-pink-100">
+        <div className="flex items-center gap-3 bg-linear-to-r from-pink-50 to-white rounded-xl px-4 py-2.5 max-w-md border border-pink-100">
           <Search className="w-4 h-4 text-[#ad1457]/50" />
           <input
             type="text"
@@ -175,7 +175,7 @@ export default function CustomersPage() {
       {/* Customers Table */}
       {customers.length === 0 ? (
         <div className="bg-white rounded-2xl border border-pink-100 p-12 text-center">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-linear-to-br from-pink-100 to-pink-50 flex items-center justify-center">
             <Users className="w-10 h-10 text-[#ad1457]/40" />
           </div>
           <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">No customers found</h3>
@@ -188,7 +188,7 @@ export default function CustomersPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-pink-100 bg-gradient-to-r from-pink-50 to-white">
+                <tr className="border-b border-pink-100 bg-linear-to-r from-pink-50 to-white">
                   <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-5 py-3.5 uppercase tracking-wide">Customer</th>
                   <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-5 py-3.5 uppercase tracking-wide">Contact</th>
                   <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-5 py-3.5 uppercase tracking-wide">Role</th>
@@ -202,13 +202,13 @@ export default function CustomersPage() {
                   <tr
                     key={customer._id}
                     onClick={() => router.push(`/dashboard/customers/${customer._id}`)}
-                    className={`border-b border-pink-50 hover:bg-gradient-to-r hover:from-pink-50/60 hover:to-white cursor-pointer transition-all group ${
+                    className={`border-b border-pink-50 hover:bg-linear-to-r hover:from-pink-50/60 hover:to-white cursor-pointer transition-all group ${
                       index % 2 === 0 ? "bg-white" : "bg-pink-50/20"
                     }`}
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white text-xs font-bold shadow-sm">
                           {getInitials(customer.name)}
                         </div>
                         <div>
@@ -306,7 +306,7 @@ export default function CustomersPage() {
                   onClick={() => setPage(pageNum)}
                   className={`w-8 h-8 rounded-lg text-sm font-medium transition-all ${
                     page === pageNum
-                      ? "bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
+                      ? "bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
                       : "text-[#6d1b3b] hover:bg-pink-50"
                   }`}
                 >

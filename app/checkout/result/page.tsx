@@ -164,7 +164,7 @@ function CheckoutResult() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/"
-            className="px-6 py-3 rounded-full bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white font-semibold text-sm hover:shadow-lg transition-all"
+            className="px-6 py-3 rounded-full bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white font-semibold text-sm hover:shadow-lg transition-all"
           >
             Continue Shopping
           </Link>

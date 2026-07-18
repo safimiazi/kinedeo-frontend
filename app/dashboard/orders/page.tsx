@@ -186,7 +186,7 @@ export default function OrdersPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 {/* Left */}
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-linear-to-br from-pink-100 to-rose-100 flex items-center justify-center shrink-0">
                     <Package className="w-4 h-4 text-[#ad1457]" />
                   </div>
                   <div>
@@ -307,7 +307,7 @@ export default function OrdersPage() {
 
               {/* Coupon highlight box — shown prominently if coupon was used */}
               {selectedOrder.couponCode && (
-                <div className="bg-gradient-to-r from-[#fce4ec] to-pink-50 rounded-xl border border-[#f48fb1]/40 px-4 py-3 flex items-center justify-between">
+                <div className="bg-linear-to-r from-[#fce4ec] to-pink-50 rounded-xl border border-[#f48fb1]/40 px-4 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-[#e91e8c]/10 flex items-center justify-center">
                       <Tag className="w-4 h-4 text-[#e91e8c]" />
@@ -440,7 +440,7 @@ export default function OrdersPage() {
                       setPathaoInstruction("");
                       setPathaoModal(true);
                     }}
-                    className="w-full px-4 py-2.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                    className="w-full px-4 py-2.5 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
                   >
                     <Truck className="w-4 h-4" />
                     Send to Pathao
@@ -513,7 +513,7 @@ export default function OrdersPage() {
                       }
                     }}
                     disabled={updateStatus.isPending || !newStatus || newStatus === selectedOrder.status}
-                    className="px-5 py-2.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white rounded-xl text-sm font-bold disabled:opacity-50 hover:shadow-lg transition-all"
+                    className="px-5 py-2.5 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white rounded-xl text-sm font-bold disabled:opacity-50 hover:shadow-lg transition-all"
                   >
                     {updateStatus.isPending ? "Saving..." : "Update"}
                   </button>
@@ -592,7 +592,7 @@ export default function OrdersPage() {
                   })
                 }
                 disabled={pathaoMutation.isPending}
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white rounded-xl text-sm font-bold disabled:opacity-50 hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white rounded-xl text-sm font-bold disabled:opacity-50 hover:shadow-lg transition-all flex items-center justify-center gap-2"
               >
                 <Truck className="w-4 h-4" />
                 {pathaoMutation.isPending ? "Sending..." : "Send to Pathao"}

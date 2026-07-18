@@ -45,7 +45,7 @@ export default function FlashSale() {
   const saleProducts = sale.products.slice(0, 4);
 
   return (
-    <section className="bg-gradient-to-br from-[#c2185b] via-[#e91e8c] to-[#ad1457] py-10 overflow-hidden relative">
+    <section className="bg-linear-to-br from-[#c2185b] via-[#e91e8c] to-[#ad1457] py-10 overflow-hidden relative">
       {/* Decorative blobs */}
       <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
@@ -73,7 +73,7 @@ export default function FlashSale() {
               return (
                 <div
                   key={lbl}
-                  className="bg-white rounded-xl px-4 py-3 min-w-[56px] text-center shadow-md shadow-black/10"
+                  className="bg-white rounded-xl px-4 py-3 min-w-14 text-center shadow-md shadow-black/10"
                 >
                   <div className="font-playfair text-[26px] font-extrabold text-[#e91e8c] leading-none">
                     {pad(val)}

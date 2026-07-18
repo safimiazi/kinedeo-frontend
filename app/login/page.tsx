@@ -140,7 +140,7 @@ function LoginForm() {
               <button
                 onClick={handlePhoneLogin}
                 disabled={loading || phone.length !== 11}
-                className="w-full bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-3 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-3 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Logging in..." : "Login with Phone"}
               </button>
@@ -173,7 +173,7 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-3 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-3 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Logging in..." : "Login"}
               </button>

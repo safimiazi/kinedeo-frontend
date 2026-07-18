@@ -189,7 +189,7 @@ export default function ReviewsPage() {
               onClick={() => { setFilter(tab.key); setPage(1); }}
               className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                 filter === tab.key
-                  ? "bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
+                  ? "bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
                   : `text-[#6d1b3b]/60 hover:bg-pink-50 ${tab.color}`
               }`}
             >
@@ -211,7 +211,7 @@ export default function ReviewsPage() {
         {/* Empty */}
         {!isLoading && reviews.length === 0 && (
           <div className="bg-white rounded-2xl border border-pink-100 p-14 text-center">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-linear-to-br from-pink-100 to-pink-50 flex items-center justify-center">
               <Star className="w-10 h-10 text-[#ad1457]/30" />
             </div>
             <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">No reviews found</h3>
@@ -243,8 +243,8 @@ export default function ReviewsPage() {
                   <div
                     className={`h-1 w-full ${
                       review.isApproved
-                        ? "bg-gradient-to-r from-green-400 to-emerald-400"
-                        : "bg-gradient-to-r from-yellow-400 to-amber-400"
+                        ? "bg-linear-to-r from-green-400 to-emerald-400"
+                        : "bg-linear-to-r from-yellow-400 to-amber-400"
                     }`}
                   />
 
@@ -256,7 +256,7 @@ export default function ReviewsPage() {
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
                           {/* Avatar + name */}
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#f48fb1] to-[#e91e8c] flex items-center justify-center text-white text-xs font-bold shrink-0">
+                            <div className="w-7 h-7 rounded-full bg-linear-to-br from-[#f48fb1] to-[#e91e8c] flex items-center justify-center text-white text-xs font-bold shrink-0">
                               {name.charAt(0).toUpperCase()}
                             </div>
                             <span className="text-sm font-semibold text-[#2d1a24]">{name}</span>
@@ -405,7 +405,7 @@ export default function ReviewsPage() {
                     onClick={() => setPage(p)}
                     className={`w-9 h-9 rounded-xl text-sm font-semibold transition-all ${
                       page === p
-                        ? "bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
+                        ? "bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
                         : "text-[#6d1b3b]/60 hover:bg-pink-50 border border-pink-100"
                     }`}
                   >

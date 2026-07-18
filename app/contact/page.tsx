@@ -42,7 +42,7 @@ export default function ContactPage() {
             { icon: Clock, title: "Support Hours", value: "Sat – Thu, 9 AM – 8 PM", href: null },
           ].map(({ icon: Icon, title, value, href }) => (
             <div key={title} className="flex items-start gap-4 p-4 bg-white rounded-xl border border-pink-100 hover:border-[#e91e8c]/30 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#e91e8c]/20 to-pink-100 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#e91e8c]/20 to-pink-100 flex items-center justify-center shrink-0">
                 <Icon className="w-5 h-5 text-[#e91e8c]" />
               </div>
               <div>
@@ -117,7 +117,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-3 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-3 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Send className="w-4 h-4" />
                 {loading ? "Sending..." : "Send Message"}

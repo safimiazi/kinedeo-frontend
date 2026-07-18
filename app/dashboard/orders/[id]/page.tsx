@@ -287,7 +287,7 @@ export default function OrderDetailPage() {
 
             {/* Coupon Info */}
             {order.couponCode ? (
-              <div className="bg-gradient-to-br from-[#fce4ec] to-pink-50 rounded-2xl border border-[#f48fb1]/30 p-5">
+              <div className="bg-linear-to-br from-[#fce4ec] to-pink-50 rounded-2xl border border-[#f48fb1]/30 p-5">
                 <h3 className="text-xs font-bold text-[#ad1457] uppercase tracking-wide mb-3 flex items-center gap-1">
                   <Tag className="w-3.5 h-3.5" /> Coupon Applied
                 </h3>
@@ -333,7 +333,7 @@ export default function OrderDetailPage() {
               <User className="w-3.5 h-3.5" /> Customer
             </h3>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white font-bold text-lg shrink-0">
+              <div className="w-11 h-11 rounded-full bg-linear-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white font-bold text-lg shrink-0">
                 {order.shippingAddress.name.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -438,7 +438,7 @@ export default function OrderDetailPage() {
                   setPathaoInstruction("");
                   setPathaoModal(true);
                 }}
-                className="w-full px-4 py-3 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="w-full px-4 py-3 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
               >
                 <Truck className="w-4 h-4" />
                 Send to Pathao
@@ -611,7 +611,7 @@ export default function OrderDetailPage() {
                   })
                 }
                 disabled={pathaoMutation.isPending}
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white rounded-xl text-sm font-bold disabled:opacity-50 hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white rounded-xl text-sm font-bold disabled:opacity-50 hover:shadow-lg transition-all flex items-center justify-center gap-2"
               >
                 <Truck className="w-4 h-4" />
                 {pathaoMutation.isPending ? "Sending..." : "Send to Pathao"}

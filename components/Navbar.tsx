@@ -87,7 +87,7 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
                 className="font-nunito font-semibold text-sm text-[#6d1b3b] hover:text-[#e91e8c] transition-colors tracking-wide relative group"
               >
                 Shop
-                <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-linear-to-r from-[#e91e8c] to-[#c2185b] group-hover:w-full transition-all duration-300" />
               </Link>
               {(categories || []).map((cat) => (
                 <Link
@@ -96,7 +96,7 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
                   className="font-nunito font-semibold text-sm text-[#6d1b3b] hover:text-[#e91e8c] transition-colors tracking-wide relative group"
                 >
                   {cat.name}
-                  <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] group-hover:w-full transition-all duration-300" />
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-linear-to-r from-[#e91e8c] to-[#c2185b] group-hover:w-full transition-all duration-300" />
                 </Link>
               ))}
               <Link
@@ -104,7 +104,7 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
                 className="font-nunito font-semibold text-sm text-[#6d1b3b] hover:text-[#e91e8c] transition-colors tracking-wide relative group"
               >
                 About
-                <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-linear-to-r from-[#e91e8c] to-[#c2185b] group-hover:w-full transition-all duration-300" />
               </Link>
             </div>
 
@@ -129,7 +129,7 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
               {/* Cart Button */}
               <button
                 onClick={onCartOpen}
-                className="relative flex items-center gap-1.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-3 sm:px-4 py-2 rounded-full font-nunito font-bold text-xs sm:text-[13px] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all duration-300"
+                className="relative flex items-center gap-1.5 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-3 sm:px-4 py-2 rounded-full font-nunito font-bold text-xs sm:text-[13px] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all duration-300"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span className="hidden sm:inline">Cart</span>
@@ -145,7 +145,7 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
                 <div ref={userMenuRef} className="relative hidden md:block">
                   <button
                     onClick={() => setUserMenuOpen((v) => !v)}
-                    className="w-9 h-9 rounded-full bg-gradient-to-br from-[#f48fb1] to-[#e91e8c] flex items-center justify-center text-white text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                    className="w-9 h-9 rounded-full bg-linear-to-br from-[#f48fb1] to-[#e91e8c] flex items-center justify-center text-white text-sm font-bold shadow-md hover:shadow-lg transition-all"
                   >
                     {user?.name?.charAt(0)?.toUpperCase() ?? <User className="w-4 h-4" />}
                   </button>
@@ -226,12 +226,12 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
       {/* Slide-in panel */}
       <div
         ref={menuRef}
-        className={`fixed top-0 right-0 h-full w-[280px] max-w-[85vw] bg-white z-50 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed top-0 right-0 h-full w-70 max-w-[85vw] bg-white z-50 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out md:hidden ${
           menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Drawer header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-pink-100 bg-gradient-to-r from-[#e91e8c]/5 to-white">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-pink-100 bg-linear-to-r from-[#e91e8c]/5 to-white">
           <div className="flex items-center gap-2">
             <Flower2 className="w-5 h-5 text-[#e91e8c]" />
             <span className="font-playfair text-base font-extrabold text-[#e91e8c]">Kine</span>
@@ -249,7 +249,7 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
         {isAuthenticated && (
           <div className="px-5 py-4 border-b border-pink-50 bg-pink-50/50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#f48fb1] to-[#e91e8c] flex items-center justify-center text-white font-bold text-sm shrink-0">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#f48fb1] to-[#e91e8c] flex items-center justify-center text-white font-bold text-sm shrink-0">
                 {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
               </div>
               <div className="min-w-0">

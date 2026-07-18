@@ -191,7 +191,7 @@ export default function CustomerDetailPage() {
       {/* ── Hero Card ── */}
       <div className="bg-white rounded-3xl border border-pink-100 shadow-sm overflow-hidden">
         {/* gradient banner */}
-        <div className="h-24 bg-gradient-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] relative">
+        <div className="h-24 bg-linear-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] relative">
           <div className="absolute inset-0 opacity-20"
             style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "30px 30px" }}
           />
@@ -200,7 +200,7 @@ export default function CustomerDetailPage() {
         <div className="px-6 pb-6">
           {/* Avatar overlapping banner */}
           <div className="flex items-end justify-between -mt-10 mb-4">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white text-2xl font-bold shadow-lg border-4 border-white">
+            <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white text-2xl font-bold shadow-lg border-4 border-white">
               {getInitials(customer.name)}
             </div>
             <div className="flex items-center gap-2 pb-1">
@@ -297,9 +297,9 @@ export default function CustomerDetailPage() {
             iconBg: "from-amber-100 to-amber-50",
           },
         ].map((s) => (
-          <div key={s.label} className={`bg-gradient-to-br ${s.bg} rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/40 transition-all`}>
+          <div key={s.label} className={`bg-linear-to-br ${s.bg} rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/40 transition-all`}>
             <div className="flex items-start gap-3">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.iconBg} flex items-center justify-center shrink-0`}>
+              <div className={`w-10 h-10 rounded-xl bg-linear-to-br ${s.iconBg} flex items-center justify-center shrink-0`}>
                 {s.icon}
               </div>
               <div>
@@ -353,7 +353,7 @@ export default function CustomerDetailPage() {
                   {/* Order header */}
                   <div className="flex items-start justify-between gap-4 mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-linear-to-br from-pink-100 to-pink-50 flex items-center justify-center shrink-0">
                         <Hash className="w-4 h-4 text-[#e91e8c]" />
                       </div>
                       <div>

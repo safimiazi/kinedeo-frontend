@@ -19,8 +19,18 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Kine Deo - Luxury Beauty Products",
-  description: "Discover luxury beauty crafted for the modern woman",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? 'https://kinedeo.com'
+  ),
+  title: {
+    default: 'KineDeo — Premium Beauty & Skincare',
+    template: '%s | KineDeo',
+  },
+  description: 'Discover luxury beauty crafted for the modern woman',
+  openGraph: {
+    siteName: 'KineDeo',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({

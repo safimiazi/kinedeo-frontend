@@ -214,7 +214,7 @@ import toast from "react-hot-toast";
 //         </div>
 //         <button
 //           onClick={openCreate}
-//           className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit"
+//           className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit"
 //         >
 //           + Add Coupon
 //         </button>
@@ -485,7 +485,7 @@ import toast from "react-hot-toast";
 //                 <button
 //                   type="submit"
 //                   disabled={createMutation.isPending || updateMutation.isPending}
-//                   className="flex-1 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50"
+//                   className="flex-1 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50"
 //                 >
 //                   {createMutation.isPending || updateMutation.isPending
 //                     ? "Saving..."
@@ -783,7 +783,7 @@ export default function CouponsPage() {
           </button>
           <button
             onClick={openCreate}
-            className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all inline-flex items-center gap-2"
+            className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all inline-flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Add Coupon
@@ -794,7 +794,7 @@ export default function CouponsPage() {
       {/* Coupons List */}
       {coupons.length === 0 ? (
         <div className="bg-white rounded-2xl border border-pink-100 p-12 text-center">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-linear-to-br from-pink-100 to-pink-50 flex items-center justify-center">
             <Ticket className="w-10 h-10 text-[#ad1457]/40" />
           </div>
           <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">No coupons yet</h3>
@@ -811,7 +811,7 @@ export default function CouponsPage() {
               className="bg-white rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all group relative overflow-hidden"
             >
               {/* Background decoration */}
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-pink-50 to-transparent rounded-bl-3xl opacity-50" />
+              <div className="absolute top-0 right-0 w-24 h-24 bg-linear-to-br from-pink-50 to-transparent rounded-bl-3xl opacity-50" />
               
               <div className="relative">
                 <div className="flex items-start justify-between mb-3">
@@ -948,7 +948,7 @@ export default function CouponsPage() {
                   onClick={() => setPage(pageNum)}
                   className={`w-8 h-8 rounded-lg text-sm font-medium transition-all ${
                     page === pageNum
-                      ? "bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
+                      ? "bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
                       : "text-[#6d1b3b] hover:bg-pink-50"
                   }`}
                 >
@@ -972,7 +972,7 @@ export default function CouponsPage() {
       {quickOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl border border-amber-200 shadow-xl w-full max-w-sm">
-            <div className="bg-gradient-to-r from-amber-500 to-orange-400 rounded-t-2xl px-6 py-4 flex items-center justify-between">
+            <div className="bg-linear-to-r from-amber-500 to-orange-400 rounded-t-2xl px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2 text-white">
                 <Zap className="w-5 h-5" />
                 <h2 className="text-base font-bold">Quick Coupon</h2>
@@ -1320,7 +1320,7 @@ export default function CouponsPage() {
                   <button
                     type="submit"
                     disabled={createMutation.isPending || updateMutation.isPending}
-                    className="flex-1 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                    className="flex-1 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 inline-flex items-center justify-center gap-2"
                   >
                     <Save className="w-4 h-4" />
                     {createMutation.isPending || updateMutation.isPending

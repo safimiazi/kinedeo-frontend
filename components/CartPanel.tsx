@@ -47,10 +47,10 @@ export default function CartPanel({ onClose }: CartPanelProps) {
       <div className="fixed top-0 right-0 w-full md:w-[450px] h-screen bg-white z-[101] shadow-2xl flex flex-col animate-slide-in-right">
 
         {/* Header */}
-        <div className="p-6 border-b border-[#fce4ec] bg-gradient-to-r from-white to-pink-50/30">
+        <div className="p-6 border-b border-[#fce4ec] bg-linear-to-r from-white to-pink-50/30">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center">
                 <ShoppingBag className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -71,7 +71,7 @@ export default function CartPanel({ onClose }: CartPanelProps) {
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           {items.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center">
+              <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-linear-to-br from-pink-100 to-pink-50 flex items-center justify-center">
                 <ShoppingBag className="w-12 h-12 text-[#ad1457]/30" />
               </div>
               <h3 className="font-playfair text-lg font-bold text-[#2d1a24] mb-2">Your cart is empty</h3>
@@ -94,7 +94,7 @@ export default function CartPanel({ onClose }: CartPanelProps) {
                   >
                     <div className="flex gap-3">
                       {/* Product Image */}
-                      <div className="w-20 h-20 bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
+                      <div className="w-20 h-20 bg-linear-to-br from-pink-50 to-rose-50 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
                         {item.image ? (
                           <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                         ) : (
@@ -162,7 +162,7 @@ export default function CartPanel({ onClose }: CartPanelProps) {
 
               {/* Free shipping nudge */}
               {subtotal < settings.freeShippingThreshold && settings.freeShippingEnabled && (
-                <div className="p-3 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl border border-pink-100 text-center">
+                <div className="p-3 bg-linear-to-r from-pink-50 to-rose-50 rounded-xl border border-pink-100 text-center">
                   <p className="font-nunito text-xs text-[#ad1457]">
                     Add <strong>৳{(settings.freeShippingThreshold - subtotal).toLocaleString()}</strong> more for free shipping!
                   </p>
@@ -202,7 +202,7 @@ export default function CartPanel({ onClose }: CartPanelProps) {
             {/* Checkout Button */}
             <div className="px-6 pb-6 pt-1">
               <button
-                className="w-full bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-4 rounded-2xl font-nunito font-bold text-base hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#e91e8c]/35 transition-all duration-300 flex items-center justify-center gap-2 group"
+                className="w-full bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-4 rounded-2xl font-nunito font-bold text-base hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#e91e8c]/35 transition-all duration-300 flex items-center justify-center gap-2 group"
                 onClick={handleCheckout}
               >
                 <CreditCard className="w-4 h-4 group-hover:scale-110 transition-transform" />

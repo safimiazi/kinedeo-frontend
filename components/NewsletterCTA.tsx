@@ -53,7 +53,7 @@ export default function NewsletterCTA() {
           ) : (
             <form
               onSubmit={handleSubmit}
-              className="flex gap-3 max-w-[440px] mx-auto flex-wrap"
+              className="flex gap-3 max-w-110 mx-auto flex-wrap"
               noValidate
             >
               <input
@@ -62,7 +62,7 @@ export default function NewsletterCTA() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={subscribe.isPending}
-                className="font-nunito px-5 py-3.5 border-2 border-[#fce4ec] rounded-full text-sm outline-none flex-1 min-w-[200px] bg-white/90 focus:border-[#e91e8c] transition-colors disabled:opacity-60"
+                className="font-nunito px-5 py-3.5 border-2 border-[#fce4ec] rounded-full text-sm outline-none flex-1 min-w-50 bg-white/90 focus:border-[#e91e8c] transition-colors disabled:opacity-60"
               />
               <button
                 type="submit"

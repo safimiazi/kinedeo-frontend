@@ -195,7 +195,7 @@ export default function BundlesPage() {
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit"
+          className="inline-flex items-center gap-2 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit"
         >
           <Plus className="w-4 h-4" /> Create Bundle
         </button>
@@ -506,7 +506,7 @@ export default function BundlesPage() {
                   <button
                     type="submit"
                     disabled={createBundle.isPending || updateBundle.isPending}
-                    className="flex-1 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50"
+                    className="flex-1 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50"
                   >
                     {createBundle.isPending || updateBundle.isPending ? "Saving..." : "Save Bundle"}
                   </button>

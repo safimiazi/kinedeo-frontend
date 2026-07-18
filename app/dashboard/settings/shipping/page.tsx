@@ -304,7 +304,7 @@ export default function ShippingSettingsPage() {
           <button
             onClick={() => update.mutate(form)}
             disabled={update.isPending}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-3.5 rounded-2xl font-bold hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-3.5 rounded-2xl font-bold hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all disabled:opacity-60"
           >
             {update.isPending ? (
               <>Saving...</>

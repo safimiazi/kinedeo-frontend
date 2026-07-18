@@ -59,7 +59,7 @@ export default function PressPage() {
       {/* Media kit */}
       <div className="bg-white rounded-2xl border border-pink-100 p-6 mb-8">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#e91e8c]/20 to-pink-100 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[#e91e8c]/20 to-pink-100 flex items-center justify-center shrink-0">
             <Download className="w-6 h-6 text-[#e91e8c]" />
           </div>
           <div className="flex-1">
@@ -75,7 +75,7 @@ export default function PressPage() {
             </ul>
             <a
               href="mailto:press@kinedeo.com?subject=Media Kit Request"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
+              className="inline-flex items-center gap-2 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
             >
               <Download className="w-4 h-4" /> Request Media Kit
             </a>
@@ -84,7 +84,7 @@ export default function PressPage() {
       </div>
 
       {/* Contact */}
-      <div className="bg-gradient-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-6 text-center border border-pink-100">
+      <div className="bg-linear-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-6 text-center border border-pink-100">
         <Mail className="w-8 h-8 text-[#e91e8c] mx-auto mb-3" />
         <p className="font-playfair text-lg font-bold text-[#2d1a24] mb-1">Press Inquiries</p>
         <p className="text-sm text-[#6d1b3b]/60 mb-3">For interviews, features, or brand partnerships:</p>

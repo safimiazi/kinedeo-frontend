@@ -48,7 +48,7 @@ export default function SettingsPage() {
       {/* General settings */}
       <div className="bg-white rounded-2xl border border-pink-100 p-6 hover:shadow-md transition-all">
         <div className="flex items-center gap-2 mb-5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-pink-100 to-pink-50 flex items-center justify-center">
             <Store className="w-4 h-4 text-[#e91e8c]" />
           </div>
           <h2 className="text-lg font-bold text-[#2d1a24]">General Settings</h2>
@@ -123,7 +123,7 @@ export default function SettingsPage() {
       {/* Notifications */}
       <div className="bg-white rounded-2xl border border-pink-100 p-6 hover:shadow-md transition-all">
         <div className="flex items-center gap-2 mb-5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-pink-100 to-pink-50 flex items-center justify-center">
             <Bell className="w-4 h-4 text-[#e91e8c]" />
           </div>
           <h2 className="text-lg font-bold text-[#2d1a24]">Notification Preferences</h2>
@@ -182,21 +182,21 @@ export default function SettingsPage() {
       {/* Store Information */}
       <div className="bg-white rounded-2xl border border-pink-100 p-6 hover:shadow-md transition-all">
         <div className="flex items-center gap-2 mb-5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-pink-100 to-pink-50 flex items-center justify-center">
             <Clock className="w-4 h-4 text-[#e91e8c]" />
           </div>
           <h2 className="text-lg font-bold text-[#2d1a24]">Store Information</h2>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gradient-to-br from-pink-50/50 to-transparent rounded-xl p-4 border border-pink-100">
+          <div className="bg-linear-to-br from-pink-50/50 to-transparent rounded-xl p-4 border border-pink-100">
             <p className="text-xs text-[#6d1b3b]/50 mb-1">Store Status</p>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
               <p className="text-sm font-semibold text-[#2d1a24]">Active</p>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-pink-50/50 to-transparent rounded-xl p-4 border border-pink-100">
+          <div className="bg-linear-to-br from-pink-50/50 to-transparent rounded-xl p-4 border border-pink-100">
             <p className="text-xs text-[#6d1b3b]/50 mb-1">Last Updated</p>
             <p className="text-sm font-semibold text-[#2d1a24]">Today, 10:30 AM</p>
           </div>
@@ -207,7 +207,7 @@ export default function SettingsPage() {
       <div className="flex justify-end sticky bottom-4">
         <button 
           onClick={handleSave}
-          className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all flex items-center gap-2 group"
+          className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all flex items-center gap-2 group"
         >
           <Save className="w-4 h-4 group-hover:scale-110 transition-transform" />
           Save Changes

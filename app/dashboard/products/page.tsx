@@ -247,7 +247,7 @@
 //           <h1 className="text-2xl font-bold text-[#2d1a24] font-playfair">Products</h1>
 //           <p className="text-sm text-[#6d1b3b]/60 mt-1">{data?.total || 0} products in your store</p>
 //         </div>
-//         <button onClick={openCreate} className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit">
+//         <button onClick={openCreate} className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit">
 //           + Add Product
 //         </button>
 //       </div>
@@ -528,7 +528,7 @@
 //                   Cancel
 //                 </button>
 //                 <button type="submit" disabled={createProduct.isPending || updateProduct.isPending}
-//                   className="flex-1 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50">
+//                   className="flex-1 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50">
 //                   {(createProduct.isPending || updateProduct.isPending) ? "Saving..." : "Save Product"}
 //                 </button>
 //               </div>
@@ -859,7 +859,7 @@ export default function ProductsPage() {
         </div>
         <button 
           onClick={openCreate} 
-          className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit flex items-center gap-2"
+          className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Add Product
@@ -943,11 +943,11 @@ export default function ProductsPage() {
               <div key={product._id} className="bg-white rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all group relative">
                 <div className="flex items-start justify-between mb-3">
                   {product.images?.[0] ? (
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-50 to-pink-100 overflow-hidden flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-pink-50 to-pink-100 overflow-hidden flex items-center justify-center">
                       <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
                     </div>
                   ) : (
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-50 to-pink-100 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-pink-50 to-pink-100 flex items-center justify-center">
                       <Package className="w-6 h-6 text-[#ad1457]/40" />
                     </div>
                   )}
@@ -1204,7 +1204,7 @@ export default function ProductsPage() {
                   {(formData.useVariants || (modalMode === "edit" && formData.variants.length > 0)) && (
                     <div className="space-y-3">
                       {formData.variants.map((variant, idx) => (
-                        <div key={idx} className="bg-gradient-to-br from-pink-50/50 to-white rounded-xl p-4 border border-pink-100">
+                        <div key={idx} className="bg-linear-to-br from-pink-50/50 to-white rounded-xl p-4 border border-pink-100">
                           <div className="flex items-center justify-between mb-3">
                             <span className="text-xs font-semibold text-[#ad1457] flex items-center gap-1">
                               <Package className="w-3 h-3" />
@@ -1334,7 +1334,7 @@ export default function ProductsPage() {
                   <button 
                     type="submit" 
                     disabled={createProduct.isPending || updateProduct.isPending}
-                    className="flex-1 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     <Save className="w-4 h-4" />
                     {(createProduct.isPending || updateProduct.isPending) ? "Saving..." : "Save Product"}

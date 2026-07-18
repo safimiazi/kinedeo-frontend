@@ -151,7 +151,7 @@
 //         </div>
 //         <button
 //           onClick={openCreate}
-//           className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit"
+//           className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit"
 //         >
 //           + Add Category
 //         </button>
@@ -175,7 +175,7 @@
 //               className="bg-white rounded-2xl border border-pink-100 p-6 hover:shadow-md hover:shadow-pink-100/50 transition-all group"
 //             >
 //               <div className="flex items-start justify-between mb-3">
-//                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center text-xl">
+//                 <div className="w-12 h-12 rounded-xl bg-linear-to-br from-pink-100 to-rose-100 flex items-center justify-center text-xl">
 //                   📁
 //                 </div>
 //                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
@@ -314,7 +314,7 @@
 //                 <button
 //                   type="submit"
 //                   disabled={createCategory.isPending || updateCategory.isPending}
-//                   className="flex-1 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50"
+//                   className="flex-1 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50"
 //                 >
 //                   {(createCategory.isPending || updateCategory.isPending) ? "Saving..." : "Save"}
 //                 </button>
@@ -508,7 +508,7 @@ export default function CategoriesPage() {
         </div>
         <button
           onClick={openCreate}
-          className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit flex items-center gap-2"
+          className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Add Category
@@ -518,7 +518,7 @@ export default function CategoriesPage() {
       {/* Active Categories */}
       {activeCategories.length === 0 ? (
         <div className="bg-white rounded-2xl border border-pink-100 p-12 text-center">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-linear-to-br from-pink-100 to-pink-50 flex items-center justify-center">
             <FolderTree className="w-10 h-10 text-[#ad1457]/40" />
           </div>
           <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">No categories yet</h3>
@@ -538,16 +538,16 @@ export default function CategoriesPage() {
               className="bg-white rounded-2xl border border-pink-100 hover:shadow-md hover:shadow-pink-100/50 transition-all group relative overflow-hidden"
             >
               {/* Background decoration */}
-              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-50 to-transparent rounded-bl-3xl opacity-50" />
+              <div className="absolute top-0 right-0 w-20 h-20 bg-linear-to-br from-pink-50 to-transparent rounded-bl-3xl opacity-50" />
               
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
                   {cat.image ? (
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-100 to-rose-100 overflow-hidden flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-pink-100 to-rose-100 overflow-hidden flex items-center justify-center">
                       <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
                     </div>
                   ) : (
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-pink-100 to-rose-100 flex items-center justify-center">
                       <FolderTree className="w-6 h-6 text-[#ad1457]" />
                     </div>
                   )}
@@ -603,10 +603,10 @@ export default function CategoriesPage() {
             {inactiveCategories.map((cat) => (
               <div
                 key={cat._id}
-                className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 p-6 opacity-75 hover:opacity-100 transition-all group"
+                className="bg-linear-to-br from-gray-50 to-white rounded-2xl border border-gray-200 p-6 opacity-75 hover:opacity-100 transition-all group"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                     <FolderTree className="w-6 h-6 text-gray-400" />
                   </div>
                   <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
@@ -743,7 +743,7 @@ export default function CategoriesPage() {
                   <button
                     type="submit"
                     disabled={createCategory.isPending || updateCategory.isPending}
-                    className="flex-1 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="flex-1 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     <FolderTree className="w-4 h-4" />
                     {(createCategory.isPending || updateCategory.isPending) ? "Saving..." : "Save Category"}

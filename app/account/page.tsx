@@ -299,7 +299,7 @@ export default function AccountPage() {
       <Navbar cartCount={itemCount} onCartOpen={() => setCartOpen(true)} />
 
       {/* Hero */}
-      <div className="bg-gradient-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] text-white">
+      <div className="bg-linear-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <Link href="/" className="inline-flex items-center gap-1.5 text-white/70 hover:text-white text-sm font-semibold mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Home
@@ -334,7 +334,7 @@ export default function AccountPage() {
                     onClick={() => setActiveTab(id as "orders" | "profile")}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
                       activeTab === id
-                        ? "bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white"
+                        ? "bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white"
                         : "text-[#6d1b3b] hover:bg-pink-50"
                     }`}
                   >
@@ -400,7 +400,7 @@ export default function AccountPage() {
                     </p>
                     <Link
                       href="/products"
-                      className="inline-block bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-3 rounded-full font-semibold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
+                      className="inline-block bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-3 rounded-full font-semibold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
                     >
                       Browse Products
                     </Link>
@@ -435,7 +435,7 @@ export default function AccountPage() {
                   ))}
                 </div>
 
-                <div className="mt-6 bg-gradient-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-5 border border-pink-100">
+                <div className="mt-6 bg-linear-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-5 border border-pink-100">
                   <p className="text-sm text-[#6d1b3b]/70 leading-relaxed">
                     To update your profile information, please{" "}
                     <Link href="/contact" className="text-[#e91e8c] font-semibold hover:underline">

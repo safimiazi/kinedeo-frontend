@@ -21,7 +21,7 @@ export default function SizeGuidePage() {
     >
       <div className="space-y-10">
         {/* Intro */}
-        <div className="bg-gradient-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-6 border border-pink-100">
+        <div className="bg-linear-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-6 border border-pink-100">
           <p className="text-sm text-[#6d1b3b]/80 leading-relaxed">
             Product sizes at KineDeo are measured in <strong>milliliters (ml)</strong> for liquids and <strong>grams (g)</strong> for solids.
             Use the tables below to estimate how long a product will last based on your usage frequency.

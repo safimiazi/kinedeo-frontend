@@ -1,34 +1,51 @@
-"use client";
+/**
+ * Home Page — Server Component
+ *
+ * Rendering: SSR with revalidate 60s
+ *  - AnnouncementBar content pre-rendered (SEO + no layout shift)
+ *  - HeroSection is already a pure server component
+ *  - FlashSale, ProductsSection, cart interactions stay client-side
+ *
+ * "use client" is removed — this is the server shell.
+ * Interactive children import their own "use client" directives.
+ */
 
-import { useState } from "react";
-import Navbar from "@/components/Navbar";
-import AnnouncementBar from "@/components/AnnouncementBar";
-import HeroSection from "@/components/HeroSection";
-import FlashSale from "@/components/FlashSale";
-import Features from "@/components/Features";
-import ProductsSection from "@/components/ProductsSection";
-import PromoBanner from "@/components/PromoBanner";
-import Testimonials from "@/components/Testimonials";
-import NewsletterCTA from "@/components/NewsletterCTA";
-import Footer from "@/components/Footer";
-import CartPanel from "@/components/CartPanel";
-import Toast from "@/components/Toast";
-import { useCart } from "@/lib/cart-context";
+import type { Metadata } from 'next';
+import HeroSection from '@/components/HeroSection';
+import FlashSale from '@/components/FlashSale';
+import Features from '@/components/Features';
+import ProductsSection from '@/components/ProductsSection';
+import PromoBanner from '@/components/PromoBanner';
+import Testimonials from '@/components/Testimonials';
+import NewsletterCTA from '@/components/NewsletterCTA';
+import Footer from '@/components/Footer';
+import HomeClientShell from '@/components/HomeClientShell';
+import { serverGetActiveAnnouncements } from '@/lib/api/server';
 
-export default function HomePage() {
-  const { itemCount } = useCart();
-  const [cartOpen, setCartOpen] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+export const revalidate = 60;
 
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2500);
-  };
+export const metadata: Metadata = {
+  title: 'KineDeo — Premium Beauty & Skincare',
+  description:
+    'Discover luxury beauty products crafted for the modern woman. Shop serums, lip colors, and skincare essentials at KineDeo.',
+  openGraph: {
+    title: 'KineDeo — Premium Beauty & Skincare',
+    description: 'Premium beauty products for the modern woman.',
+    type: 'website',
+  },
+};
+
+export default async function HomePage() {
+  const announcements = await serverGetActiveAnnouncements();
+  const announcementMessage = announcements
+    .map((a) => a.message.trim())
+    .filter(Boolean)
+    .join(' • ');
 
   return (
-    <div className="font-playfair bg-[#fff0f5] min-h-screen text-[#2d1a24]">
-      <Navbar cartCount={itemCount} onCartOpen={() => setCartOpen(true)} />
-      <AnnouncementBar />
+    // HomeClientShell provides cart context (itemCount, CartPanel, Toast)
+    // without making the entire page a client component
+    <HomeClientShell announcementMessage={announcementMessage}>
       <HeroSection />
       <FlashSale />
       <Features />
@@ -37,10 +54,6 @@ export default function HomePage() {
       <Testimonials />
       <NewsletterCTA />
       <Footer />
-
-      {cartOpen && <CartPanel onClose={() => setCartOpen(false)} />}
-
-      {toast && <Toast message={toast} />}
-    </div>
+    </HomeClientShell>
   );
 }

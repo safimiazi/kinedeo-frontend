@@ -87,7 +87,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   isActive
-                    ? "bg-gradient-to-r from-[#fce4ec] to-[#f8bbd0] text-[#ad1457] shadow-sm"
+                    ? "bg-linear-to-r from-[#fce4ec] to-[#f8bbd0] text-[#ad1457] shadow-sm"
                     : "text-[#6d1b3b] hover:bg-pink-50"
                 }`}
               >
@@ -100,7 +100,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-pink-100">
           <div className="flex items-center gap-3 px-4 py-2">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white text-sm font-bold">
+            <div className="w-9 h-9 rounded-full bg-linear-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white text-sm font-bold">
               {user?.name?.charAt(0)?.toUpperCase() || "A"}
             </div>
             <div className="flex-1 min-w-0">

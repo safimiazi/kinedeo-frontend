@@ -1,6 +1,6 @@
 import StaticPageLayout from "@/components/StaticPageLayout";
 
-const LAST_UPDATED = "January 1, 2025";
+const LAST_UPDATED = "July 18, 2025";
 
 export default function PrivacyPage() {
   return (

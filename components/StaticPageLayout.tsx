@@ -35,7 +35,7 @@ export default function StaticPageLayout({
       <Navbar cartCount={itemCount} onCartOpen={() => setCartOpen(true)} />
 
       {/* Hero banner */}
-      <div className="relative bg-gradient-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] text-white overflow-hidden">
+      <div className="relative bg-linear-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] text-white overflow-hidden">
         <div className="pointer-events-none absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5" />
         <div className="pointer-events-none absolute -bottom-10 -left-10 w-48 h-48 rounded-full bg-white/5" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">

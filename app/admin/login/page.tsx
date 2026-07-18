@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a0a12] to-[#2d1a24] flex items-center justify-center px-4 font-nunito">
+    <div className="min-h-screen bg-linear-to-br from-[#1a0a12] to-[#2d1a24] flex items-center justify-center px-4 font-nunito">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -90,7 +90,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-3 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+              className="w-full bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-3 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             >
               {loading ? "Authenticating..." : "Login to Dashboard"}
             </button>

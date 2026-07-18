@@ -55,7 +55,7 @@ export default function WishlistPage() {
       <Navbar cartCount={itemCount} onCartOpen={() => setCartOpen(true)} />
 
       {/* Hero */}
-      <div className="bg-gradient-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] text-white py-10">
+      <div className="bg-linear-to-r from-[#e91e8c] via-[#c2185b] to-[#ad1457] text-white py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             href="/products"
@@ -100,7 +100,7 @@ export default function WishlistPage() {
             <p className="text-sm text-[#6d1b3b]/60 mb-6">Save your favorite products and access them anytime.</p>
             <Link
               href="/login"
-              className="inline-block bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-3 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
+              className="inline-block bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-3 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
             >
               Login / Register
             </Link>
@@ -117,7 +117,7 @@ export default function WishlistPage() {
             </p>
             <Link
               href="/products"
-              className="inline-block bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-3 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
+              className="inline-block bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-3 rounded-full font-bold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
             >
               Browse Products
             </Link>
@@ -134,7 +134,7 @@ export default function WishlistPage() {
               </p>
               <button
                 onClick={() => wishlistProducts.forEach((p) => handleAddToCart(p))}
-                className="flex items-center gap-2 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-full text-sm font-bold hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
+                className="flex items-center gap-2 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-full text-sm font-bold hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
               >
                 <ShoppingBag className="w-4 h-4" />
                 Add All to Cart
@@ -169,7 +169,7 @@ export default function WishlistPage() {
                     </button>
 
                     {/* Image */}
-                    <Link href={`/product/${p._id}`} className="block relative aspect-square bg-gradient-to-br from-pink-50 to-rose-50 overflow-hidden">
+                    <Link href={`/product/${p._id}`} className="block relative aspect-square bg-linear-to-br from-pink-50 to-rose-50 overflow-hidden">
                       {p.images?.[0] ? (
                         <img
                           src={p.images[0]}
@@ -190,7 +190,7 @@ export default function WishlistPage() {
                           </span>
                         )}
                         {p.badge && !p.flashSalePrice && (
-                          <span className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                          <span className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">
                             {p.badge}
                           </span>
                         )}
@@ -250,7 +250,7 @@ export default function WishlistPage() {
                           className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
                             isAdded
                               ? "bg-green-500 scale-110"
-                              : "bg-gradient-to-r from-[#e91e8c] to-[#c2185b] hover:scale-110 hover:shadow-lg hover:shadow-[#e91e8c]/30"
+                              : "bg-linear-to-r from-[#e91e8c] to-[#c2185b] hover:scale-110 hover:shadow-lg hover:shadow-[#e91e8c]/30"
                           }`}
                         >
                           {isAdded ? (

@@ -57,7 +57,7 @@ function RevenueChart({ data }: { data: { date: string; revenue: number; orders:
             </div>
             <div className="w-full relative" style={{ height: "160px" }}>
               <div
-                className="absolute bottom-0 w-full bg-gradient-to-t from-[#e91e8c] to-[#f48fb1] rounded-t-lg transition-all duration-500 group-hover:from-[#c2185b] group-hover:to-[#e91e8c]"
+                className="absolute bottom-0 w-full bg-linear-to-t from-[#e91e8c] to-[#f48fb1] rounded-t-lg transition-all duration-500 group-hover:from-[#c2185b] group-hover:to-[#e91e8c]"
                 style={{ height: `${pct}%` }}
               />
               {d.revenue === 0 && (
@@ -230,7 +230,7 @@ export default function DashboardOverview() {
         {statCards.map((s) => (
           <div key={s.label} className="bg-white rounded-2xl p-5 border border-pink-100 hover:shadow-md hover:shadow-pink-100/40 transition-all">
             <div className="flex items-center justify-between mb-4">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center`}>
+              <div className={`w-10 h-10 rounded-xl bg-linear-to-br ${s.color} flex items-center justify-center`}>
                 <s.icon className="w-5 h-5 text-white" />
               </div>
               <TrendingUp className="w-4 h-4 text-green-500" />

@@ -65,7 +65,7 @@ export default function BlogPage() {
       subtitle="Tips, guides, and inspiration from the KineDeo beauty team."
     >
       {/* Featured post */}
-      <div className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] rounded-2xl p-8 mb-8 text-white">
+      <div className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] rounded-2xl p-8 mb-8 text-white">
         <span className="inline-block text-xs font-bold tracking-widest uppercase bg-white/20 px-3 py-1 rounded-full mb-3">
           ✦ Featured
         </span>

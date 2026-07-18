@@ -105,7 +105,7 @@ export default function FaqPage() {
         {FAQS.map(({ category, items }) => (
           <div key={category}>
             <h2 className="font-playfair text-xl font-bold text-[#2d1a24] mb-4 flex items-center gap-2">
-              <span className="w-1 h-6 rounded-full bg-gradient-to-b from-[#e91e8c] to-[#c2185b] inline-block" />
+              <span className="w-1 h-6 rounded-full bg-linear-to-b from-[#e91e8c] to-[#c2185b] inline-block" />
               {category}
             </h2>
             <div className="space-y-2">
@@ -115,12 +115,12 @@ export default function FaqPage() {
         ))}
       </div>
 
-      <div className="mt-12 bg-gradient-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-6 text-center border border-pink-100">
+      <div className="mt-12 bg-linear-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-6 text-center border border-pink-100">
         <p className="font-playfair text-lg font-bold text-[#2d1a24] mb-2">Still have questions?</p>
         <p className="text-sm text-[#6d1b3b]/70 mb-4">Our team is here to help — reach out anytime.</p>
         <a
           href="/contact"
-          className="inline-block bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-3 rounded-full font-semibold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
+          className="inline-block bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-3 rounded-full font-semibold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
         >
           Contact Us
         </a>

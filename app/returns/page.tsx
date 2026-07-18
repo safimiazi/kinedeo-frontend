@@ -77,7 +77,7 @@ export default function ReturnsPage() {
               { step: "4", title: "Receive Refund", desc: "Once received and inspected, your refund will be processed within 5–7 business days." },
             ].map(({ step, title, desc }) => (
               <div key={step} className="flex gap-4">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white text-sm font-bold shrink-0">
+                <div className="w-8 h-8 rounded-full bg-linear-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white text-sm font-bold shrink-0">
                   {step}
                 </div>
                 <div>
@@ -90,13 +90,13 @@ export default function ReturnsPage() {
         </section>
 
         {/* CTA */}
-        <div className="bg-gradient-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-6 text-center border border-pink-100">
+        <div className="bg-linear-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-6 text-center border border-pink-100">
           <Mail className="w-8 h-8 text-[#e91e8c] mx-auto mb-3" />
           <p className="font-playfair text-lg font-bold text-[#2d1a24] mb-1">Need to start a return?</p>
           <p className="text-sm text-[#6d1b3b]/60 mb-4">Reach out and we&apos;ll take care of everything.</p>
           <Link
             href="/contact"
-            className="inline-block bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-3 rounded-full font-semibold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
+            className="inline-block bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-8 py-3 rounded-full font-semibold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all"
           >
             Contact Support
           </Link>

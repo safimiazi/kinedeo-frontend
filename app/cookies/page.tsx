@@ -60,7 +60,7 @@ export default function CookiesPage() {
             {COOKIE_TYPES.map(({ icon: Icon, name, required, desc, examples }) => (
               <div key={name} className="bg-white rounded-2xl border border-pink-100 p-5 shadow-sm">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#e91e8c]/20 to-pink-100 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#e91e8c]/20 to-pink-100 flex items-center justify-center shrink-0">
                     <Icon className="w-5 h-5 text-[#e91e8c]" />
                   </div>
                   <div className="flex-1">
@@ -136,7 +136,7 @@ export default function CookiesPage() {
         </div>
 
         {/* Contact */}
-        <div className="bg-gradient-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-6 text-center border border-pink-100">
+        <div className="bg-linear-to-r from-[#e91e8c]/10 to-pink-50 rounded-2xl p-6 text-center border border-pink-100">
           <p className="font-playfair text-lg font-bold text-[#2d1a24] mb-2">Questions about cookies?</p>
           <p className="text-sm text-[#6d1b3b]/60 mb-3">We&rsquo;re happy to explain how we use data to improve your experience.</p>
           <a href="mailto:hello@kinedeo.com" className="text-[#e91e8c] font-semibold hover:underline text-sm">

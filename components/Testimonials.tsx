@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { Star, BadgeCheck } from "lucide-react";
-import { apiRequest } from "@/lib/api/client";
-import type { FeaturedReview } from "@/lib/api/types";
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { Star, BadgeCheck } from 'lucide-react';
+import { apiRequest } from '@/lib/api/client';
+import type { FeaturedReview } from '@/lib/api/types';
 
 export default function Testimonials() {
   const [reviews, setReviews] = useState<FeaturedReview[]>([]);
@@ -11,14 +12,19 @@ export default function Testimonials() {
 
   useEffect(() => {
     let mounted = true;
-    apiRequest<FeaturedReview[]>("/reviews/featured?limit=6", { auth: false })
-      .then((data) => { if (mounted) setReviews(data); })
+    apiRequest<FeaturedReview[]>('/reviews/featured?limit=6', { auth: false })
+      .then((data) => {
+        if (mounted) setReviews(data);
+      })
       .catch(() => {})
-      .finally(() => { if (mounted) setLoaded(true); });
-    return () => { mounted = false; };
+      .finally(() => {
+        if (mounted) setLoaded(true);
+      });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  // Don't render until loaded, and hide if no reviews
   if (!loaded || reviews.length === 0) return null;
 
   return (
@@ -31,9 +37,7 @@ export default function Testimonials() {
           <h2 className="font-playfair text-3xl md:text-[38px] font-extrabold text-[#2d1a24] mt-3">
             Loved by Thousands 💕
           </h2>
-          <p className="font-nunito text-[#6d1b3b]/60 text-sm mt-2">
-            Real reviews from real customers
-          </p>
+          <p className="font-nunito text-[#6d1b3b]/60 text-sm mt-2">Real reviews from real customers</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -47,7 +51,7 @@ export default function Testimonials() {
 }
 
 function ReviewCard({ review }: { review: FeaturedReview }) {
-  const name = review.userId?.name || "Customer";
+  const name = review.userId?.name || 'Customer';
   const initial = name.charAt(0).toUpperCase();
   const productName = review.productId?.name;
   const productImage = review.productId?.images?.[0];
@@ -60,20 +64,16 @@ function ReviewCard({ review }: { review: FeaturedReview }) {
           <Star
             key={s}
             className={`w-4 h-4 ${
-              s <= review.rating
-                ? "text-yellow-400 fill-yellow-400"
-                : "text-gray-200 fill-gray-200"
+              s <= review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200'
             }`}
           />
         ))}
       </div>
 
-      {/* Title */}
       {review.title && (
         <p className="font-playfair font-bold text-[#2d1a24] text-sm mb-2">{review.title}</p>
       )}
 
-      {/* Comment */}
       <p className="font-nunito text-[14px] text-[#2d1a24]/80 leading-relaxed italic flex-1 mb-4">
         &quot;{review.comment}&quot;
       </p>
@@ -81,9 +81,17 @@ function ReviewCard({ review }: { review: FeaturedReview }) {
       {/* Product tag */}
       {productName && (
         <div className="flex items-center gap-2 mb-4 px-3 py-2 bg-pink-50 rounded-xl border border-pink-100">
-          {productImage ? (
-            <img src={productImage} alt={productName} className="w-8 h-8 rounded-lg object-cover shrink-0" />
-          ) : null}
+          {productImage && (
+            <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 relative">
+              <Image
+                src={productImage}
+                alt={productName}
+                fill
+                sizes="32px"
+                className="object-cover"
+              />
+            </div>
+          )}
           <span className="font-nunito text-[11px] text-[#ad1457] font-semibold truncate">
             {productName}
           </span>
@@ -92,13 +100,16 @@ function ReviewCard({ review }: { review: FeaturedReview }) {
 
       {/* Author */}
       <div className="flex items-center gap-3 border-t border-[#fce4ec] pt-4">
-        <div className="w-10 h-10 bg-gradient-to-br from-[#f48fb1] to-[#e91e8c] rounded-full flex items-center justify-center shrink-0">
+        <div className="w-10 h-10 bg-linear-to-br from-[#f48fb1] to-[#e91e8c] rounded-full flex items-center justify-center shrink-0">
           <span className="font-playfair text-white font-extrabold text-sm">{initial}</span>
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-nunito font-bold text-[#2d1a24] text-sm truncate">{name}</div>
           <div className="font-nunito text-xs text-[#ad1457]/60">
-            {new Date(review.createdAt).toLocaleDateString("en-BD", { month: "short", year: "numeric" })}
+            {new Date(review.createdAt).toLocaleDateString('en-BD', {
+              month: 'short',
+              year: 'numeric',
+            })}
           </div>
         </div>
         {review.isVerifiedPurchase && (

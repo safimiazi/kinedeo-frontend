@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
@@ -132,7 +133,7 @@ function CODConfirmation() {
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white font-semibold text-sm hover:shadow-lg transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white font-semibold text-sm hover:shadow-lg transition-all"
           >
             <ArrowLeft className="w-4 h-4" />
             Continue Shopping
@@ -169,7 +170,7 @@ function CODConfirmation() {
 
         <Link
           href="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white font-semibold text-sm hover:shadow-lg transition-all"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white font-semibold text-sm hover:shadow-lg transition-all"
         >
           <ArrowLeft className="w-4 h-4" />
           Continue Shopping
@@ -215,7 +216,7 @@ function CODConfirmation() {
               <div key={i} className="flex items-center gap-3">
                 <div className="w-11 h-11 bg-pink-50 rounded-xl flex items-center justify-center overflow-hidden shrink-0 border border-pink-100">
                   {item.image ? (
-                    <img src={item.image} alt="" className="w-full h-full object-cover" />
+                    <Image src={item.image} alt={item.name} width={44} height={44} className="w-full h-full object-cover" />
                   ) : (
                     <Package className="w-5 h-5 text-[#ad1457]/30" />
                   )}

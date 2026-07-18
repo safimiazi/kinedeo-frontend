@@ -23,7 +23,7 @@ export default function AffiliatesPage() {
           { icon: TrendingUp, title: "Real-Time Dashboard", desc: "Track your clicks, conversions, and earnings in real time (coming soon)." },
         ].map(({ icon: Icon, title, desc }) => (
           <div key={title} className="bg-white rounded-2xl border border-pink-100 p-5 hover:border-[#e91e8c]/40 hover:shadow-sm transition-all">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#e91e8c]/20 to-pink-100 flex items-center justify-center mb-3">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#e91e8c]/20 to-pink-100 flex items-center justify-center mb-3">
               <Icon className="w-5 h-5 text-[#e91e8c]" />
             </div>
             <h3 className="font-playfair font-bold text-[#2d1a24] mb-1">{title}</h3>
@@ -38,7 +38,7 @@ export default function AffiliatesPage() {
         <div className="space-y-4">
           {STEPS.map(({ step, title, desc }) => (
             <div key={step} className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white text-sm font-bold shrink-0">
+              <div className="w-8 h-8 rounded-full bg-linear-to-br from-[#e91e8c] to-[#c2185b] flex items-center justify-center text-white text-sm font-bold shrink-0">
                 {step}
               </div>
               <div>
@@ -69,7 +69,7 @@ export default function AffiliatesPage() {
       </div>
 
       {/* Apply CTA */}
-      <div className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] rounded-2xl p-8 text-white text-center">
+      <div className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] rounded-2xl p-8 text-white text-center">
         <p className="font-playfair text-2xl font-extrabold mb-2">Ready to Join?</p>
         <p className="text-white/75 text-sm mb-5">Send us a message and let&apos;s get started.</p>
         <a

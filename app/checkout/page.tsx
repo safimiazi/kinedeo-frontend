@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   ShoppingBag, Package, CreditCard, ArrowLeft,
   Loader2, Truck, Banknote
@@ -432,7 +433,7 @@ export default function CheckoutPage() {
 
             {/* Payment info — SSLCommerz (only shown when online payment is selected or nothing selected) */}
             {/* {paymentMethod !== 'cod' && (
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
+              <div className="bg-linear-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
                 <div className="flex items-start gap-3">
                   <CreditCard className="w-5 h-5 text-purple-600 mt-0.5" />
                   <div>
@@ -447,7 +448,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* ── Right: Order Summary ── */}
-          <div className="lg:w-[400px] shrink-0">
+          <div className="lg:w-100 shrink-0">
             <div className="bg-white rounded-2xl border-2 border-[#e91e8c]/20 p-6 sticky top-20 space-y-5">
               <h3 className="font-playfair text-xl font-bold text-[#2d1a24]">Order Summary</h3>
 
@@ -457,7 +458,7 @@ export default function CheckoutPage() {
                   <div key={`${item.productId}-${item.variantId || "d"}`} className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-pink-50 rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-pink-100">
                       {item.image
-                        ? <img src={item.image} alt="" className="w-full h-full object-cover" />
+                        ? <Image src={item.image} alt={item.name} width={48} height={48} className="w-full h-full object-cover" />
                         : <Package className="w-6 h-6 text-[#ad1457]/40" />}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -548,7 +549,7 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePlaceOrder}
                 disabled={placing || !paymentMethod}
-                className="w-full bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-4 rounded-full font-bold text-base hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-4 rounded-full font-bold text-base hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {placing ? (
                   paymentMethod === 'cod'

@@ -99,9 +99,9 @@ export default function SubscribersPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-white to-pink-50 rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all">
+        <div className="bg-linear-to-br from-white to-pink-50 rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#e91e8c]/10 to-[#c2185b]/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#e91e8c]/10 to-[#c2185b]/10 flex items-center justify-center">
               <Users className="w-5 h-5 text-[#e91e8c]" />
             </div>
             <div>
@@ -113,9 +113,9 @@ export default function SubscribersPage() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-white to-pink-50 rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all">
+        <div className="bg-linear-to-br from-white to-pink-50 rounded-2xl border border-pink-100 p-5 hover:shadow-md hover:shadow-pink-100/50 transition-all">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-100 to-blue-50 flex items-center justify-center">
               <Mail className="w-5 h-5 text-blue-500" />
             </div>
             <div>
@@ -130,7 +130,7 @@ export default function SubscribersPage() {
 
       {/* Search */}
       <div className="bg-white rounded-2xl border border-pink-100 p-4">
-        <div className="flex items-center gap-3 bg-gradient-to-r from-pink-50 to-white rounded-xl px-4 py-2.5 max-w-md border border-pink-100">
+        <div className="flex items-center gap-3 bg-linear-to-r from-pink-50 to-white rounded-xl px-4 py-2.5 max-w-md border border-pink-100">
           <Search className="w-4 h-4 text-[#ad1457]/50 shrink-0" />
           <input
             type="text"
@@ -153,7 +153,7 @@ export default function SubscribersPage() {
       {/* Table */}
       {filtered.length === 0 ? (
         <div className="bg-white rounded-2xl border border-pink-100 p-12 text-center">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-pink-100 to-pink-50 flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-linear-to-br from-pink-100 to-pink-50 flex items-center justify-center">
             <Mail className="w-10 h-10 text-[#ad1457]/40" />
           </div>
           <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">
@@ -170,7 +170,7 @@ export default function SubscribersPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-pink-100 bg-gradient-to-r from-pink-50 to-white">
+                <tr className="border-b border-pink-100 bg-linear-to-r from-pink-50 to-white">
                   <th className="text-left text-xs font-semibold text-[#6d1b3b]/70 px-5 py-3">
                     #
                   </th>
@@ -198,7 +198,7 @@ export default function SubscribersPage() {
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#e91e8c]/10 to-[#c2185b]/10 flex items-center justify-center shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-linear-to-br from-[#e91e8c]/10 to-[#c2185b]/10 flex items-center justify-center shrink-0">
                           <Mail className="w-3.5 h-3.5 text-[#e91e8c]" />
                         </div>
                         <span className="text-sm font-medium text-[#2d1a24]">
@@ -267,7 +267,7 @@ export default function SubscribersPage() {
                   onClick={() => setPage(pageNum)}
                   className={`w-8 h-8 rounded-lg text-sm font-medium transition-all ${
                     page === pageNum
-                      ? "bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
+                      ? "bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-md"
                       : "text-[#6d1b3b] hover:bg-pink-50"
                   }`}
                 >

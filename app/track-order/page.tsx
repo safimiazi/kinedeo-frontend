@@ -85,7 +85,7 @@ export default function TrackOrderPage() {
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-6 py-3 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all disabled:opacity-50"
+            className="flex items-center justify-center gap-2 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-6 py-3 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-[#e91e8c]/30 transition-all disabled:opacity-50"
           >
             <Search className="w-4 h-4" />
             {loading ? "Searching..." : "Track"}
@@ -98,7 +98,7 @@ export default function TrackOrderPage() {
       {order && (
         <div className="bg-white rounded-2xl border border-pink-100 shadow-sm overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#e91e8c]/10 to-pink-50 px-6 py-4 border-b border-pink-100 flex flex-wrap gap-3 items-center justify-between">
+          <div className="bg-linear-to-r from-[#e91e8c]/10 to-pink-50 px-6 py-4 border-b border-pink-100 flex flex-wrap gap-3 items-center justify-between">
             <div>
               <p className="font-playfair text-lg font-bold text-[#2d1a24]">Order #{order.orderNumber}</p>
               <p className="text-xs text-[#6d1b3b]/50 mt-0.5">
@@ -120,7 +120,7 @@ export default function TrackOrderPage() {
                 {/* Track line */}
                 <div className="absolute left-0 right-0 top-4 h-0.5 bg-pink-100 z-0" />
                 <div
-                  className="absolute left-0 top-4 h-0.5 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] z-0 transition-all duration-500"
+                  className="absolute left-0 top-4 h-0.5 bg-linear-to-r from-[#e91e8c] to-[#c2185b] z-0 transition-all duration-500"
                   style={{ width: `${(currentStep / (STATUS_STEPS.length - 1)) * 100}%` }}
                 />
                 {STATUS_STEPS.map((step, i) => {

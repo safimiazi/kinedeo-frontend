@@ -271,7 +271,7 @@ export default function FlashSalesPage() {
         </div>
         <button
           onClick={openCreate}
-          className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit flex items-center gap-2"
+          className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-pink-200 transition-all w-fit flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           Create Flash Sale
@@ -281,7 +281,7 @@ export default function FlashSalesPage() {
       {/* Empty state */}
       {sales.length === 0 ? (
         <div className="bg-white rounded-2xl border border-pink-100 p-12 text-center">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-linear-to-br from-yellow-100 to-orange-100 flex items-center justify-center">
             <Zap className="w-10 h-10 text-[#e91e8c]" />
           </div>
           <h3 className="text-lg font-semibold text-[#2d1a24] mb-2">No flash sales yet</h3>
@@ -307,7 +307,7 @@ export default function FlashSalesPage() {
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-3">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-100 to-orange-100 flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-linear-to-br from-yellow-100 to-orange-100 flex items-center justify-center shrink-0">
                           <Zap className="w-4 h-4 text-[#e91e8c]" />
                         </div>
                         <h3 className="text-base font-bold text-[#2d1a24]">{sale.name}</h3>
@@ -547,7 +547,7 @@ export default function FlashSalesPage() {
                 type="submit"
                 form="flash-sale-form"
                 disabled={isSaving}
-                className="flex-1 bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-pink-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 <Save className="w-4 h-4" />
                 {isSaving ? "Saving..." : modalMode === "create" ? "Create Sale" : "Update Sale"}

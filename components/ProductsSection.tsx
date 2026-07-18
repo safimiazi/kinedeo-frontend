@@ -100,7 +100,7 @@
 //                         )}
 //                       </div>
 //                       <button onClick={() => handleAddToCart(p)}
-//                         className="bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white border-none px-3 py-1.5 rounded-full cursor-pointer font-nunito font-bold text-[12px] hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all">
+//                         className="bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white border-none px-3 py-1.5 rounded-full cursor-pointer font-nunito font-bold text-[12px] hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all">
 //                         Add +
 //                       </button>
 //                     </div>
@@ -155,7 +155,7 @@ export default function ProductsSection() {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-[#fff0f5] via-[#fdf2f8] to-[#fff0f5] relative overflow-hidden">
+    <section className="py-20 bg-linear-to-b from-[#fff0f5] via-[#fdf2f8] to-[#fff0f5] relative overflow-hidden">
       {/* Decorative background blobs */}
       <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#fce4ec]/60 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-[#f8bbd0]/40 blur-3xl" />
@@ -175,7 +175,7 @@ export default function ProductsSection() {
               </svg>
             </span>
           </h2>
-          <p className="font-nunito text-[#6d1b3b]/70 text-base max-w-[480px] mx-auto leading-relaxed">
+          <p className="font-nunito text-[#6d1b3b]/70 text-base max-w-120 mx-auto leading-relaxed">
             Handpicked bestsellers loved by thousands of customers across Bangladesh
           </p>
         </div>
@@ -211,7 +211,7 @@ export default function ProductsSection() {
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="bg-white rounded-3xl overflow-hidden border border-[#fce4ec] h-[360px] animate-pulse" />
+              <div key={i} className="bg-white rounded-3xl overflow-hidden border border-[#fce4ec] h-90 animate-pulse" />
             ))}
           </div>
         ) : products.length === 0 ? (
@@ -234,7 +234,7 @@ export default function ProductsSection() {
                 >
                   {/* Image Container */}
                   <Link href={`/product/${p._id}`}>
-                    <div className="relative aspect-square bg-gradient-to-br from-pink-50 to-rose-50 overflow-hidden">
+                    <div className="relative aspect-square bg-linear-to-br from-pink-50 to-rose-50 overflow-hidden">
                       {p.images?.[0] ? (
                         <>
                           <img 
@@ -243,7 +243,7 @@ export default function ProductsSection() {
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                           />
                           {/* Overlay Gradient */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                          <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         </>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
@@ -254,7 +254,7 @@ export default function ProductsSection() {
                       {/* Badges */}
                       <div className="absolute top-3 left-3 flex flex-col gap-2">
                         {p.badge && (
-                          <span className="font-nunito text-[11px] font-extrabold px-3 py-1 rounded-full tracking-wider uppercase bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-lg">
+                          <span className="font-nunito text-[11px] font-extrabold px-3 py-1 rounded-full tracking-wider uppercase bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white shadow-lg">
                             {p.badge}
                           </span>
                         )}
@@ -347,7 +347,7 @@ export default function ProductsSection() {
                       
                       <button 
                         onClick={() => handleAddToCart(p)}
-                        className="group/btn bg-gradient-to-r from-[#e91e8c] to-[#c2185b] text-white border-none w-9 h-9 rounded-full flex items-center justify-center cursor-pointer hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all duration-300 hover:scale-110"
+                        className="group/btn bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white border-none w-9 h-9 rounded-full flex items-center justify-center cursor-pointer hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all duration-300 hover:scale-110"
                       >
                         <ShoppingBag className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
                       </button>
