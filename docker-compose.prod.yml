@@ -2,7 +2,11 @@ version: "3.9"
 
 services:
   web:
-    image: ghcr.io/${GHCR_OWNER}/kinedeo-web:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: kinedeo-web:latest
     container_name: kinedeo-web-prod
     restart: always
     ports:
@@ -13,13 +17,6 @@ services:
       NODE_ENV: production
     networks:
       - kinedeo-prod
-    deploy:
-      resources:
-        limits:
-          cpus: "1.0"
-          memory: 512M
-        reservations:
-          memory: 256M
 
 networks:
   kinedeo-prod:
