@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  web:
+    image: ghcr.io/${GHCR_OWNER}/kinedeo-web:latest
+    container_name: kinedeo-web-prod
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+    networks:
+      - kinedeo-prod
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          memory: 256M
+
+networks:
+  kinedeo-prod:
+    driver: bridge

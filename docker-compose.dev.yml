@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: kinedeo-web-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      # Proxy in next.config.ts handles API routing — no NEXT_PUBLIC_API_URL needed
+    volumes:
+      # Mount source for hot reload
+      - .:/app
+      # Prevent host node_modules from overwriting container's
+      - /app/node_modules
+      # Preserve Next.js build cache
+      - /app/.next
+    networks:
+      - kinedeo-dev
+
+networks:
+  kinedeo-dev:
+    driver: bridge
