@@ -107,7 +107,7 @@ export default function Features() {
         <div className="mt-12 text-center">
           <div className="inline-flex items-center gap-2 bg-white rounded-full px-6 py-2 shadow-md border border-pink-100">
             <ShieldCheck className="w-4 h-4 text-green-500" />
-            <span className="font-nunito text-xs text-[#6d1b3b]">Trusted by 50,000+ happy customers</span>
+            <span className="font-nunito text-xs text-[#6d1b3b]">Trusted by 5,000+ happy customers</span>
           </div>
         </div>
       </div>

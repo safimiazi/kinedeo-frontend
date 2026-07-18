@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function HeroSection() {
@@ -45,15 +46,22 @@ export default function HeroSection() {
 
         {/* Right Visual */}
         <div className="flex-1 min-w-0 flex justify-center relative">
-          <div className="w-70 h-70 md:w-85 md:h-85 bg-linear-to-br from-[#f48fb1] to-[#e91e8c] rounded-[60%_40%_60%_40%/50%_60%_40%_50%] flex items-center justify-center text-[100px] md:text-[120px] animate-float">
-            🌸
+          <div className="w-70 h-70 md:w-85 md:h-85 rounded-[60%_40%_60%_40%/50%_60%_40%_50%] overflow-hidden animate-float shadow-xl shadow-[#e91e8c]/20 relative">
+            <Image
+              src="/minoxidil-hero.webp"
+              alt="KineDeo featured product"
+              fill
+              sizes="(max-width: 768px) 280px, 340px"
+              className="object-cover"
+              priority
+            />
           </div>
-          <div className="absolute top-5 right-5 bg-white rounded-2xl px-4 py-3 shadow-lg shadow-[#e91e8c]/20 border border-[#fce4ec]">
+          <div className="absolute top-5 right-5 hidden md:block bg-white rounded-2xl px-4 py-3 shadow-lg shadow-[#e91e8c]/20 border border-[#fce4ec]">
             <div className="font-nunito text-[11px] text-[#ad1457] font-bold">⭐ Just Reviewed</div>
             <div className="font-nunito text-[13px] font-bold text-[#2d1a24] mt-0.5">&quot;Absolutely love it!&quot;</div>
             <div className="font-nunito text-[11px] text-[#ad1457]">— Priya M. ❤️</div>
           </div>
-          <div className="absolute bottom-8 left-0 bg-white rounded-2xl px-4 py-3 shadow-lg shadow-[#e91e8c]/20 border border-[#fce4ec]">
+          <div className="absolute bottom-8 left-0 hidden md:block bg-white rounded-2xl px-4 py-3 shadow-lg shadow-[#e91e8c]/20 border border-[#fce4ec]">
             <div className="font-nunito text-xs text-[#6d1b3b] font-semibold">🔥 Selling Fast!</div>
             <div className="font-nunito text-[13px] font-extrabold text-[#e91e8c]">Rose Serum</div>
             <div className="font-nunito text-[11px] text-[#ad1457]">Only 8 left in stock</div>

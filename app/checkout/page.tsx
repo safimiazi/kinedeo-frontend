@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ShoppingBag, Package, CreditCard, Lock, ArrowLeft,
-  Loader2, Shield, Truck, Banknote
+  ShoppingBag, Package, CreditCard, ArrowLeft,
+  Loader2, Truck, Banknote
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -42,9 +42,9 @@ export default function CheckoutPage() {
   const shippingSettings = shippingData ?? DEFAULT_SHIPPING_SETTINGS;
 
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
     address: "",
     city: "",
     postcode: "",
@@ -52,16 +52,19 @@ export default function CheckoutPage() {
     note: "",
   });
 
-  // Auto-fill from logged-in user
-  useEffect(() => {
-    if (user) {
-      setForm((prev) => ({
-        ...prev,
-        name: user.name || prev.name,
-        email: user.email || prev.email,
-        phone: user.phone || prev.phone,
-      }));
-    }
+  // Sync user data into form when user loads (e.g. after auth hydration)
+  const prevUserRef = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    if (!user) return;
+    const userId = user.id ?? user.phone ?? user.email ?? null;
+    if (userId === prevUserRef.current) return;
+    prevUserRef.current = userId;
+    setForm((prev) => ({
+      ...prev,
+      name: prev.name || user.name || "",
+      email: prev.email || user.email || "",
+      phone: prev.phone || user.phone || "",
+    }));
   }, [user]);
 
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'sslcommerz' | null>(null);
@@ -90,9 +93,14 @@ export default function CheckoutPage() {
     loadActiveCoupons();
   }, []);
 
-  useEffect(() => {
-    if (!couponCode.trim()) { setCouponValidation(null); setCouponMessage(""); }
-  }, [couponCode]);
+  const handleCouponCodeChange = (value: string) => {
+    const upper = value.toUpperCase();
+    setCouponCode(upper);
+    if (!upper.trim()) {
+      setCouponValidation(null);
+      setCouponMessage("");
+    }
+  };
 
   // ── Coupon ──────────────────────────────────────────────────────────────────
 
@@ -325,7 +333,7 @@ export default function CheckoutPage() {
                     type="text"
                     value={form.postcode}
                     onChange={(e) => updateForm("postcode", e.target.value)}
-                    placeholder="পোস্টকোড (ঐচ্ছিক)"
+                    placeholder="পোস্টকোড (ঐচ্ছিক - optional)"
                     className="w-full px-4 py-3 border border-[#fce4ec] rounded-xl text-sm outline-none focus:border-[#e91e8c] transition-colors"
                   />
                 </div>
@@ -359,7 +367,7 @@ export default function CheckoutPage() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Pay Online */}
-                <button
+                {/* <button
                   type="button"
                   onClick={() => { setPaymentMethod('sslcommerz'); setPaymentMethodError(false); }}
                   className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all ${
@@ -380,7 +388,7 @@ export default function CheckoutPage() {
                     <p className="text-sm font-bold text-[#2d1a24]">Pay Online</p>
                     <p className="text-[10px] text-[#6d1b3b]/60">SSLCommerz</p>
                   </div>
-                </button>
+                </button> */}
 
                 {/* Cash on Delivery */}
                 <button
@@ -423,7 +431,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* Payment info — SSLCommerz (only shown when online payment is selected or nothing selected) */}
-            {paymentMethod !== 'cod' && (
+            {/* {paymentMethod !== 'cod' && (
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
                 <div className="flex items-start gap-3">
                   <CreditCard className="w-5 h-5 text-purple-600 mt-0.5" />
@@ -435,7 +443,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
 
           {/* ── Right: Order Summary ── */}
@@ -471,7 +479,7 @@ export default function CheckoutPage() {
                   <input
                     type="text"
                     value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    onChange={(e) => handleCouponCodeChange(e.target.value)}
                     placeholder="Enter coupon code"
                     className="flex-1 px-3 py-2.5 rounded-xl border border-pink-200 text-sm text-[#2d1a24] outline-none focus:border-[#e91e8c] transition-all"
                   />
@@ -553,19 +561,19 @@ export default function CheckoutPage() {
                 )}
               </button>
 
-              <div className="flex items-center justify-center gap-4 text-[10px] text-[#ad1457]/60">
+              {/* <div className="flex items-center justify-center gap-4 text-[10px] text-[#ad1457]/60">
                 <span className="flex items-center gap-1"><Lock className="w-3 h-3 text-green-600" /> Secure Payment</span>
                 <span className="flex items-center gap-1"><Shield className="w-3 h-3 text-green-600" /> SSL Encrypted</span>
-              </div>
+              </div> */}
 
-              <div className="pt-3 border-t border-[#fce4ec] text-center">
+              {/* <div className="pt-3 border-t border-[#fce4ec] text-center">
                 <p className="text-[10px] text-[#ad1457]/50 mb-2">We Accept</p>
                 <div className="flex items-center justify-center gap-3 flex-wrap text-xs">
                   <span>💳 Visa</span><span>💳 Mastercard</span>
                   <span>📱 bKash</span><span>📱 Nagad</span>
                   <span>🏦 Rocket</span><span>🏦 Net Banking</span>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
