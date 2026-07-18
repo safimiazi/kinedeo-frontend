@@ -100,7 +100,7 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
                 </Link>
               ))}
               <Link
-                href="/#about"
+                href="/about"
                 className="font-nunito font-semibold text-sm text-[#6d1b3b] hover:text-[#e91e8c] transition-colors tracking-wide relative group"
               >
                 About
@@ -285,7 +285,7 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
               </Link>
             ))}
             <Link
-              href="/#about"
+              href="/about"
               onClick={() => setMenuOpen(false)}
               className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-[#2d1a24] hover:bg-pink-50 hover:text-[#e91e8c] transition-colors"
             >

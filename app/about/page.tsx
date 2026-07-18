@@ -209,7 +209,7 @@ export default function AboutPage() {
             {/* Stats row */}
             <div className="mt-5 grid grid-cols-3 gap-3">
               {[
-                { value: "2024", label: "Founded" },
+                { value: "2026", label: "Founded" },
                 { value: "2030", label: "Target" },
                 { value: "#1", label: "Goal" },
               ].map((s) => (
