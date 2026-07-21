@@ -142,7 +142,8 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     config.body = JSON.stringify(body);
   }
 
-  let response = await fetch(`${API_BASE}${endpoint}`, config);
+  const fullUrl = `${API_BASE}${endpoint}`;
+  let response = await fetch(fullUrl, config);
 
   // Handle 401 — only attempt silent refresh if user has a stored session.
   // Guest users (no localStorage entry) will never have a refresh cookie,
@@ -164,7 +165,8 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
       if (newToken) {
         (config.headers as Record<string, string>)['Authorization'] = `Bearer ${newToken}`;
       }
-      response = await fetch(`${API_BASE}${endpoint}`, config);
+      console.log(`[API] Retry ${method} ${fullUrl}`);
+      response = await fetch(fullUrl, config);
     } else {
       // Both access token and refresh cookie are gone — clear stale localStorage
       clearTokens();
