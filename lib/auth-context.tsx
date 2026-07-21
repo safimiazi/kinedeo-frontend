@@ -65,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // No stored session at all — guest user, nothing to do.
     if (!storedUser || !token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoading(false);
       return;
     }

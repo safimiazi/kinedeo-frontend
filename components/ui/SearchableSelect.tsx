@@ -98,6 +98,7 @@ export function SearchableSelect(props: SearchableSelectProps) {
 
   // Reset highlight when search changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHighlightedIndex(0);
   }, [search]);
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Heart, Package, ShoppingBag, Trash2, ArrowLeft, Star, Truck } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -26,11 +27,9 @@ export default function WishlistPage() {
     limit: 100,
   });
 
-  const allProducts = productsData?.products ?? [];
-
   const wishlistProducts = useMemo(
-    () => allProducts.filter((p) => favorites.includes(p._id)),
-    [allProducts, favorites]
+    () => (productsData?.products ?? []).filter((p) => favorites.includes(p._id)),
+    [productsData?.products, favorites]
   );
 
   const isLoading = favLoading || productsLoading;
@@ -171,10 +170,11 @@ export default function WishlistPage() {
                     {/* Image */}
                     <Link href={`/product/${p._id}`} className="block relative aspect-square bg-linear-to-br from-pink-50 to-rose-50 overflow-hidden">
                       {p.images?.[0] ? (
-                        <img
+                        <Image
                           src={p.images[0]}
                           alt={p.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">

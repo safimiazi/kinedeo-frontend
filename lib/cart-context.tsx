@@ -46,7 +46,10 @@ function saveCart(items: CartItem[]) {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  useEffect(() => { setItems(loadCart()); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setItems(loadCart());
+  }, []);
   useEffect(() => { if (items.length > 0 || loadCart().length > 0) saveCart(items); }, [items]);
 
   const addItem = useCallback((item: Omit<CartItem, "qty">, qty = 1) => {

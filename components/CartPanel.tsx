@@ -14,6 +14,7 @@ import {
   Package,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useCart } from "@/lib/cart-context";
 import { useShippingSettings, calcShipping, DEFAULT_SHIPPING_SETTINGS } from "@/lib/hooks/use-shipping-settings";
 
@@ -96,7 +97,7 @@ export default function CartPanel({ onClose }: CartPanelProps) {
                       {/* Product Image */}
                       <div className="w-20 h-20 bg-linear-to-br from-pink-50 to-rose-50 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
                         {item.image ? (
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                          <Image src={item.image} alt={item.name} width={80} height={80} className="w-full h-full object-cover" />
                         ) : (
                           <Package className="w-8 h-8 text-[#ad1457]/30" />
                         )}

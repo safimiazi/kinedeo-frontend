@@ -74,7 +74,7 @@ export function useCreateProduct() {
       badge?: string;
       stockQuantity?: number;
       variants?: { sku: string; stockQuantity: number; priceOverride?: number; lowStockThreshold?: number; attributes?: Record<string, string>; images?: string[] }[];
-    }) => productsApi.create(data as any),
+    }) => productsApi.create(data as Parameters<typeof productsApi.create>[0]),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.products.all() });
     },

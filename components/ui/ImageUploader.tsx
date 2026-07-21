@@ -170,11 +170,11 @@ export function ImageUploader(props: ImageUploaderProps) {
           setUploading((prev) => prev.filter((u) => u.id !== entry.id));
           if (entry.previewUrl) URL.revokeObjectURL(entry.previewUrl);
         }, 1000);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setUploading((prev) =>
           prev.map((u) =>
             u.id === entry.id
-              ? { ...u, progress: 'error', error: err.message || 'Upload failed' }
+              ? { ...u, progress: 'error', error: err instanceof Error ? err.message : 'Upload failed' }
               : u,
           ),
         );
