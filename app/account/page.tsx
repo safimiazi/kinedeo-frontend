@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Package,
@@ -91,7 +92,7 @@ function OrderCard({ order }: { order: Order }) {
           {/* First product image */}
           <div className="w-12 h-12 rounded-xl bg-pink-50 border border-pink-100 overflow-hidden shrink-0 flex items-center justify-center">
             {order.items[0]?.image ? (
-              <img src={order.items[0].image} alt="" className="w-full h-full object-cover" />
+              <Image src={order.items[0].image} alt="" width={48} height={48} className="w-full h-full object-cover" />
             ) : (
               <Package className="w-5 h-5 text-[#ad1457]/30" />
             )}
@@ -140,7 +141,7 @@ function OrderCard({ order }: { order: Order }) {
                 <div key={i} className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-pink-50 border border-pink-100 overflow-hidden shrink-0 flex items-center justify-center">
                     {item.image ? (
-                      <img src={item.image} alt="" className="w-full h-full object-cover" />
+                      <Image src={item.image} alt="" width={40} height={40} className="w-full h-full object-cover" />
                     ) : (
                       <Package className="w-4 h-4 text-[#ad1457]/30" />
                     )}

@@ -27,7 +27,7 @@ export default function AnnouncementsPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: any) => apiRequest<Announcement>("/announcements", { method: "POST", body: payload }),
+    mutationFn: (payload: Record<string, unknown>) => apiRequest<Announcement>("/announcements", { method: "POST", body: payload }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["announcements"] });
       setFormData(defaultForm);
@@ -38,7 +38,7 @@ export default function AnnouncementsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: Record<string, unknown> }) =>
       apiRequest<Announcement>(`/announcements/${id}`, { method: "PUT", body: payload }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["announcements"] });
@@ -113,8 +113,8 @@ export default function AnnouncementsPage() {
       } else {
         await createMutation.mutateAsync(payload);
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to save announcement.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save announcement.");
     }
   };
 

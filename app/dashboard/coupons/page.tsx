@@ -590,7 +590,7 @@ export default function CouponsPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (payload: any) =>
+    mutationFn: (payload: Record<string, unknown>) =>
       apiRequest("/coupons", { method: "POST", body: payload }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["coupons"] });
@@ -601,7 +601,7 @@ export default function CouponsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+    mutationFn: ({ id, payload }: { id: string; payload: Record<string, unknown> }) =>
       apiRequest(`/coupons/${id}`, { method: "PUT", body: payload }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["coupons"] });
@@ -674,7 +674,7 @@ export default function CouponsPage() {
       return;
     }
 
-    const payload: any = {
+    const payload: Record<string, unknown> = {
       code: formData.code.toUpperCase(),
       description: formData.description || undefined,
       discountType: formData.discountType,
@@ -695,8 +695,8 @@ export default function CouponsPage() {
       } else if (editingCoupon) {
         await updateMutation.mutateAsync({ id: editingCoupon._id, payload });
       }
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
     }
   };
 

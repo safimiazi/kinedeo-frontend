@@ -339,12 +339,9 @@ import {
   AlertCircle,
   Folder,
   Hash,
-  FileText,
-  Image as ImageIcon,
   CheckCircle,
   Eye,
   EyeOff,
-  Trash2
 } from "lucide-react";
 import { useCategoriesAdmin, useCreateCategory, useUpdateCategory, useDeleteCategory } from "@/lib/hooks";
 import { ImageUploader } from "@/components/ui/ImageUploader";
@@ -449,8 +446,8 @@ export default function CategoriesPage() {
         toast.success("Category updated successfully!");
       }
       closeModal();
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
     }
   };
 
@@ -459,8 +456,8 @@ export default function CategoriesPage() {
     try {
       await deleteCategory.mutateAsync(id);
       toast.success("Category deactivated");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to deactivate category");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to deactivate category");
     }
   };
 
@@ -468,8 +465,8 @@ export default function CategoriesPage() {
     try {
       await updateCategory.mutateAsync({ id: cat._id, data: { isActive: true } });
       toast.success(`"${cat.name}" reactivated`);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to reactivate category");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to reactivate category");
     }
   };
 

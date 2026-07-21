@@ -14,8 +14,9 @@ import {
   ToggleRight,
   Search,
 } from "lucide-react";
-import { useAllBundles, useCreateBundle, useUpdateBundle, useDeleteBundle, useProducts, useCategories } from "@/lib/hooks";
+import { useAllBundles, useCreateBundle, useUpdateBundle, useDeleteBundle, useProducts } from "@/lib/hooks";
 import { SearchableSelect, type SelectOption } from "@/components/ui/SearchableSelect";
+import Image from "next/image";
 import toast from "react-hot-toast";
 import type { Bundle } from "@/lib/api/types";
 
@@ -46,12 +47,6 @@ export default function BundlesPage() {
   const [formData, setFormData] = useState(defaultForm);
   const [error, setError] = useState("");
   const [productSearch, setProductSearch] = useState("");
-
-  const productOptions: SelectOption[] = allProducts.map((p) => ({
-    value: p._id,
-    label: p.name,
-    description: `৳${p.basePrice.toLocaleString()}`,
-  }));
 
   const filteredProducts = productSearch
     ? allProducts.filter((p) =>
@@ -457,7 +452,7 @@ export default function BundlesPage() {
                           }`}
                         >
                           {p.images?.[0] ? (
-                            <img src={p.images[0]} alt="" className="w-8 h-8 rounded-lg object-cover shrink-0" />
+                            <Image src={p.images[0]} alt="" width={32} height={32} className="w-8 h-8 rounded-lg object-cover shrink-0" />
                           ) : (
                             <div className="w-8 h-8 rounded-lg bg-pink-100 flex items-center justify-center shrink-0">
                               <Package className="w-4 h-4 text-[#ad1457]/40" />

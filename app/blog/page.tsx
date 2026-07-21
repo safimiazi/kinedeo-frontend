@@ -1,4 +1,3 @@
-import Link from "next/link";
 import StaticPageLayout from "@/components/StaticPageLayout";
 
 const POSTS = [

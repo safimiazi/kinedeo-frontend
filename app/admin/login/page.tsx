@@ -33,8 +33,8 @@ export default function AdminLoginPage() {
     try {
       await adminLogin(email, password);
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Invalid credentials or insufficient permissions");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Invalid credentials or insufficient permissions");
     } finally {
       setLoading(false);
     }
