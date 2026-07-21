@@ -39,6 +39,10 @@ COPY --from=builder /app/.next/static ./.next/static
 
 # Non-root user for security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Fix permissions
+RUN chown -R appuser:appgroup /app
+
 USER appuser
 
 EXPOSE 3000
