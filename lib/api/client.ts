@@ -10,7 +10,7 @@
  */
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.kinedeo.com/api';
-
+console.log("api",API_BASE)
 // ─── Error Class ────────────────────────────────────────────────────────────────
 
 export class ApiError extends Error {
