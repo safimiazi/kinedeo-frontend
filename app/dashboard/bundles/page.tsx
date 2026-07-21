@@ -15,7 +15,6 @@ import {
   Search,
 } from "lucide-react";
 import { useAllBundles, useCreateBundle, useUpdateBundle, useDeleteBundle, useProducts } from "@/lib/hooks";
-import { SearchableSelect, type SelectOption } from "@/components/ui/SearchableSelect";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import type { Bundle } from "@/lib/api/types";
@@ -70,7 +69,7 @@ export default function BundlesPage() {
       bundlePrice: bundle.bundlePrice,
       originalPrice: bundle.originalPrice ?? 0,
       productIds: bundle.productIds.map((p) =>
-        typeof p === "string" ? p : (p as any)._id
+        typeof p === "string" ? p : p._id
       ),
       isActive: bundle.isActive,
     });

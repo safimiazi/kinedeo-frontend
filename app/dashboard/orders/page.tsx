@@ -101,6 +101,7 @@ export default function OrdersPage() {
   });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setConfirmRepush(false);
   }, [selectedOrder?._id]);
 

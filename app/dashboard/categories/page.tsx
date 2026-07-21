@@ -340,11 +340,11 @@ import {
   Folder,
   Hash,
   CheckCircle,
-  Eye,
   EyeOff,
 } from "lucide-react";
 import { useCategoriesAdmin, useCreateCategory, useUpdateCategory, useDeleteCategory } from "@/lib/hooks";
 import { ImageUploader } from "@/components/ui/ImageUploader";
+import Image from "next/image";
 import toast from "react-hot-toast";
 import type { Category } from "@/lib/api/types";
 
@@ -541,7 +541,7 @@ export default function CategoriesPage() {
                 <div className="flex items-start justify-between mb-3">
                   {cat.image ? (
                     <div className="w-12 h-12 rounded-xl bg-linear-to-br from-pink-100 to-rose-100 overflow-hidden flex items-center justify-center">
-                      <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
+                      <Image src={cat.image} alt={cat.name} width={48} height={48} className="w-full h-full object-cover" />
                     </div>
                   ) : (
                     <div className="w-12 h-12 rounded-xl bg-linear-to-br from-pink-100 to-rose-100 flex items-center justify-center">

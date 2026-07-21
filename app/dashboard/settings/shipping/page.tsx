@@ -108,6 +108,7 @@ export default function ShippingSettingsPage() {
 
   // Sync saved data into form when loaded
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (saved) setForm(saved);
   }, [saved]);
 
@@ -244,7 +245,7 @@ export default function ShippingSettingsPage() {
                 <div className="mt-3 flex items-start gap-2 bg-green-50 rounded-xl px-4 py-3 border border-green-100">
                   <Info className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
                   <p className="text-xs text-green-700">
-                    Customers will see a nudge in the cart: <em>"Add ৳X more for free shipping!"</em>
+                    Customers will see a nudge in the cart: <em>&quot;Add ৳X more for free shipping!&quot;</em>
                   </p>
                 </div>
               )}

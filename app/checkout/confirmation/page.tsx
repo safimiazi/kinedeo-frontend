@@ -66,7 +66,9 @@ function CODConfirmation() {
     const phone = sessionStorage.getItem("checkout_phone") ?? "";
 
     if (!orderNumber) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoadingOrder(false);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFetchFailed(true);
       return;
     }

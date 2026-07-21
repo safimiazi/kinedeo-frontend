@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Package,
   ArrowLeft,
@@ -51,7 +52,6 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const queryClient = useQueryClient();
   const [newStatus, setNewStatus] = useState("");
   const [confirmRepush, setConfirmRepush] = useState(false);
@@ -109,7 +109,8 @@ export default function OrderDetailPage() {
     onSuccess: (result) => {
       queryClient.setQueryData(["order", id], result.order);
       queryClient.invalidateQueries({ queryKey: ["orders"] });
-      const status = result.order.pathaoStatus ?? (result.pathaoData as any)?.order_status ?? "Updated";
+      const pathaoData = result.pathaoData as Record<string, unknown>;
+      const status = result.order.pathaoStatus ?? pathaoData?.order_status ?? "Updated";
       toast.success(`Pathao status: ${status}`);
     },
     onError: (err: Error) => toast.error(err.message || "Failed to check Pathao status"),
@@ -137,8 +138,6 @@ export default function OrderDetailPage() {
       </div>
     );
   }
-
-  const statusStyle = STATUS_STYLES[order.status] ?? { bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-600", dot: "bg-gray-400" };
 
   return (
     <div className="space-y-6 max-w-7xl">
@@ -188,7 +187,7 @@ export default function OrderDetailPage() {
                 <div key={idx} className="flex items-center gap-4 px-6 py-4">
                   <div className="w-14 h-14 bg-pink-50 rounded-xl overflow-hidden shrink-0 border border-pink-100">
                     {item.image ? (
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      <Image src={item.image} alt={item.name} width={56} height={56} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Package className="w-6 h-6 text-[#ad1457]/30" />
@@ -258,11 +257,11 @@ export default function OrderDetailPage() {
                   <span className="text-sm text-[#6d1b3b]/60">Status</span>
                   {order.paymentMethod === "cod" ? (
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                      (order as any).paymentCollectionStatus === "collected"
+                      order.paymentCollectionStatus === "collected"
                         ? "bg-green-100 text-green-700"
                         : "bg-yellow-100 text-yellow-700"
                     }`}>
-                      {(order as any).paymentCollectionStatus === "collected" ? "Collected" : "Pending"}
+                      {order.paymentCollectionStatus === "collected" ? "Collected" : "Pending"}
                     </span>
                   ) : (
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -272,7 +271,7 @@ export default function OrderDetailPage() {
                     </span>
                   )}
                 </div>
-                {order.paymentMethod === "cod" && (order as any).paymentCollectionStatus !== "collected" && (
+                {order.paymentMethod === "cod" && order.paymentCollectionStatus !== "collected" && (
                   <button
                     onClick={() => markCodCollected.mutate()}
                     disabled={markCodCollected.isPending}

@@ -279,6 +279,7 @@ export default function AccountPage() {
   // Fetch orders when authenticated
   useEffect(() => {
     if (!isAuthenticated) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOrdersLoading(true);
     ordersApi
       .getMyOrders()

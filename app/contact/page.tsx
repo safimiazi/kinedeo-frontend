@@ -81,7 +81,7 @@ export default function ContactPage() {
                 <Send className="w-7 h-7 text-green-600" />
               </div>
               <h3 className="font-playfair text-xl font-bold text-[#2d1a24] mb-2">Message Sent!</h3>
-              <p className="text-sm text-[#6d1b3b]/60">We'll get back to you within 24 hours.</p>
+              <p className="text-sm text-[#6d1b3b]/60">We&apos;ll get back to you within 24 hours.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">

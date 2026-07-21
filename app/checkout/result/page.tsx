@@ -104,6 +104,7 @@ function CheckoutResult() {
     // It's used here to verify order ownership on the backend
     const phone = sessionStorage.getItem("checkout_phone") ?? "";
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingOrder(true);
     const url = phone
       ? `${API_BASE}/orders/by-transaction/${encodeURIComponent(tranId)}?phone=${encodeURIComponent(phone)}`

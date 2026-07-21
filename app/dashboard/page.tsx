@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import {
   IndianRupee,
@@ -218,7 +219,7 @@ export default function DashboardOverview() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[#2d1a24] font-playfair">Dashboard</h1>
-          <p className="text-sm text-[#6d1b3b]/60 mt-0.5">Here's what's happening with your store.</p>
+          <p className="text-sm text-[#6d1b3b]/60 mt-0.5">Here&apos;s what&apos;s happening with your store.</p>
         </div>
         <div className="text-xs text-[#6d1b3b]/40 font-medium hidden sm:block">
           {new Date().toLocaleDateString("en-BD", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
@@ -336,7 +337,7 @@ export default function DashboardOverview() {
                   <span className="w-5 text-xs font-bold text-[#6d1b3b]/30 shrink-0">{i + 1}</span>
                   <div className="w-10 h-10 rounded-xl bg-pink-50 overflow-hidden shrink-0 border border-pink-100">
                     {p.images?.[0] ? (
-                      <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
+                      <Image src={p.images[0]} alt={p.name} width={40} height={40} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Package className="w-4 h-4 text-[#ad1457]/30" />

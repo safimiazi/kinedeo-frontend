@@ -6,7 +6,6 @@ import {
   Settings, 
   Store, 
   Mail, 
-  DollarSign, 
   Truck, 
   Bell, 
   ShoppingBag, 
@@ -14,7 +13,6 @@ import {
   Star, 
   BarChart3,
   Save,
-  CheckCircle,
   Globe,
   Shield,
   Clock
