@@ -1,16 +1,28 @@
 /**
- * Base API client — handles fetch, auth headers, token refresh, and error handling.
+ * Base API client — handles axios requests, auth headers, token refresh, and error handling.
  *
  * Token strategy:
  *  - accessToken  → localStorage (short-lived, read by JS to set Authorization header)
  *  - refreshToken → HttpOnly cookie (set by backend, never accessible to JS — XSS safe)
  *
- * All requests use `credentials: 'include'` so the browser automatically sends the
+ * All requests use `withCredentials: true` so the browser automatically sends the
  * refresh token cookie to the backend without any JS intervention.
  */
 
+import axios, { type AxiosRequestConfig, type AxiosResponse } from 'axios';
+
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.kinedeo.com/api';
-console.log("api",API_BASE)
+
+// ─── Axios Instance ─────────────────────────────────────────────────────────────
+
+export const axiosInstance = axios.create({
+  baseURL: API_BASE,
+  withCredentials: true, // Always send HttpOnly refresh token cookie
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 // ─── Error Class ────────────────────────────────────────────────────────────────
 
 export class ApiError extends Error {
@@ -81,29 +93,24 @@ interface RequestOptions {
   auth?: boolean;
 }
 
-// ─── Core Request Function ──────────────────────────────────────────────────────
+// ─── Token Refresh State ────────────────────────────────────────────────────────
 
 let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
 
 /**
- * Silently refresh the access token.
- * The refresh token is sent automatically via the HttpOnly cookie.
+ * Silently refresh the access token using the HttpOnly cookie.
  * On success, the backend issues a new rotated cookie + returns a new accessToken.
  */
 async function attemptTokenRefresh(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_BASE}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // Send the HttpOnly refresh token cookie
-    });
-
-    if (!response.ok) return false;
-
-    const data = await response.json() as { accessToken?: string };
-    if (data.accessToken) {
-      localStorage.setItem(TOKEN_KEY, data.accessToken);
+    const response = await axiosInstance.post<{ accessToken?: string }>(
+      '/auth/refresh',
+      {},
+      { withCredentials: true },
+    );
+    if (response.data.accessToken) {
+      localStorage.setItem(TOKEN_KEY, response.data.accessToken);
     }
     return true;
   } catch {
@@ -111,23 +118,23 @@ async function attemptTokenRefresh(): Promise<boolean> {
   }
 }
 
+// ─── Core Request Function ──────────────────────────────────────────────────────
+
 /**
  * The main request function. Automatically attaches the auth header and handles
  * 401 responses by attempting a silent token refresh + one retry.
  *
- * `credentials: 'include'` is set on every request so the browser always sends
- * the HttpOnly refresh token cookie to the backend.
+ * `withCredentials: true` is set on the axios instance so the browser always
+ * sends the HttpOnly refresh token cookie.
  */
 export async function apiRequest<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, headers = {}, auth = true } = options;
 
-  const config: RequestInit = {
+  const config: AxiosRequestConfig = {
     method,
-    credentials: 'include', // Always include cookies (refresh token)
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
+    url: endpoint,
+    headers: { ...headers },
+    data: body,
   };
 
   // Attach access token if auth is enabled
@@ -138,55 +145,53 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
     }
   }
 
-  if (body !== undefined) {
-    config.body = JSON.stringify(body);
-  }
+  try {
+    const response: AxiosResponse<T> = await axiosInstance.request<T>(config);
 
-  const fullUrl = `${API_BASE}${endpoint}`;
-  let response = await fetch(fullUrl, config);
-
-  // Handle 401 — only attempt silent refresh if user has a stored session.
-  // Guest users (no localStorage entry) will never have a refresh cookie,
-  // so calling /auth/refresh would just produce a noisy 403 in the network tab.
-  if (response.status === 401 && auth && getStoredUser() !== null) {
-    if (!isRefreshing) {
-      isRefreshing = true;
-      refreshPromise = attemptTokenRefresh().finally(() => {
-        isRefreshing = false;
-        refreshPromise = null;
-      });
+    // Handle empty responses (204 No Content)
+    if (response.status === 204) {
+      return {} as T;
     }
 
-    const refreshed = await (refreshPromise ?? attemptTokenRefresh());
+    return response.data;
+  } catch (err: unknown) {
+    if (!axios.isAxiosError(err)) throw err;
 
-    if (refreshed) {
-      // Retry with the new access token
-      const newToken = getAccessToken();
-      if (newToken) {
-        (config.headers as Record<string, string>)['Authorization'] = `Bearer ${newToken}`;
+    const status = err.response?.status ?? 0;
+
+    // Handle 401 — only attempt silent refresh if user has a stored session.
+    if (status === 401 && auth && getStoredUser() !== null) {
+      if (!isRefreshing) {
+        isRefreshing = true;
+        refreshPromise = attemptTokenRefresh().finally(() => {
+          isRefreshing = false;
+          refreshPromise = null;
+        });
       }
-      console.log(`[API] Retry ${method} ${fullUrl}`);
-      response = await fetch(fullUrl, config);
-    } else {
-      // Both access token and refresh cookie are gone — clear stale localStorage
-      clearTokens();
-      throw new ApiError('Session expired. Please login again.', 401);
-    }
-  }
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
+      const refreshed = await (refreshPromise ?? attemptTokenRefresh());
+
+      if (refreshed) {
+        // Retry with the new access token
+        const newToken = getAccessToken();
+        if (newToken) {
+          (config.headers as Record<string, string>)['Authorization'] = `Bearer ${newToken}`;
+        }
+        const retryResponse: AxiosResponse<T> = await axiosInstance.request<T>(config);
+        return retryResponse.data;
+      } else {
+        // Both access token and refresh cookie are gone — clear stale localStorage
+        clearTokens();
+        throw new ApiError('Session expired. Please login again.', 401);
+      }
+    }
+
+    // All other errors
+    const errorData = err.response?.data as { message?: string } | undefined;
     throw new ApiError(
-      (errorData as { message?: string }).message || `Request failed with status ${response.status}`,
-      response.status,
+      errorData?.message || `Request failed with status ${status}`,
+      status,
       errorData,
     );
   }
-
-  // Handle empty responses (204 No Content)
-  if (response.status === 204) {
-    return {} as T;
-  }
-
-  return response.json() as Promise<T>;
 }
