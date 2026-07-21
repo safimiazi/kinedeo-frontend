@@ -8,7 +8,7 @@ services:
         NEXT_PUBLIC_API_URL: https://api.kinedeo.com/api
         NEXT_PUBLIC_APP_URL: https://kinedeo.com
 
-    image: kinedeo-web:latest
+    image: ghcr.io/${GHCR_OWNER}/kinedeo-web:latest
     container_name: kinedeo-web-prod
 
     restart: unless-stopped
