@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
-  Flower2,
   Search,
   Heart,
   ShoppingBag,
@@ -75,7 +75,14 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
 
             {/* ── Logo ── */}
             <Link href="/" className="flex items-center gap-2 shrink-0 group">
-              <Flower2 className="w-6 h-6 sm:w-7 sm:h-7 text-[#e91e8c] group-hover:scale-110 transition-transform duration-300" />
+              {/* <Image
+                src="/short_logo.webp"
+                alt="KineDeo logo"
+                width={36}
+                height={36}
+                className="group-hover:scale-105 transition-transform duration-300"
+                priority
+              /> */}
               <span className="font-playfair text-lg sm:text-xl font-extrabold text-[#e91e8c] tracking-tight">Kine</span>
               <span className="font-playfair text-lg sm:text-xl font-normal text-[#ad1457]">Deo</span>
             </Link>
@@ -233,7 +240,13 @@ export default function Navbar({ cartCount, onCartOpen }: NavbarProps) {
         {/* Drawer header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-pink-100 bg-linear-to-r from-[#e91e8c]/5 to-white">
           <div className="flex items-center gap-2">
-            <Flower2 className="w-5 h-5 text-[#e91e8c]" />
+            <Image
+              src="/short_logo.webp"
+              alt="KineDeo logo"
+              width={28}
+              height={28}
+              className="shrink-0"
+            />
             <span className="font-playfair text-base font-extrabold text-[#e91e8c]">Kine</span>
             <span className="font-playfair text-base font-normal text-[#ad1457]">Deo</span>
           </div>
