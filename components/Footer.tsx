@@ -71,7 +71,7 @@ export default function Footer() {
           {/* Brand column */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4 group">
-              <Flower2 className="w-6 h-6 text-[#e91e8c] group-hover:scale-110 transition-transform" />
+              {/* <Flower2 className="w-6 h-6 text-[#e91e8c] group-hover:scale-110 transition-transform" /> */}
               <span className="font-playfair text-xl font-extrabold text-[#f48fb1]">Kine</span>
               <span className="font-playfair text-xl font-normal text-[#e91e8c]">Deo</span>
             </Link>
