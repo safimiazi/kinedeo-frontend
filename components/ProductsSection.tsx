@@ -402,16 +402,18 @@ export default function ProductsSection() {
                         )}
                       </div>
 
-                      <div onClick={() => handleAddToCart(p)} className="flex items-center gap-3 bg-gradient-to-r from-pink-50 to-rose-50 p-2 pr-4 rounded-full border border-pink-200/50 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] group/card">
+                      <div
+                        onClick={() => handleAddToCart(p)}
+                        className="flex items-center gap-3 bg-gradient-to-r from-pink-50 to-rose-50 p-2 pr-4 rounded-full border border-pink-200/50 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] group/card"
+                      >
                         <button
-                          
                           className="group/btn bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white border-none w-9 h-9 rounded-full flex items-center justify-center cursor-pointer hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all duration-300 hover:scale-110 flex-shrink-0"
                           aria-label="কার্টে যোগ করুন"
                         >
                           <ShoppingBag className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
                         </button>
                         <span className="text-sm font-medium text-gray-700 select-none">
-                         কার্টে যোগ করুন
+                          কার্টে যোগ করুন
                         </span>
                       </div>
                     </div>
