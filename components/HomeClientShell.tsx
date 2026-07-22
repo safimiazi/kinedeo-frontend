@@ -8,6 +8,7 @@
  * - CartPanel (slide-in drawer)
  * - Toast notifications
  * - AnnouncementBar with server-rendered initial text (avoids CLS)
+ * - FloatingCartWidget (mobile only)
  *
  * All heavy static sections (HeroSection, FlashSale, etc.) are passed
  * as children and rendered as-is — they remain server-rendered HTML.
@@ -17,6 +18,7 @@ import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import CartPanel from '@/components/CartPanel';
 import Toast from '@/components/Toast';
+import FloatingCartWidget from '@/components/FloatingCartWidget';
 import { useCart } from '@/lib/cart-context';
 
 interface Props {
@@ -26,7 +28,7 @@ interface Props {
 }
 
 export default function HomeClientShell({ children, announcementMessage }: Props) {
-  const { itemCount } = useCart();
+  const { itemCount, subtotal } = useCart();
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -45,6 +47,13 @@ export default function HomeClientShell({ children, announcementMessage }: Props
       )}
 
       {children}
+
+      {/* Floating cart widget — mobile only, matches the sample design */}
+      <FloatingCartWidget
+        itemCount={itemCount}
+        subtotal={subtotal}
+        onCartOpen={() => setCartOpen(true)}
+      />
 
       {cartOpen && <CartPanel onClose={() => setCartOpen(false)} />}
       {toast && <Toast message={toast} />}
