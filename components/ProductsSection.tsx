@@ -419,14 +419,14 @@ export default function ProductsSection() {
                     </div>
 
                     {/* Free Shipping Tag */}
-                    {p.basePrice > 999 && (
+                    {/* {p.basePrice > 999 && (
                       <div className="mt-3 pt-3 border-t border-[#fce4ec] flex items-center gap-1">
                         <Truck className="w-3 h-3 text-green-500" />
                         <span className="text-[10px] text-green-600 font-semibold">
                           Free Shipping
                         </span>
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </div>
               );
