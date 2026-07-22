@@ -11,14 +11,14 @@
  * Kept here as a reusable server component for other server pages.
  */
 
-import { serverGetActiveAnnouncements } from '@/lib/api/server';
+import { serverGetActiveAnnouncements } from "@/lib/api/server";
 
 export default async function AnnouncementBarServer() {
   const announcements = await serverGetActiveAnnouncements();
   const message = announcements
     .map((a) => a.message.trim())
     .filter(Boolean)
-    .join(' • ');
+    .join(" • ");
 
   if (!message) return null;
 
