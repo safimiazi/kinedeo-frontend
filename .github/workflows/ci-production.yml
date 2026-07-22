@@ -1,7 +1,9 @@
 name: CI — Production
 
-# Auto-runs on push to prod branch (CI + Docker image push).
-# Does NOT deploy to VPS — use the Deploy workflow manually for that.
+# Runs automatically when code is pushed/merged to the prod branch.
+# Step 1: Lint, type-check, and build to validate the code.
+# Step 2: Build the Docker image and push it to GHCR.
+# Deployment to VPS is separate — trigger it manually via deploy-production.yml.
 on:
   push:
     branches: [prod]
@@ -13,9 +15,7 @@ env:
   IMAGE_NAME: ${{ github.repository_owner }}/kinedeo-web
 
 jobs:
-  # ────────────────────────────────────────────────────────────────────────────
-  # Job 1: Lint, Type-check & Build
-  # ────────────────────────────────────────────────────────────────────────────
+  # ─── Job 1: Lint, Type-check & Build ────────────────────────────────────────
   ci:
     name: Lint, Type-check & Build
     runs-on: ubuntu-latest
@@ -45,9 +45,8 @@ jobs:
           NEXT_PUBLIC_API_URL: https://api.kinedeo.com/api
           NEXT_PUBLIC_APP_URL: https://kinedeo.com
 
-  # ────────────────────────────────────────────────────────────────────────────
-  # Job 2: Build & push Docker image to GHCR (push only, not PRs)
-  # ────────────────────────────────────────────────────────────────────────────
+  # ─── Job 2: Build & Push Docker Image to GHCR ───────────────────────────────
+  # Only runs on push (not on PRs) and only after CI passes.
   docker:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
@@ -93,3 +92,4 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             NEXT_PUBLIC_API_URL=https://api.kinedeo.com/api
+            NEXT_PUBLIC_APP_URL=https://kinedeo.com

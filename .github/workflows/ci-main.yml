@@ -1,10 +1,13 @@
-name: CI — Development
+name: CI — Main
 
+# Runs on every push to main and on PRs targeting main.
+# Validates that code is lint-clean, type-safe, and builds successfully.
+# Does NOT build Docker images or deploy.
 on:
   push:
-    branches: [develop]
+    branches: [main]
   pull_request:
-    branches: [develop]
+    branches: [main]
 
 jobs:
   ci:
@@ -33,8 +36,5 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: http://localhost:4000/api
-          NEXT_PUBLIC_APP_URL: http://localhost:3000
-
-      - name: Docker build check
-        run: docker build -f Dockerfile.dev -t kinedeo-web:dev-check .
+          NEXT_PUBLIC_API_URL: https://api.kinedeo.com/api
+          NEXT_PUBLIC_APP_URL: https://kinedeo.com

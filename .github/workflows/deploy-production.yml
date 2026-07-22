@@ -1,6 +1,8 @@
 name: Deploy — Production (Manual)
 
-# ONLY runs when you manually click "Run workflow" in GitHub Actions UI.
+# ONLY runs when you manually trigger it from GitHub Actions UI.
+# Pulls the latest Docker image from GHCR and deploys it to the production VPS.
+# This is the final step after CI + Docker build has passed on the prod branch.
 on:
   workflow_dispatch:
     inputs:
