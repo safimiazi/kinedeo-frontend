@@ -1,4 +1,4 @@
-  "use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -67,7 +67,9 @@ export default function FlashSale() {
 
           {/* Countdown */}
           <div className="flex items-center gap-3">
-            <span className="font-nunito text-white/70 text-[13px] font-semibold">Ends in:</span>
+            <span className="font-nunito text-white/70 text-[13px] font-semibold">
+              Ends in:
+            </span>
             {(["h", "m", "s"] as const).map((lbl, i) => {
               const val = [countdown.h, countdown.m, countdown.s][i];
               return (
@@ -96,7 +98,10 @@ export default function FlashSale() {
 
         {/* Sale product cards */}
         {saleProducts.length > 0 && (
-          <FlashSaleProducts saleProducts={saleProducts} onAddToCart={addItem} />
+          <FlashSaleProducts
+            saleProducts={saleProducts}
+            onAddToCart={addItem}
+          />
         )}
       </div>
     </section>
@@ -126,10 +131,17 @@ function FlashSaleProducts({
       const product = allProducts.find((p) => p._id === sp.productId);
       if (!product) return null;
       const discount = Math.round((1 - sp.salePrice / sp.originalPrice) * 100);
-      return { product, salePrice: sp.salePrice, originalPrice: sp.originalPrice, discount };
+      return {
+        product,
+        salePrice: sp.salePrice,
+        originalPrice: sp.originalPrice,
+        discount,
+      };
     })
     .filter(Boolean) as {
-    product: NonNullable<ReturnType<typeof useProducts>["data"]>["products"][number];
+    product: NonNullable<
+      ReturnType<typeof useProducts>["data"]
+    >["products"][number];
     salePrice: number;
     originalPrice: number;
     discount: number;
