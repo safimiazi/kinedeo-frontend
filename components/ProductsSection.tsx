@@ -123,15 +123,31 @@
 "use client";
 
 import Link from "next/link";
-import { useProducts, useCategories, useFavorites, useToggleFavorite } from "@/lib/hooks";
+import {
+  useProducts,
+  useCategories,
+  useFavorites,
+  useToggleFavorite,
+} from "@/lib/hooks";
 import { useCart } from "@/lib/cart-context";
 import { useState } from "react";
 import type { Product } from "@/lib/api/types";
-import { Eye, Heart, Package, ShoppingBag, Star, TrendingUp, Truck } from "lucide-react";
+import {
+  Eye,
+  Heart,
+  Package,
+  ShoppingBag,
+  Star,
+  TrendingUp,
+  Truck,
+} from "lucide-react";
 
 export default function ProductsSection() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const { data, isLoading } = useProducts({ limit: 8, categoryId: activeCategory || undefined });
+  const { data, isLoading } = useProducts({
+    limit: 8,
+    categoryId: activeCategory || undefined,
+  });
   const { data: categories } = useCategories();
   const { addItem } = useCart();
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
@@ -170,13 +186,25 @@ export default function ProductsSection() {
             Shop by{" "}
             <span className="relative inline-block">
               Category
-              <svg className="absolute -bottom-1 left-0 w-full" height="6" viewBox="0 0 200 6" preserveAspectRatio="none">
-                <path d="M0 5 Q50 0 100 5 Q150 10 200 5" stroke="#e91e8c" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              <svg
+                className="absolute -bottom-1 left-0 w-full"
+                height="6"
+                viewBox="0 0 200 6"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0 5 Q50 0 100 5 Q150 10 200 5"
+                  stroke="#e91e8c"
+                  strokeWidth="2.5"
+                  fill="none"
+                  strokeLinecap="round"
+                />
               </svg>
             </span>
           </h2>
           <p className="font-nunito text-[#6d1b3b]/70 text-base max-w-120 mx-auto leading-relaxed">
-            Handpicked bestsellers loved by thousands of customers across Bangladesh
+            Handpicked bestsellers loved by thousands of customers across
+            Bangladesh
           </p>
         </div>
 
@@ -211,23 +239,30 @@ export default function ProductsSection() {
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <div key={i} className="bg-white rounded-3xl overflow-hidden border border-[#fce4ec] h-90 animate-pulse" />
+              <div
+                key={i}
+                className="bg-white rounded-3xl overflow-hidden border border-[#fce4ec] h-90 animate-pulse"
+              />
             ))}
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-20">
             <span className="text-6xl block mb-4">🌸</span>
-            <p className="font-nunito text-[#6d1b3b]/60 text-base">No products available yet</p>
+            <p className="font-nunito text-[#6d1b3b]/60 text-base">
+              No products available yet
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {products.map((p) => {
-             const discount = p.originalPrice ? Math.round((1 - p.basePrice / p.originalPrice) * 100) : 0;
+              const discount = p.originalPrice
+                ? Math.round((1 - p.basePrice / p.originalPrice) * 100)
+                : 0;
               const isHovered = hoveredProduct === p._id;
-              
+
               return (
-                <div 
-                  key={p._id} 
+                <div
+                  key={p._id}
                   className="group relative bg-white rounded-2xl overflow-hidden border border-[#fce4ec] hover:border-[#e91e8c] transition-all duration-300 hover:shadow-2xl hover:shadow-[#e91e8c]/15"
                   onMouseEnter={() => setHoveredProduct(p._id)}
                   onMouseLeave={() => setHoveredProduct(null)}
@@ -237,10 +272,10 @@ export default function ProductsSection() {
                     <div className="relative aspect-square bg-linear-to-br from-pink-50 to-rose-50 overflow-hidden">
                       {p.images?.[0] ? (
                         <>
-                          <img 
-                            src={p.images[0]} 
-                            alt={p.name} 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                          <img
+                            src={p.images[0]}
+                            alt={p.name}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                           {/* Overlay Gradient */}
                           <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -250,7 +285,7 @@ export default function ProductsSection() {
                           <Package className="w-16 h-16 text-[#ad1457]/30" />
                         </div>
                       )}
-                      
+
                       {/* Badges */}
                       <div className="absolute top-3 left-3 flex flex-col gap-2">
                         {p.badge && (
@@ -266,9 +301,13 @@ export default function ProductsSection() {
                       </div>
 
                       {/* Quick View Overlay */}
-                      <div className={`absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center gap-3 transition-all duration-300 ${
-                        isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                      }`}>
+                      <div
+                        className={`absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center gap-3 transition-all duration-300 ${
+                          isHovered
+                            ? "opacity-100"
+                            : "opacity-0 pointer-events-none"
+                        }`}
+                      >
                         <button className="bg-white rounded-full px-4 py-2 text-xs font-semibold text-[#e91e8c] hover:bg-[#e91e8c] hover:text-white transition-all flex items-center gap-1">
                           <Eye className="w-3 h-3" />
                           Quick View
@@ -284,16 +323,25 @@ export default function ProductsSection() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleFavorite.mutate({ productId: p._id, isFavorited });
+                          toggleFavorite.mutate({
+                            productId: p._id,
+                            isFavorited,
+                          });
                         }}
                         className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 z-10 ${
                           isFavorited
                             ? "bg-[#e91e8c] opacity-100"
                             : "bg-white/90 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-[#e91e8c]"
                         }`}
-                        title={isFavorited ? "Remove from favorites" : "Add to favorites"}
+                        title={
+                          isFavorited
+                            ? "Remove from favorites"
+                            : "Add to favorites"
+                        }
                       >
-                        <Heart className={`w-4 h-4 transition-colors ${isFavorited ? "fill-white text-white" : "text-[#ad1457] hover:text-white"}`} />
+                        <Heart
+                          className={`w-4 h-4 transition-colors ${isFavorited ? "fill-white text-white" : "text-[#ad1457] hover:text-white"}`}
+                        />
                       </button>
                     );
                   })()}
@@ -302,10 +350,15 @@ export default function ProductsSection() {
                   <div className="p-4">
                     {/* Rating */}
                     <div className="flex items-center gap-1 mb-2">
-                      {[1,2,3,4,5].map((star) => (
-                        <Star key={star} className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className="w-3 h-3 text-yellow-400 fill-yellow-400"
+                        />
                       ))}
-                      <span className="text-[10px] text-[#6d1b3b]/50 ml-1">(128)</span>
+                      <span className="text-[10px] text-[#6d1b3b]/50 ml-1">
+                        (128)
+                      </span>
                     </div>
 
                     {/* Title */}
@@ -314,7 +367,7 @@ export default function ProductsSection() {
                         {p.name}
                       </h3>
                     </Link>
-                    
+
                     {/* Description */}
                     <p className="font-nunito text-xs text-[#6d1b3b]/60 mb-3 line-clamp-2">
                       {p.shortDescription}
@@ -325,13 +378,15 @@ export default function ProductsSection() {
                       <div>
                         <div className="flex items-baseline gap-1">
                           <span className="font-playfair text-xl font-extrabold text-[#e91e8c]">
-                            ৳{(p.flashSalePrice || p.basePrice).toLocaleString()}
+                            ৳
+                            {(p.flashSalePrice || p.basePrice).toLocaleString()}
                           </span>
                           {p.flashSalePrice ? (
                             <span className="font-nunito text-xs text-[#ad1457]/50 line-through">
                               ৳{p.basePrice.toLocaleString()}
                             </span>
-                          ) : p.originalPrice && p.originalPrice > p.basePrice ? (
+                          ) : p.originalPrice &&
+                            p.originalPrice > p.basePrice ? (
                             <span className="font-nunito text-xs text-[#ad1457]/50 line-through">
                               ৳{p.originalPrice.toLocaleString()}
                             </span>
@@ -340,24 +395,36 @@ export default function ProductsSection() {
                         {p.flashSalePrice && (
                           <div className="flex items-center gap-1 mt-0.5">
                             <TrendingUp className="w-3 h-3 text-orange-500" />
-                            <span className="text-[10px] text-orange-500 font-semibold">Flash Sale</span>
+                            <span className="text-[10px] text-orange-500 font-semibold">
+                              Flash Sale
+                            </span>
                           </div>
                         )}
                       </div>
-                      
-                      <button 
+
+                      <div
                         onClick={() => handleAddToCart(p)}
-                        className="group/btn bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white border-none w-9 h-9 rounded-full flex items-center justify-center cursor-pointer hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all duration-300 hover:scale-110"
+                        className="flex items-center gap-3 bg-gradient-to-r from-pink-50 to-rose-50 p-2 pr-4 rounded-full border border-pink-200/50 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] group/card"
                       >
-                        <ShoppingBag className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                      </button>
+                        <button
+                          className="group/btn bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white border-none w-9 h-9 rounded-full flex items-center justify-center cursor-pointer hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all duration-300 hover:scale-110 flex-shrink-0"
+                          aria-label="কার্টে যোগ করুন"
+                        >
+                          <ShoppingBag className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+                        </button>
+                        <span className="text-sm font-medium text-gray-700 select-none">
+                          কার্টে যোগ করুন
+                        </span>
+                      </div>
                     </div>
 
                     {/* Free Shipping Tag */}
                     {p.basePrice > 999 && (
                       <div className="mt-3 pt-3 border-t border-[#fce4ec] flex items-center gap-1">
                         <Truck className="w-3 h-3 text-green-500" />
-                        <span className="text-[10px] text-green-600 font-semibold">Free Shipping</span>
+                        <span className="text-[10px] text-green-600 font-semibold">
+                          Free Shipping
+                        </span>
                       </div>
                     )}
                   </div>
@@ -374,7 +441,9 @@ export default function ProductsSection() {
             className="group inline-flex items-center gap-2 border-2 border-[#e91e8c] text-[#e91e8c] px-10 py-3.5 rounded-full font-nunito font-bold text-[14px] tracking-wide hover:bg-[#e91e8c] hover:text-white transition-all duration-200 shadow-sm hover:shadow-lg hover:shadow-[#e91e8c]/25"
           >
             View All Products
-            <span className="group-hover:translate-x-1 transition-transform duration-200 inline-block">→</span>
+            <span className="group-hover:translate-x-1 transition-transform duration-200 inline-block">
+              →
+            </span>
           </Link>
         </div>
       </div>

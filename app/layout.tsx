@@ -26,10 +26,52 @@ export const metadata: Metadata = {
     default: 'KineDeo — Premium Beauty & Skincare',
     template: '%s | KineDeo',
   },
-  description: 'Discover luxury beauty crafted for the modern woman',
+  description:
+    'Discover luxury beauty and skincare crafted for the modern woman. Shop premium cosmetics, serums, and wellness products at KineDeo.',
+  keywords: [
+    'beauty',
+    'skincare',
+    'cosmetics',
+    'luxury beauty',
+    'premium skincare',
+    'KineDeo',
+    'makeup',
+    'serum',
+    'wellness',
+  ],
+  authors: [{ name: 'KineDeo', url: 'https://kinedeo.com' }],
+  creator: 'KineDeo',
+  publisher: 'KineDeo',
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+    ],
+    apple: [{ url: '/favicon.png', type: 'image/png' }],
+  },
   openGraph: {
     siteName: 'KineDeo',
     type: 'website',
+    locale: 'en_US',
+    url: 'https://kinedeo.com',
+    title: 'KineDeo — Premium Beauty & Skincare',
+    description:
+      'Discover luxury beauty and skincare crafted for the modern woman. Shop premium cosmetics, serums, and wellness products.',
+    images: [
+      {
+        url: '/opengraph-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'KineDeo — Premium Beauty & Skincare',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'KineDeo — Premium Beauty & Skincare',
+    description:
+      'Discover luxury beauty and skincare crafted for the modern woman.',
+    images: ['/opengraph-image.png'],
+    creator: '@kinedeo',
   },
 };
 

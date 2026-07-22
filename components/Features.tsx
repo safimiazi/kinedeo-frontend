@@ -25,7 +25,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="relative py-16 bg-linear-to-b from-[#fff8fa] to-white overflow-hidden">
+    <section className="relative py-16 md:block hidden bg-linear-to-b from-[#fff8fa] to-white overflow-hidden">
       {/* Background Decoration */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none" aria-hidden>
         <div className="absolute top-20 left-10 w-40 h-40 bg-linear-to-r from-pink-200/20 to-rose-200/20 rounded-full blur-3xl" />
@@ -53,11 +53,11 @@ export default function Features() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 relative z-10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 relative z-10">
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="group relative bg-white rounded-2xl px-6 py-7 border border-[#fce4ec] text-center hover:-translate-y-2 hover:shadow-xl hover:shadow-[#e91e8c]/15 transition-all duration-300 overflow-hidden"
+              className="group relative bg-white rounded-2xl px-4 py-6 sm:px-6 sm:py-7 border border-[#fce4ec] text-center hover:-translate-y-2 hover:shadow-xl hover:shadow-[#e91e8c]/15 transition-all duration-300 overflow-hidden flex flex-col items-center justify-center min-h-[160px]"
             >
               {/* Background Gradient on Hover */}
               <div className="absolute inset-0 bg-linear-to-br from-pink-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
