@@ -15,6 +15,27 @@ import { useAuth } from "@/lib/auth-context";
 import { API_BASE } from "@/lib/api/client";
 import toast from "react-hot-toast";
 
+// ── BD Location types ──────────────────────────────────────────────────────
+// bdapis.com response shapes:
+// GET /api/v1.2/divisions  → { data: [{ division, divisionbn, coordinates }] }
+// GET /api/v1.2/division/:name → { data: [{ district, districtbn, upazilla[], coordinates }] }
+interface BdDivision {
+  division: string;   // English name, e.g. "Dhaka"
+  divisionbn: string; // Bangla name, e.g. "ঢাকা"
+}
+
+interface BdDistrict {
+  district: string;   // English name, e.g. "Gazipur"
+  districtbn: string; // Bangla name, e.g. "গাজীপুর"
+  upazilla: string[]; // e.g. ["Gazipur Sadar", "Kaliakair", ...]
+}
+
+// ── Shipping cost by division ──────────────────────────────────────────────
+function getShippingCostByDivision(divisionName: string): number {
+  if (divisionName.toLowerCase() === "dhaka") return 60;
+  return 120;
+}
+
 interface ActiveCoupon {
   code: string;
   description?: string;
@@ -33,25 +54,92 @@ interface CouponValidationResult {
   finalAmount: number;
 }
 
-import { useShippingSettings, calcShipping, DEFAULT_SHIPPING_SETTINGS } from "@/lib/hooks/use-shipping-settings";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
+import { useShippingSettings, DEFAULT_SHIPPING_SETTINGS } from "@/lib/hooks/use-shipping-settings";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, itemCount, subtotal, clearCart } = useCart();
   const { user } = useAuth();
   const { data: shippingData } = useShippingSettings();
-  const shippingSettings = shippingData ?? DEFAULT_SHIPPING_SETTINGS;
+  const _shippingSettings = shippingData ?? DEFAULT_SHIPPING_SETTINGS;
+
+  // ── BD Location state ────────────────────────────────────────────────────
+  const [divisions, setDivisions] = useState<BdDivision[]>([]);
+  const [districts, setDistricts] = useState<BdDistrict[]>([]);
+  const [upazilas, setUpazilas] = useState<string[]>([]);
+  const [locLoading, setLocLoading] = useState(true);
+  const [distLoading, setDistLoading] = useState(false);
+  const [selectedDivision, setSelectedDivision] = useState<BdDivision | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<BdDistrict | null>(null);
+
+  // Load all divisions once on mount
+  useEffect(() => {
+    async function loadDivisions() {
+      try {
+        const res = await fetch("https://bdapis.com/api/v1.2/divisions");
+        const data = await res.json();
+        setDivisions(data?.data ?? []);
+      } catch {
+        // silent
+      } finally {
+        setLocLoading(false);
+      }
+    }
+    loadDivisions();
+  }, []);
+
+  // Load districts when division changes
+  const handleDivisionChange = async (divisionName: string | null) => {
+    const div = divisions.find((d) => d.division === divisionName) ?? null;
+    setSelectedDivision(div);
+    setSelectedDistrict(null);
+    setDistricts([]);
+    setUpazilas([]);
+    setForm((prev) => ({ ...prev, city: divisionName ?? "", area: "", postcode: "" }));
+
+    if (!divisionName) return;
+    setDistLoading(true);
+    try {
+      const res = await fetch(`https://bdapis.com/api/v1.2/division/${divisionName}`);
+      const data = await res.json();
+      setDistricts(data?.data ?? []);
+    } catch {
+      // silent
+    } finally {
+      setDistLoading(false);
+    }
+  };
+
+  // Update upazilas when district changes
+  const handleDistrictChange = (districtName: string | null) => {
+    const dist = districts.find((d) => d.district === districtName) ?? null;
+    setSelectedDistrict(dist);
+    setUpazilas(dist?.upazilla ?? []);
+    setForm((prev) => ({ ...prev, area: districtName ?? "", postcode: "" }));
+  };
+
+  // Update form when upazila changes
+  const handleUpazilaChange = (upazila: string | null) => {
+    setForm((prev) => ({ ...prev, upazila: upazila ?? "" }));
+  };
 
   const [form, setForm] = useState({
     name: user?.name || "",
     email: user?.email || "",
     phone: user?.phone || "",
     address: "",
-    city: "",
+    city: "",      // division name
+    area: "",      // district name
+    upazila: "",   // upazila name
     postcode: "",
-    area: "",
     note: "",
   });
+
+  // Shipping cost based on selected division
+  const shipping = selectedDivision
+    ? getShippingCostByDivision(selectedDivision.division)
+    : 120; // default to outside-Dhaka rate before selection
 
   // Sync user data into form when user loads (e.g. after auth hydration)
   const prevUserRef = React.useRef<string | null>(null);
@@ -77,7 +165,6 @@ export default function CheckoutPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [activeCoupons, setActiveCoupons] = useState<ActiveCoupon[]>([]);
 
-  const shipping = calcShipping(shippingSettings, subtotal);
   const discount = couponValidation?.calculatedDiscount || 0;
   const total = Math.max(0, subtotal + shipping - discount);
 
@@ -140,8 +227,8 @@ export default function CheckoutPage() {
   // ── Place Order ─────────────────────────────────────────────────────────────
 
   const handlePlaceOrder = async () => {
-    if (!form.name || !form.phone || !form.address || !form.city || !form.area) {
-      toast.error("নাম, ফোন, বিভাগ, এলাকা এবং পূর্ণ ঠিকানা দিন");
+    if (!form.name || !form.phone || !form.address || !form.city || !form.area || !form.upazila) {
+      toast.error("নাম, ফোন, বিভাগ, জেলা, উপজেলা এবং পূর্ণ ঠিকানা দিন");
       return;
     }
     if (!/^01[3-9]\d{8}$/.test(form.phone)) {
@@ -205,9 +292,10 @@ export default function CheckoutPage() {
           email: form.email || undefined,
           phone: form.phone,
           street: form.address,
-          city: form.city,
+          city: form.city,          // division
+          district: form.area || undefined,   // district
+          upazila: form.upazila || undefined, // upazila
           postcode: form.postcode || "0000",
-          area: form.area || undefined,
           note: form.note || undefined,
         },
         deliveryMethod: "standard",
@@ -300,10 +388,8 @@ export default function CheckoutPage() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { field: "name",     label: "পুরো নাম *",                     placeholder: "আপনার পুরো নাম",       type: "text" },
-                  { field: "phone",    label: "ফোন নম্বর * (01XXXXXXXXX)",       placeholder: "01XXXXXXXXX",           type: "tel"  },
-                  { field: "city",     label: "বিভাগ / শহর *",                  placeholder: "যেমন: Dhaka, Sylhet",   type: "text" },
-                  { field: "area",     label: "জেলা / উপজেলা / এলাকা *",       placeholder: "যেমন: Uttara, Mirpur", type: "text" },
+                  { field: "name",  label: "পুরো নাম *",               placeholder: "আপনার পুরো নাম", type: "text" },
+                  { field: "phone", label: "ফোন নম্বর * (01XXXXXXXXX)", placeholder: "01XXXXXXXXX",    type: "tel"  },
                 ].map(({ field, label, placeholder, type }) => (
                   <div key={field}>
                     <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">{label}</label>
@@ -317,6 +403,74 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Division → District → Upazila cascading selects */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Division */}
+                <SearchableSelect
+                  label="বিভাগ *"
+                  placeholder={locLoading ? "লোড হচ্ছে..." : "বিভাগ বেছে নিন"}
+                  loading={locLoading}
+                  disabled={locLoading}
+                  value={selectedDivision?.division ?? null}
+                  options={divisions.map((d) => ({
+                    value: d.division,
+                    label: `${d.divisionbn} (${d.division})`,
+                  }))}
+                  onChange={(val) => handleDivisionChange(val)}
+                />
+
+                {/* District */}
+                <SearchableSelect
+                  label="জেলা *"
+                  placeholder={
+                    !selectedDivision
+                      ? "আগে বিভাগ বেছে নিন"
+                      : distLoading
+                      ? "লোড হচ্ছে..."
+                      : "জেলা বেছে নিন"
+                  }
+                  loading={distLoading}
+                  disabled={!selectedDivision || distLoading}
+                  value={selectedDistrict?.district ?? null}
+                  options={districts.map((d) => ({
+                    value: d.district,
+                    label: `${d.districtbn} (${d.district})`,
+                  }))}
+                  onChange={(val) => handleDistrictChange(val)}
+                />
+
+                {/* Upazila */}
+                <SearchableSelect
+                  label="উপজেলা *"
+                  placeholder={
+                    !selectedDistrict
+                      ? "আগে জেলা বেছে নিন"
+                      : "উপজেলা বেছে নিন"
+                  }
+                  disabled={!selectedDistrict}
+                  value={form.upazila || null}
+                  options={upazilas.map((u) => ({
+                    value: u,
+                    label: u,
+                  }))}
+                  onChange={(val) => handleUpazilaChange(val)}
+                />
+              </div>
+
+              {/* Shipping cost preview */}
+              {selectedDivision && (
+                <div className={`rounded-xl px-4 py-2.5 text-xs font-semibold flex items-center gap-2 ${
+                  shipping === 60
+                    ? "bg-green-50 border border-green-200 text-green-700"
+                    : "bg-amber-50 border border-amber-200 text-amber-800"
+                }`}>
+                  <Truck className="w-3.5 h-3.5" />
+                  {shipping === 60
+                    ? "ঢাকার মধ্যে ডেলিভারি — শুধুমাত্র ৳60"
+                    : "ঢাকার বাইরে ডেলিভারি — ৳120"}
+                </div>
+              )}
               <div>
                 <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">পূর্ণ ঠিকানা * (বাড়ি নম্বর, রোড, মহল্লা)</label>
                 <textarea
@@ -532,11 +686,15 @@ export default function CheckoutPage() {
                 )}
                 <div className="flex justify-between text-sm">
                   <span className="text-[#2d1a24]/70 flex items-center gap-1"><Truck className="w-3 h-3" /> Shipping</span>
-                  <span className={`font-semibold ${shipping === 0 ? "text-green-600" : ""}`}>
-                    {shipping === 0 ? "FREE" : `৳${shipping}`}
+                  <span className="font-semibold">
+                    {selectedDivision ? `৳${shipping}` : "—"}
                   </span>
                 </div>
-                {shipping > 0 && <p className="text-[10px] text-[#ad1457] text-right">Free shipping on orders above ৳{shippingSettings.freeShippingThreshold.toLocaleString()}</p>}
+                {selectedDivision && (
+                  <p className="text-[10px] text-[#ad1457] text-right">
+                    {shipping === 60 ? "ঢাকার মধ্যে" : "ঢাকার বাইরে"}
+                  </p>
+                )}
               </div>
 
               <div className="border-t border-[#fce4ec]" />
