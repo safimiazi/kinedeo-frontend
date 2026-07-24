@@ -4,37 +4,17 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import {
-  ShoppingBag, Package, CreditCard, ArrowLeft,
-  Loader2, Truck, Banknote
-} from "lucide-react";
+import { ShoppingBag, Package, CreditCard, ArrowLeft, Loader2, Truck, Banknote } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/lib/cart-context";
 import { useAuth } from "@/lib/auth-context";
 import { API_BASE } from "@/lib/api/client";
 import toast from "react-hot-toast";
+import {  getShippingCostByDivision } from "@/features/location";
+import { LocationSelector } from "@/features/location/components/LocationSelector";
 
-// ── BD Location types ──────────────────────────────────────────────────────
-// bdapis.com response shapes:
-// GET /api/v1.2/divisions  → { data: [{ division, divisionbn, coordinates }] }
-// GET /api/v1.2/division/:name → { data: [{ district, districtbn, upazilla[], coordinates }] }
-interface BdDivision {
-  division: string;   // English name, e.g. "Dhaka"
-  divisionbn: string; // Bangla name, e.g. "ঢাকা"
-}
-
-interface BdDistrict {
-  district: string;   // English name, e.g. "Gazipur"
-  districtbn: string; // Bangla name, e.g. "গাজীপুর"
-  upazilla: string[]; // e.g. ["Gazipur Sadar", "Kaliakair", ...]
-}
-
-// ── Shipping cost by division ──────────────────────────────────────────────
-function getShippingCostByDivision(divisionName: string): number {
-  if (divisionName.toLowerCase() === "dhaka") return 60;
-  return 120;
-}
+// ── Types ──────────────────────────────────────────────────────────────────
 
 interface ActiveCoupon {
   code: string;
@@ -54,94 +34,26 @@ interface CouponValidationResult {
   finalAmount: number;
 }
 
-import { SearchableSelect } from "@/components/ui/SearchableSelect";
-import { useShippingSettings, DEFAULT_SHIPPING_SETTINGS } from "@/lib/hooks/use-shipping-settings";
+// ── Page ───────────────────────────────────────────────────────────────────
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, itemCount, subtotal, clearCart } = useCart();
   const { user } = useAuth();
-  const { data: shippingData } = useShippingSettings();
-  const _shippingSettings = shippingData ?? DEFAULT_SHIPPING_SETTINGS;
-
-  // ── BD Location state ────────────────────────────────────────────────────
-  const [divisions, setDivisions] = useState<BdDivision[]>([]);
-  const [districts, setDistricts] = useState<BdDistrict[]>([]);
-  const [upazilas, setUpazilas] = useState<string[]>([]);
-  const [locLoading, setLocLoading] = useState(true);
-  const [distLoading, setDistLoading] = useState(false);
-  const [selectedDivision, setSelectedDivision] = useState<BdDivision | null>(null);
-  const [selectedDistrict, setSelectedDistrict] = useState<BdDistrict | null>(null);
-
-  // Load all divisions once on mount
-  useEffect(() => {
-    async function loadDivisions() {
-      try {
-        const res = await fetch("https://bdapis.com/api/v1.2/divisions");
-        const data = await res.json();
-        setDivisions(data?.data ?? []);
-      } catch {
-        // silent
-      } finally {
-        setLocLoading(false);
-      }
-    }
-    loadDivisions();
-  }, []);
-
-  // Load districts when division changes
-  const handleDivisionChange = async (divisionName: string | null) => {
-    const div = divisions.find((d) => d.division === divisionName) ?? null;
-    setSelectedDivision(div);
-    setSelectedDistrict(null);
-    setDistricts([]);
-    setUpazilas([]);
-    setForm((prev) => ({ ...prev, city: divisionName ?? "", area: "", postcode: "" }));
-
-    if (!divisionName) return;
-    setDistLoading(true);
-    try {
-      const res = await fetch(`https://bdapis.com/api/v1.2/division/${divisionName}`);
-      const data = await res.json();
-      setDistricts(data?.data ?? []);
-    } catch {
-      // silent
-    } finally {
-      setDistLoading(false);
-    }
-  };
-
-  // Update upazilas when district changes
-  const handleDistrictChange = (districtName: string | null) => {
-    const dist = districts.find((d) => d.district === districtName) ?? null;
-    setSelectedDistrict(dist);
-    setUpazilas(dist?.upazilla ?? []);
-    setForm((prev) => ({ ...prev, area: districtName ?? "", postcode: "" }));
-  };
-
-  // Update form when upazila changes
-  const handleUpazilaChange = (upazila: string | null) => {
-    setForm((prev) => ({ ...prev, upazila: upazila ?? "" }));
-  };
 
   const [form, setForm] = useState({
     name: user?.name || "",
     email: user?.email || "",
     phone: user?.phone || "",
     address: "",
-    city: "",      // division name
-    area: "",      // district name
-    upazila: "",   // upazila name
+    city: "",      // division
+    area: "",      // district
+    upazila: "",   // upazila
     postcode: "",
     note: "",
   });
 
-  // Shipping cost based on selected division
-  const shipping = selectedDivision
-    ? getShippingCostByDivision(selectedDivision.division)
-    : 120; // default to outside-Dhaka rate before selection
-
-  // Sync user data into form when user loads (e.g. after auth hydration)
+  // Sync user data after auth hydration
   const prevUserRef = React.useRef<string | null>(null);
   React.useEffect(() => {
     if (!user) return;
@@ -156,7 +68,15 @@ export default function CheckoutPage() {
     }));
   }, [user]);
 
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'sslcommerz' | null>(null);
+  const updateForm = (field: string, value: string) =>
+    setForm((prev) => ({ ...prev, [field]: value }));
+
+  // Shipping cost is division-based: Dhaka = ৳60, others = ৳120
+  const shipping = getShippingCostByDivision(form.city);
+
+  // ── Coupon ─────────────────────────────────────────────────────────────
+
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "sslcommerz" | null>(null);
   const [paymentMethodError, setPaymentMethodError] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [couponCode, setCouponCode] = useState("");
@@ -168,17 +88,11 @@ export default function CheckoutPage() {
   const discount = couponValidation?.calculatedDiscount || 0;
   const total = Math.max(0, subtotal + shipping - discount);
 
-  const updateForm = (field: string, value: string) =>
-    setForm((prev) => ({ ...prev, [field]: value }));
-
   useEffect(() => {
-    async function loadActiveCoupons() {
-      try {
-        const res = await fetch(`${API_BASE}/coupons/active`);
-        if (res.ok) setActiveCoupons(await res.json());
-      } catch { /* silent */ }
-    }
-    loadActiveCoupons();
+    fetch(`${API_BASE}/coupons/active`)
+      .then((r) => r.ok ? r.json() : [])
+      .then(setActiveCoupons)
+      .catch(() => {});
   }, []);
 
   const handleCouponCodeChange = (value: string) => {
@@ -189,8 +103,6 @@ export default function CheckoutPage() {
       setCouponMessage("");
     }
   };
-
-  // ── Coupon ──────────────────────────────────────────────────────────────────
 
   const handleApplyCoupon = async (codeToApply?: string) => {
     const code = (codeToApply ?? couponCode).trim().toUpperCase();
@@ -224,7 +136,7 @@ export default function CheckoutPage() {
     }
   };
 
-  // ── Place Order ─────────────────────────────────────────────────────────────
+  // ── Place Order ────────────────────────────────────────────────────────
 
   const handlePlaceOrder = async () => {
     if (!form.name || !form.phone || !form.address || !form.city || !form.area || !form.upazila) {
@@ -248,11 +160,9 @@ export default function CheckoutPage() {
     setPlacing(true);
 
     try {
-      // Re-fetch current prices to avoid stale cart prices (e.g. flash sale ended)
-      // Bundle items are skipped — their price is pre-calculated and locked at cart time
+      // Re-fetch current prices to avoid stale cart data (e.g. flash sale ended)
       const freshItems = await Promise.all(
         items.map(async (item) => {
-          // Don't re-fetch price for bundle items — bundle discount must be preserved
           if (item.isBundleItem) return item;
           try {
             const res = await fetch(`${API_BASE}/products/${item.productId}`);
@@ -292,9 +202,9 @@ export default function CheckoutPage() {
           email: form.email || undefined,
           phone: form.phone,
           street: form.address,
-          city: form.city,          // division
-          district: form.area || undefined,   // district
-          upazila: form.upazila || undefined, // upazila
+          city: form.city,
+          district: form.area || undefined,
+          upazila: form.upazila || undefined,
           postcode: form.postcode || "0000",
           note: form.note || undefined,
         },
@@ -303,49 +213,31 @@ export default function CheckoutPage() {
         discountAmount: discount,
       };
 
-      if (paymentMethod === 'cod') {
-        // ── COD path ──────────────────────────────────────────────────────────
+      if (paymentMethod === "cod") {
         const res = await fetch(`${API_BASE}/orders/cod`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-
         const data = await res.json();
-
         if (!res.ok) throw new Error(data.message || "Failed to place order");
-
-        // Store the phone from the response so confirmation page can look up the order
         sessionStorage.setItem("checkout_phone", data.shippingAddress.phone);
-
         clearCart();
         router.push(`/checkout/confirmation?orderNumber=${data.orderNumber}`);
       } else {
-        // ── SSLCommerz path (unchanged) ───────────────────────────────────────
         const res = await fetch(`${API_BASE}/payment/sslcommerz/init`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-
         const data = await res.json();
-
         if (!res.ok) throw new Error(data.message || "Failed to initiate payment");
         if (!data.redirectUrl) throw new Error("No payment URL received");
-
-        // Store transaction ID so result page can show order details
         if (data.transactionId) {
           sessionStorage.setItem("pending_tran_id", data.transactionId);
         }
-
-        // Save cart and phone to sessionStorage so:
-        // - cart can be restored if payment fails/cancels
-        // - phone can verify ownership on the result page
         sessionStorage.setItem("cart_snapshot", JSON.stringify(items));
         sessionStorage.setItem("checkout_phone", form.phone);
-
-        // Redirect to SSLCommerz — do NOT clear cart here
-        // Cart is cleared in checkout/result/page.tsx on success status
         window.location.href = data.redirectUrl;
       }
     } catch (err: unknown) {
@@ -353,6 +245,8 @@ export default function CheckoutPage() {
       setPlacing(false);
     }
   };
+
+  // ── Empty cart ─────────────────────────────────────────────────────────
 
   if (items.length === 0) {
     return (
@@ -367,6 +261,8 @@ export default function CheckoutPage() {
       </div>
     );
   }
+
+  // ── Render ─────────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-[#fff0f5] font-nunito">
@@ -386,6 +282,8 @@ export default function CheckoutPage() {
               <h2 className="font-playfair text-lg font-bold text-[#2d1a24] flex items-center gap-2">
                 <Truck className="w-5 h-5 text-[#e91e8c]" /> Shipping Information
               </h2>
+
+              {/* Name + Phone */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
                   { field: "name",  label: "পুরো নাম *",               placeholder: "আপনার পুরো নাম", type: "text" },
@@ -404,62 +302,18 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              {/* Division → District → Upazila cascading selects */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Division */}
-                <SearchableSelect
-                  label="বিভাগ *"
-                  placeholder={locLoading ? "লোড হচ্ছে..." : "বিভাগ বেছে নিন"}
-                  loading={locLoading}
-                  disabled={locLoading}
-                  value={selectedDivision?.division ?? null}
-                  options={divisions.map((d) => ({
-                    value: d.division,
-                    label: `${d.divisionbn} (${d.division})`,
-                  }))}
-                  onChange={(val) => handleDivisionChange(val)}
-                />
+              {/* Division → District → Upazila */}
+              <LocationSelector
+                divisionValue={form.city}
+                districtValue={form.area}
+                upazilaValue={form.upazila}
+                onDivisionChange={(val) => setForm((prev) => ({ ...prev, city: val ?? "", area: "", upazila: "" }))}
+                onDistrictChange={(val) => setForm((prev) => ({ ...prev, area: val ?? "", upazila: "" }))}
+                onUpazilaChange={(val) => setForm((prev) => ({ ...prev, upazila: val ?? "" }))}
+              />
 
-                {/* District */}
-                <SearchableSelect
-                  label="জেলা *"
-                  placeholder={
-                    !selectedDivision
-                      ? "আগে বিভাগ বেছে নিন"
-                      : distLoading
-                      ? "লোড হচ্ছে..."
-                      : "জেলা বেছে নিন"
-                  }
-                  loading={distLoading}
-                  disabled={!selectedDivision || distLoading}
-                  value={selectedDistrict?.district ?? null}
-                  options={districts.map((d) => ({
-                    value: d.district,
-                    label: `${d.districtbn} (${d.district})`,
-                  }))}
-                  onChange={(val) => handleDistrictChange(val)}
-                />
-
-                {/* Upazila */}
-                <SearchableSelect
-                  label="উপজেলা *"
-                  placeholder={
-                    !selectedDistrict
-                      ? "আগে জেলা বেছে নিন"
-                      : "উপজেলা বেছে নিন"
-                  }
-                  disabled={!selectedDistrict}
-                  value={form.upazila || null}
-                  options={upazilas.map((u) => ({
-                    value: u,
-                    label: u,
-                  }))}
-                  onChange={(val) => handleUpazilaChange(val)}
-                />
-              </div>
-
-              {/* Shipping cost preview */}
-              {selectedDivision && (
+              {/* Shipping cost badge */}
+              {form.city && (
                 <div className={`rounded-xl px-4 py-2.5 text-xs font-semibold flex items-center gap-2 ${
                   shipping === 60
                     ? "bg-green-50 border border-green-200 text-green-700"
@@ -471,8 +325,12 @@ export default function CheckoutPage() {
                     : "ঢাকার বাইরে ডেলিভারি — ৳120"}
                 </div>
               )}
+
+              {/* Full address */}
               <div>
-                <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">পূর্ণ ঠিকানা * (বাড়ি নম্বর, রোড, মহল্লা)</label>
+                <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">
+                  পূর্ণ ঠিকানা * (বাড়ি নম্বর, রোড, মহল্লা)
+                </label>
                 <textarea
                   value={form.address}
                   onChange={(e) => updateForm("address", e.target.value)}
@@ -481,6 +339,8 @@ export default function CheckoutPage() {
                   className="w-full px-4 py-3 border border-[#fce4ec] rounded-xl text-sm outline-none focus:border-[#e91e8c] transition-colors resize-none"
                 />
               </div>
+
+              {/* Postcode + Email */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">পোস্টকোড</label>
@@ -488,12 +348,14 @@ export default function CheckoutPage() {
                     type="text"
                     value={form.postcode}
                     onChange={(e) => updateForm("postcode", e.target.value)}
-                    placeholder="পোস্টকোড (ঐচ্ছিক - optional)"
+                    placeholder="পোস্টকোড (ঐচ্ছিক)"
                     className="w-full px-4 py-3 border border-[#fce4ec] rounded-xl text-sm outline-none focus:border-[#e91e8c] transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">Email (receipt-এর জন্য)</label>
+                  <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">
+                    Email (receipt-এর জন্য)
+                  </label>
                   <input
                     type="email"
                     value={form.email}
@@ -503,6 +365,8 @@ export default function CheckoutPage() {
                   />
                 </div>
               </div>
+
+              {/* Order note */}
               <div>
                 <label className="block text-xs font-semibold text-[#2d1a24]/70 mb-1">অর্ডার নোট (ঐচ্ছিক)</label>
                 <textarea
@@ -515,54 +379,27 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Payment Method Selector */}
+            {/* Payment Method */}
             <div className="bg-white rounded-2xl p-6 border border-[#fce4ec] space-y-4">
               <h2 className="font-playfair text-lg font-bold text-[#2d1a24] flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-[#e91e8c]" /> Payment Method
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Pay Online */}
-                {/* <button
-                  type="button"
-                  onClick={() => { setPaymentMethod('sslcommerz'); setPaymentMethodError(false); }}
-                  className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all ${
-                    paymentMethod === 'sslcommerz'
-                      ? 'border-[#e91e8c] bg-pink-50 shadow-sm shadow-[#e91e8c]/20'
-                      : 'border-[#fce4ec] bg-white hover:border-[#e91e8c]/50'
-                  }`}
-                >
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                    paymentMethod === 'sslcommerz' ? 'border-[#e91e8c]' : 'border-[#ad1457]/30'
-                  }`}>
-                    {paymentMethod === 'sslcommerz' && (
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#e91e8c]" />
-                    )}
-                  </div>
-                  <CreditCard className={`w-5 h-5 shrink-0 ${paymentMethod === 'sslcommerz' ? 'text-[#e91e8c]' : 'text-[#ad1457]/50'}`} />
-                  <div>
-                    <p className="text-sm font-bold text-[#2d1a24]">Pay Online</p>
-                    <p className="text-[10px] text-[#6d1b3b]/60">SSLCommerz</p>
-                  </div>
-                </button> */}
-
-                {/* Cash on Delivery */}
                 <button
                   type="button"
-                  onClick={() => { setPaymentMethod('cod'); setPaymentMethodError(false); }}
+                  onClick={() => { setPaymentMethod("cod"); setPaymentMethodError(false); }}
                   className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all ${
-                    paymentMethod === 'cod'
-                      ? 'border-[#e91e8c] bg-pink-50 shadow-sm shadow-[#e91e8c]/20'
-                      : 'border-[#fce4ec] bg-white hover:border-[#e91e8c]/50'
+                    paymentMethod === "cod"
+                      ? "border-[#e91e8c] bg-pink-50 shadow-sm shadow-[#e91e8c]/20"
+                      : "border-[#fce4ec] bg-white hover:border-[#e91e8c]/50"
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                    paymentMethod === 'cod' ? 'border-[#e91e8c]' : 'border-[#ad1457]/30'
+                    paymentMethod === "cod" ? "border-[#e91e8c]" : "border-[#ad1457]/30"
                   }`}>
-                    {paymentMethod === 'cod' && (
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#e91e8c]" />
-                    )}
+                    {paymentMethod === "cod" && <div className="w-2.5 h-2.5 rounded-full bg-[#e91e8c]" />}
                   </div>
-                  <Banknote className={`w-5 h-5 shrink-0 ${paymentMethod === 'cod' ? 'text-[#e91e8c]' : 'text-[#ad1457]/50'}`} />
+                  <Banknote className={`w-5 h-5 shrink-0 ${paymentMethod === "cod" ? "text-[#e91e8c]" : "text-[#ad1457]/50"}`} />
                   <div>
                     <p className="text-sm font-bold text-[#2d1a24]">Cash on Delivery</p>
                     <p className="text-[10px] text-[#6d1b3b]/60">Pay when delivered</p>
@@ -570,35 +407,18 @@ export default function CheckoutPage() {
                 </button>
               </div>
 
-              {/* COD inline note */}
-              {paymentMethod === 'cod' && (
+              {paymentMethod === "cod" && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800 font-medium">
                   💵 Payment is due upon delivery. Please have the exact amount ready.
                 </div>
               )}
 
-              {/* Validation message */}
               {paymentMethodError && !paymentMethod && (
                 <p className="text-xs text-red-500 font-semibold">
                   Please select a payment method to continue
                 </p>
               )}
             </div>
-
-            {/* Payment info — SSLCommerz (only shown when online payment is selected or nothing selected) */}
-            {/* {paymentMethod !== 'cod' && (
-              <div className="bg-linear-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100">
-                <div className="flex items-start gap-3">
-                  <CreditCard className="w-5 h-5 text-purple-600 mt-0.5" />
-                  <div>
-                    <h3 className="font-semibold text-sm text-[#2d1a24] mb-1">Secure Payment via SSLCommerz</h3>
-                    <p className="text-xs text-[#6d1b3b]/70">
-                      Pay with Credit/Debit Cards, bKash, Nagad, Rocket, Internet Banking and more.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )} */}
           </div>
 
           {/* ── Right: Order Summary ── */}
@@ -620,7 +440,9 @@ export default function CheckoutPage() {
                       {item.variantLabel && <p className="text-[10px] text-[#ad1457]/60">{item.variantLabel}</p>}
                       <p className="text-[10px] text-[#ad1457]">Qty: {item.qty}</p>
                     </div>
-                    <span className="font-bold text-sm text-[#e91e8c] shrink-0">৳{(item.price * item.qty).toLocaleString()}</span>
+                    <span className="font-bold text-sm text-[#e91e8c] shrink-0">
+                      ৳{(item.price * item.qty).toLocaleString()}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -648,10 +470,14 @@ export default function CheckoutPage() {
                 </div>
                 {couponMessage && (
                   <div className="flex items-center justify-between gap-2">
-                    <p className={`text-xs ${couponValidation ? "text-green-700" : "text-red-500"}`}>{couponMessage}</p>
+                    <p className={`text-xs ${couponValidation ? "text-green-700" : "text-red-500"}`}>
+                      {couponMessage}
+                    </p>
                     {couponValidation && (
-                      <button onClick={() => { setCouponValidation(null); setCouponMessage(""); setCouponCode(""); }}
-                        className="text-[10px] text-red-400 hover:text-red-600 font-semibold underline shrink-0">
+                      <button
+                        onClick={() => { setCouponValidation(null); setCouponMessage(""); setCouponCode(""); }}
+                        className="text-[10px] text-red-400 hover:text-red-600 font-semibold underline shrink-0"
+                      >
                         Remove
                       </button>
                     )}
@@ -662,8 +488,11 @@ export default function CheckoutPage() {
                     <p className="text-[10px] text-[#6d1b3b]/60 mb-1.5">Available coupons</p>
                     <div className="flex flex-wrap gap-1.5">
                       {activeCoupons.map((c) => (
-                        <button key={c.code} onClick={() => handleApplyCoupon(c.code)}
-                          className="text-[10px] bg-white px-2.5 py-1 rounded-full border border-pink-100 text-[#2d1a24] hover:bg-pink-50 transition-all">
+                        <button
+                          key={c.code}
+                          onClick={() => handleApplyCoupon(c.code)}
+                          className="text-[10px] bg-white px-2.5 py-1 rounded-full border border-pink-100 text-[#2d1a24] hover:bg-pink-50 transition-all"
+                        >
                           <strong>{c.code}</strong>{c.description ? ` • ${c.description}` : ""}
                         </button>
                       ))}
@@ -685,12 +514,14 @@ export default function CheckoutPage() {
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#2d1a24]/70 flex items-center gap-1"><Truck className="w-3 h-3" /> Shipping</span>
+                  <span className="text-[#2d1a24]/70 flex items-center gap-1">
+                    <Truck className="w-3 h-3" /> Shipping
+                  </span>
                   <span className="font-semibold">
-                    {selectedDivision ? `৳${shipping}` : "—"}
+                    {form.city ? `৳${shipping}` : "—"}
                   </span>
                 </div>
-                {selectedDivision && (
+                {form.city && (
                   <p className="text-[10px] text-[#ad1457] text-right">
                     {shipping === 60 ? "ঢাকার মধ্যে" : "ঢাকার বাইরে"}
                   </p>
@@ -701,7 +532,9 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between items-center">
                 <span className="font-bold text-base text-[#2d1a24]">Total</span>
-                <span className="font-playfair font-extrabold text-2xl text-[#e91e8c]">৳{total.toLocaleString()}</span>
+                <span className="font-playfair font-extrabold text-2xl text-[#e91e8c]">
+                  ৳{total.toLocaleString()}
+                </span>
               </div>
 
               <button
@@ -710,29 +543,15 @@ export default function CheckoutPage() {
                 className="w-full bg-linear-to-r from-[#e91e8c] to-[#c2185b] text-white py-4 rounded-full font-bold text-base hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#e91e8c]/35 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {placing ? (
-                  paymentMethod === 'cod'
+                  paymentMethod === "cod"
                     ? <><Loader2 className="w-5 h-5 animate-spin" /> Placing Order...</>
                     : <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Payment...</>
-                ) : paymentMethod === 'cod' ? (
+                ) : paymentMethod === "cod" ? (
                   <><Banknote className="w-4 h-4" /> Place Order (Pay on Delivery)</>
                 ) : (
                   <><CreditCard className="w-4 h-4" /> Place Order & Pay</>
                 )}
               </button>
-
-              {/* <div className="flex items-center justify-center gap-4 text-[10px] text-[#ad1457]/60">
-                <span className="flex items-center gap-1"><Lock className="w-3 h-3 text-green-600" /> Secure Payment</span>
-                <span className="flex items-center gap-1"><Shield className="w-3 h-3 text-green-600" /> SSL Encrypted</span>
-              </div> */}
-
-              {/* <div className="pt-3 border-t border-[#fce4ec] text-center">
-                <p className="text-[10px] text-[#ad1457]/50 mb-2">We Accept</p>
-                <div className="flex items-center justify-center gap-3 flex-wrap text-xs">
-                  <span>💳 Visa</span><span>💳 Mastercard</span>
-                  <span>📱 bKash</span><span>📱 Nagad</span>
-                  <span>🏦 Rocket</span><span>🏦 Net Banking</span>
-                </div>
-              </div> */}
             </div>
           </div>
 
